@@ -14,7 +14,7 @@
 }
 
 .App-description {
-  background-color: #ffffff;
+  background-color: #FAFAD2;
   min-height: 10vh;
   display: flex;
   flex-direction: row;
@@ -27,7 +27,7 @@
 }
 
 .App-body {
-  background-color: #ffffff;
+  background-color: #DCDCDC;
   min-height: 10vh;
   display: flex;
   flex-direction: column;
@@ -36,7 +36,6 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: black;
-  border-style: solid;
 }
 
 .App-link {
