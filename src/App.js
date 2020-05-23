@@ -16,21 +16,28 @@ function App() {
         </p>
         <p className="tab"><br/><br/><br/>-<a href="https://www.linkedin.com/in/wenceslauslee/">Wences Lee</a></p>
       </header>
-      <header className="App-body">
-        <Tabs defaultActiveKey="countyranking" id="tab-table">
+      <div className="App-body">
+        <Tabs defaultActiveKey="general" id="tab-table">
+          <Tab eventKey="general" title="General">
+            <TabContent>
+              Wiki
+            </TabContent>
+          </Tab>
           <Tab eventKey="countyranking" title="County Ranking">
             <TabContent>
               <DataTable/>
             </TabContent>
           </Tab>
           <Tab eventKey="stateranking" title="State Ranking">
-            <TabContent>Goodbye</TabContent>
+            <TabContent>
+              <DataTable/>
+            </TabContent>
           </Tab>
           <Tab eventKey="statecountysearch" title="Search By">
             <TabContent>Goodbye</TabContent>
           </Tab>
         </Tabs>
-      </header>
+      </div>
     </div>
   );
 }
