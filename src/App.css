@@ -22,7 +22,7 @@
 
 .App-body {
   background-color: #DCDCDC;
-  min-height: 50vh;
+  min-height: calc(100vh - 110px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -33,6 +33,7 @@
   justify-content: flex-start;
   font-size: calc(14px);
   color: black;
+  overflow: auto;
 }
 
 .App-link {
@@ -43,8 +44,14 @@
   padding: 10px;
 }
 
-.nav-tabs {
+nav.nav-tabs {
   margin-bottom: 0;
+}
+
+table {
+  overflow: auto;
+  display: block;
+  table-layout: auto;
 }
 
 table.table-bordered{

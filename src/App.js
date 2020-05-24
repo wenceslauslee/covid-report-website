@@ -1,3 +1,4 @@
+import CountyRankTable from './components/CountyRankTable';
 import StateRankTable from './components/StateRankTable';
 import React from 'react';
 import Tab from 'react-bootstrap/Tab'
@@ -26,7 +27,7 @@ function App() {
           </Tab>
           <Tab eventKey="countyranking" title="County Ranking">
             <TabContent>
-              <StateRankTable/>
+              <CountyRankTable/>
             </TabContent>
           </Tab>
           <Tab eventKey="stateranking" title="State Ranking">
@@ -35,6 +36,9 @@ function App() {
             </TabContent>
           </Tab>
           <Tab eventKey="statecountysearch" title="Search By">
+            <TabContent>Goodbye</TabContent>
+          </Tab>
+          <Tab eventKey="testing" title="Testing">
             <TabContent>Goodbye</TabContent>
           </Tab>
         </Tabs>
