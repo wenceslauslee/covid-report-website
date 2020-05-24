@@ -1,10 +1,11 @@
 import CountyRankTable from './components/CountyRankTable';
 import StateRankTable from './components/StateRankTable';
 import React from 'react';
-import Tab from 'react-bootstrap/Tab'
+import SearchBy from './components/SearchBy';
+import Tab from 'react-bootstrap/Tab';
 import TabContent from 'react-bootstrap/TabContent'
-import Tabs from 'react-bootstrap/Tabs'
-import Wiki from './components/Wiki'
+import Tabs from 'react-bootstrap/Tabs';
+import Wiki from './components/Wiki';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -25,21 +26,20 @@ function App() {
               <Wiki/>
             </TabContent>
           </Tab>
-          <Tab eventKey="countyranking" title="County Ranking">
+          <Tab eventKey="countyranking" title="Top 50 County Rankings">
             <TabContent>
               <CountyRankTable/>
             </TabContent>
           </Tab>
-          <Tab eventKey="stateranking" title="State Ranking">
+          <Tab eventKey="stateranking" title="50 State Rankings">
             <TabContent>
               <StateRankTable/>
             </TabContent>
           </Tab>
           <Tab eventKey="statecountysearch" title="Search By">
-            <TabContent>Goodbye</TabContent>
-          </Tab>
-          <Tab eventKey="testing" title="Testing">
-            <TabContent>Goodbye</TabContent>
+            <TabContent>
+              <SearchBy/>
+            </TabContent>
           </Tab>
         </Tabs>
       </div>

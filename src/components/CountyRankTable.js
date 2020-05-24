@@ -1,10 +1,11 @@
 import { Component } from 'react';
 import React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
+// import paginationFactory from 'react-bootstrap-table2-paginator';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+// import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 class StateRankTable extends Component {
   constructor() {
@@ -15,33 +16,12 @@ class StateRankTable extends Component {
     };
   }
 
-  componentDidMount() {
-    fetch('https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=stateRanking')
-      .then(res => res.json())
-      .then(rdata => {
-        const filtered = _.filter(rdata.rankByCases, d => {
-          return d.stateNameFullProper !== /*'-----'*/null && d.detailedInfo.activePercentage !== 'NaN';
-        });
-        _.each(filtered, f => {
-          f.detailedInfo.activeRankChange =
-            this.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
-          f.detailedInfo.deathRankChange =
-            this.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
-
-          if (f.detailedInfo.activeChange >= 0) {
-            f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
-          }
-
-          f.detailedInfo.activePercentage = f.detailedInfo.activePercentage + '%';
-        })
-        this.setState({
-          data: filtered,
-          validDate: rdata.reportDate
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  async componentDidMount() {
+    var i = 0;
+    while (i < 1) {
+      await this.fetchAndProcessData(i);
+      i++;
+    }
   }
 
   modifyChangeRank(rankChange) {
@@ -68,11 +48,56 @@ class StateRankTable extends Component {
     };
   }
 
+  fetchAndProcessData(pageValue) {
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=countyRanking&pageValue=${pageValue}`)
+      .then(res => res.json())
+      .then(rdata => {
+        this.processData(rdata, pageValue);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  processData(rdata, pageValue) {
+    const filtered = _.filter(rdata.rankByCases, d => {
+      return d.stateNameFullProper !== /*'-----'*/null && d.detailedInfo.activePercentage !== 'NaN';
+    });
+
+    _.each(filtered, f => {
+      f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper}`;
+      f.detailedInfo.activeRankChange =
+        this.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
+      f.detailedInfo.deathRankChange =
+        this.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
+
+      if (f.detailedInfo.activeChange >= 0) {
+        f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
+      }
+
+      f.detailedInfo.activePercentage = f.detailedInfo.activePercentage + '%';
+    });
+
+    this.setState({
+      data: this.state.data.concat(filtered),
+      validDate: rdata.reportDate
+    });
+  }
+
+  indexN(cell, row, rowIndex) {
+    return (<div>{ rowIndex + 1 }</div>);
+  }
+
   render() {
     const columns = [
       {
-        dataField: 'stateNameFullProper',
-        text: 'State'
+        dataField: 'any',
+        text: '#',
+        formatter: this.indexN
+      },
+      {
+        dataField: 'countyDisplayName',
+        text: 'County'
       },
       {
         dataField: 'detailedInfo.activeCount',
@@ -102,19 +127,15 @@ class StateRankTable extends Component {
       }
     ];
 
-    const customTotal = (from, to, size) => (
+    /* const customTotal = (from, to, size) => (
       <span className="react-bootstrap-table-pagination-total">
         Showing { from } to { to } of { size } Results
       </span>
     );
 
     const options = {
-      paginationSize: 4,
       pageStartIndex: 0,
-      // alwaysShowAllBtns: true, // Always show next and previous button
-      // withFirstAndLast: false, // Hide the going to First and Last page button
-      hideSizePerPage: true, // Hide the sizePerPage dropdown always
-      // hidePageListOnlyOnePage: true, // Hide the pagination list when only one page
+      hideSizePerPage: true,
       firstPageText: 'First',
       prePageText: 'Back',
       nextPageText: 'Next',
@@ -124,20 +145,17 @@ class StateRankTable extends Component {
       firstPageTitle: 'Next page',
       lastPageTitle: 'Last page',
       showTotal: true,
+      sizePerPage: 50,
       paginationTotalRenderer: customTotal,
-      disablePageTitle: true,
-      sizePerPageList: [{
-        text: '25', value: 25
-      }, {
-        text: '50', value: 50
-      }] // A numeric array is also available. the purpose of above example is custom the text
-    };
+      disablePageTitle: true
+    }; */
 
     return (
       <div>
         <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+        <p align="left"> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
         <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
-          data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted } pagination={ paginationFactory(options) }/>
+          data={ this.state.data } columns={ columns }/>
       </div>
     );
   }

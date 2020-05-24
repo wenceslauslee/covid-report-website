@@ -21,6 +21,7 @@ class StateRankTable extends Component {
         const filtered = _.filter(rdata.rankByCases, d => {
           return d.stateNameFullProper !== /*'-----'*/null && d.detailedInfo.activePercentage !== 'NaN';
         });
+
         _.each(filtered, f => {
           f.detailedInfo.activeRankChange =
             this.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
@@ -67,8 +68,17 @@ class StateRankTable extends Component {
     };
   }
 
+  indexN(cell, row, rowIndex) {
+    return (<div>{ rowIndex + 1 }</div>);
+  }
+
   render() {
     const columns = [
+      {
+        dataField: 'any',
+        text: '#',
+        formatter: this.indexN
+      },
       {
         dataField: 'stateNameFullProper',
         text: 'State',
@@ -121,7 +131,8 @@ class StateRankTable extends Component {
       <div>
         <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
         <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
-          data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }/>
+          data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
+        </BootstrapTable>
       </div>
     );
   }
