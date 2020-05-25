@@ -109,8 +109,12 @@ class StateRankTable extends Component {
         style: this.getCellStyle
       },
       {
+        dataField: 'detailedInfo.activePercentage',
+        text: 'Case Pop %'
+      },
+      {
         dataField: 'detailedInfo.activeChange',
-        text: 'Case Count Change'
+        text: 'Daily Change'
       },
       {
         dataField: 'detailedInfo.deathCount',
@@ -122,8 +126,8 @@ class StateRankTable extends Component {
         style: this.getCellStyle
       },
       {
-        dataField: 'detailedInfo.activePercentage',
-        text: 'Pop %'
+        dataField: 'detailedInfo.deathPercentage',
+        text: 'Death Pop %'
       }
     ];
 

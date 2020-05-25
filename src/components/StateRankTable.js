@@ -96,7 +96,7 @@ class StateRankTable extends Component {
       },
       {
         dataField: 'detailedInfo.activeChange',
-        text: 'Case Count Change',
+        text: 'Daily Change',
         sort: true,
         sortFunc: (a, b, order, dataField) => {
           if (order === 'asc') {
@@ -104,6 +104,11 @@ class StateRankTable extends Component {
           }
           return parseInt(b) - parseInt(a);
         }
+      },
+      {
+        dataField: 'detailedInfo.activePercentage',
+        text: 'Case Pop %',
+        sort: true
       },
       {
         dataField: 'detailedInfo.deathCount',
@@ -116,8 +121,8 @@ class StateRankTable extends Component {
         style: this.getCellStyle
       },
       {
-        dataField: 'detailedInfo.activePercentage',
-        text: 'Pop %',
+        dataField: 'detailedInfo.deathPercentage',
+        text: 'Death Pop %',
         sort: true
       }
     ];

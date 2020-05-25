@@ -1,3 +1,4 @@
+import Button from 'react-bootstrap/Button';
 import { Component } from 'react';
 import React from 'react';
 import Select from 'react-select';
@@ -90,7 +91,7 @@ class SearchByState extends Component {
   render() {
     const onChange = (objects, action) => {
       const currentState = this.state;
-      if (objects.length > 4) {
+      if (objects !== null && objects !== undefined && objects.length > 4) {
         objects.shift();
       }
       currentState.selectedStates = objects;
@@ -101,15 +102,18 @@ class SearchByState extends Component {
     return (
       <div>
         <p align="left">Select up to 4 states.</p>
-        <form>
-          <Select
-            options={ this.state.stateValues }
-            isMulti
-            defaultMenuIsOpen={ true }
-            className="basic-multi-select"
-            onChange= { onChange }
-          />
-        </form>
+        <div style={{ display: "flex" }}>
+          <form>
+            <Select
+              options={ this.state.stateValues }
+              isMulti
+              // defaultMenuIsOpen={ true }
+              className="basic-multi-select"
+              onChange= { onChange }
+            />
+          </form>
+          <Button variant="warning" style={{ 'margin-left': '10px' }}>Plot!</Button>
+        </div>
       </div>
     );
   }
