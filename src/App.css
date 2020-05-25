@@ -54,7 +54,7 @@ table {
   table-layout: auto;
 }
 
-table.table-bordered{
+table.table-bordered {
   border: 1px solid black;
 }
 
@@ -64,4 +64,9 @@ table.table-bordered > thead > tr > th {
 
 table.table-bordered > tbody > tr > td {
     border: 1px solid black;
+}
+
+.basic-multi-select {
+  min-width: 550px;
+  text-align: left;
 }
