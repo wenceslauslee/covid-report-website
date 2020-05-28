@@ -1,4 +1,5 @@
 import CountyRankTable from './components/CountyRankTable';
+import DetailedInfo from './components/DetailedInfo';
 import StateRankTable from './components/StateRankTable';
 import React from 'react';
 import SearchByState from './components/SearchByState';
@@ -21,7 +22,7 @@ function App() {
         </p>
       </header>
       <div className="App-body">
-        <Tabs defaultActiveKey="statesearch" id="tab-table" mountOnEnter>
+        <Tabs defaultActiveKey="detailedsearch" id="tab-table" mountOnEnter>
           <Tab eventKey="general" title="General">
             <TabContent>
               <Wiki/>
@@ -37,12 +38,17 @@ function App() {
               <StateRankTable/>
             </TabContent>
           </Tab>
-          <Tab eventKey="statesearch" title="Search By State">
+          <Tab eventKey="detailedsearch" title="Detailed">
+            <TabContent>
+              <DetailedInfo/>
+            </TabContent>
+          </Tab>
+          <Tab eventKey="statesearch" title="Plot By State">
             <TabContent>
               <SearchByState/>
             </TabContent>
           </Tab>
-          <Tab eventKey="statecountysearch" title="Search By State/County">
+          <Tab eventKey="statecountysearch" title="Plot By State/County">
             <TabContent>
               <SearchByStateCounty/>
             </TabContent>

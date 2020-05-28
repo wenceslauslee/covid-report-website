@@ -74,8 +74,16 @@ class StateRankTable extends Component {
       if (f.detailedInfo.activeChange >= 0) {
         f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
       }
+      if (f.detailedInfo.deathChange >= 0) {
+        f.detailedInfo.deathChange = `+${f.detailedInfo.deathChange}`;
+      }
 
-      f.detailedInfo.activePercentage = f.detailedInfo.activePercentage + '%';
+      f.detailedInfo.activePercentage = `${f.detailedInfo.activePercentage}%`;
+      if (f.detailedInfo.deathPercentage === '0') {
+        f.detailedInfo.deathPercentage = '< 0.01%';
+      } else {
+        f.detailedInfo.deathPercentage = `${f.detailedInfo.deathPercentage}%`;
+      }
     });
 
     this.setState({
@@ -109,12 +117,12 @@ class StateRankTable extends Component {
         style: this.getCellStyle
       },
       {
-        dataField: 'detailedInfo.activePercentage',
-        text: 'Case Pop %'
-      },
-      {
         dataField: 'detailedInfo.activeChange',
         text: 'Daily Change'
+      },
+      {
+        dataField: 'detailedInfo.activePercentage',
+        text: 'Case Pop %'
       },
       {
         dataField: 'detailedInfo.deathCount',
@@ -124,6 +132,10 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.deathRankChange',
         text: '-',
         style: this.getCellStyle
+      },
+      {
+        dataField: 'detailedInfo.deathChange',
+        text: 'Daily Change',
       },
       {
         dataField: 'detailedInfo.deathPercentage',

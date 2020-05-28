@@ -31,8 +31,16 @@ class StateRankTable extends Component {
           if (f.detailedInfo.activeChange >= 0) {
             f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
           }
+          if (f.detailedInfo.deathChange >= 0) {
+            f.detailedInfo.deathChange = `+${f.detailedInfo.deathChange}`;
+          }
 
-          f.detailedInfo.activePercentage = f.detailedInfo.activePercentage + '%';
+          f.detailedInfo.activePercentage = `${f.detailedInfo.activePercentage}%`;
+          if (f.detailedInfo.deathPercentage === '0') {
+            f.detailedInfo.deathPercentage = '< 0.01%';
+          } else {
+            f.detailedInfo.deathPercentage = `${f.detailedInfo.deathPercentage}%`;
+          }
         })
         this.setState({
           data: filtered,
@@ -73,6 +81,7 @@ class StateRankTable extends Component {
   }
 
   render() {
+    const headerSortingStyle = { backgroundColor: '#c8e6c9' };
     const columns = [
       {
         dataField: 'any',
@@ -82,12 +91,14 @@ class StateRankTable extends Component {
       {
         dataField: 'stateNameFullProper',
         text: 'State',
-        sort: true
+        sort: true,
+        headerSortingStyle
       },
       {
         dataField: 'detailedInfo.activeCount',
         text: 'Case Count',
-        sort: true
+        sort: true,
+        headerSortingStyle
       },
       {
         dataField: 'detailedInfo.activeRankChange',
@@ -103,17 +114,20 @@ class StateRankTable extends Component {
             return parseInt(a) - parseInt(b);
           }
           return parseInt(b) - parseInt(a);
-        }
+        },
+        headerSortingStyle
       },
       {
         dataField: 'detailedInfo.activePercentage',
         text: 'Case Pop %',
-        sort: true
+        sort: true,
+        headerSortingStyle
       },
       {
         dataField: 'detailedInfo.deathCount',
         text: 'Death Count',
-        sort: true
+        sort: true,
+        headerSortingStyle
       },
       {
         dataField: 'detailedInfo.deathRankChange',
@@ -121,9 +135,22 @@ class StateRankTable extends Component {
         style: this.getCellStyle
       },
       {
+        dataField: 'detailedInfo.deathChange',
+        text: 'Daily Change',
+        sort: true,
+        sortFunc: (a, b, order, dataField) => {
+          if (order === 'asc') {
+            return parseInt(a) - parseInt(b);
+          }
+          return parseInt(b) - parseInt(a);
+        },
+        headerSortingStyle
+      },
+      {
         dataField: 'detailedInfo.deathPercentage',
         text: 'Death Pop %',
-        sort: true
+        sort: true,
+        headerSortingStyle
       }
     ];
 

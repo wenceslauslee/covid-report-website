@@ -69,6 +69,9 @@ class SearchByStateCounty extends Component {
           </form>
           <Button variant="warning" style={{ 'margin-left': '10px' }}>Plot!</Button>
         </div>
+        <div style={{ 'margin-top': '10px', 'margin-bottom': '10px' }}>
+          <p>DOES NOT WORK YET! WIP!</p>
+        </div>
       </div>
     );
   }
