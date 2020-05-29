@@ -1,5 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import { Component } from 'react';
+import data from '../data/data.json';
 import React from 'react';
 import Select from 'react-select';
 import _ from 'lodash';
@@ -14,8 +15,7 @@ class SearchByState extends Component {
   }
 
   componentDidMount() {
-    const stateValues = this.stateValues();
-    const stateValuesModified = _.map(stateValues, s => {
+    const stateValuesModified = _.map(data.states, s => {
       return {
         label: s,
         value: s.toLowerCase()
@@ -26,66 +26,6 @@ class SearchByState extends Component {
       stateValues: stateValuesModified,
       selectedStates: []
     });
-  }
-
-  stateValues() {
-    return [
-      "Alabama",
-      "Alaska",
-      "Arizona",
-      "Arkansas",
-      "California",
-      "Colorado",
-      "Connecticut",
-      "Delaware",
-      "District of Columbia",
-      "Florida",
-      "Georgia",
-      "Guam",
-      "Hawaii",
-      "Idaho",
-      "Illinois",
-      "Indiana",
-      "Iowa",
-      "Kansas",
-      "Kentucky",
-      "Louisiana",
-      "Maine",
-      "Maryland",
-      "Massachusetts",
-      "Michigan",
-      "Minnesota",
-      "Mississippi",
-      "Missouri",
-      "Montana",
-      "Nebraska",
-      "Nevada",
-      "New Hampshire",
-      "New Jersey",
-      "New Mexico",
-      "New York",
-      "North Carolina",
-      "North Dakota",
-      "Northern Mariana Islands",
-      "Ohio",
-      "Oklahoma",
-      "Oregon",
-      "Pennsylvania",
-      "Puerto Rico",
-      "Rhode Island",
-      "South Carolina",
-      "South Dakota",
-      "Tennessee",
-      "Texas",
-      "Utah",
-      "Vermont",
-      "Virgin Islands",
-      "Virginia",
-      "Washington",
-      "West Virginia",
-      "Wisconsin",
-      "Wyoming"
-    ];
   }
 
   render() {

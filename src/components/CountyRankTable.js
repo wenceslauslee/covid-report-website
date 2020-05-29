@@ -1,6 +1,7 @@
+import BootstrapTable from 'react-bootstrap-table-next';
 import { Component } from 'react';
 import React from 'react';
-import BootstrapTable from 'react-bootstrap-table-next';
+import Styler from '../utils/Styler';
 // import paginationFactory from 'react-bootstrap-table2-paginator';
 import _ from 'lodash';
 
@@ -24,30 +25,6 @@ class StateRankTable extends Component {
     }
   }
 
-  modifyChangeRank(rankChange) {
-    if (rankChange > 0) {
-      return `↑${rankChange}`;
-    } else if (rankChange < 0) {
-      return `↓${Math.abs(rankChange)}`;
-    }
-    return '-';
-  }
-
-  getCellStyle(cell, row, rowIndex, colIndex) {
-    var colorToUse = '';
-    if (cell.startsWith('↑')) {
-      colorToUse = 'red';
-    } else if (cell.startsWith('↓')) {
-      colorToUse = 'green';
-    } else {
-      colorToUse = 'black';
-    }
-
-    return {
-      color: colorToUse
-    };
-  }
-
   fetchAndProcessData(pageValue) {
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=countyRanking&pageValue=${pageValue}`)
       .then(res => res.json())
@@ -67,9 +44,9 @@ class StateRankTable extends Component {
     _.each(filtered, f => {
       f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper}`;
       f.detailedInfo.activeRankChange =
-        this.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
+        Styler.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
       f.detailedInfo.deathRankChange =
-        this.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
+        Styler.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
 
       if (f.detailedInfo.activeChange >= 0) {
         f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
@@ -114,7 +91,7 @@ class StateRankTable extends Component {
       {
         dataField: 'detailedInfo.activeRankChange',
         text: '-',
-        style: this.getCellStyle
+        style: Styler.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeChange',
@@ -131,7 +108,7 @@ class StateRankTable extends Component {
       {
         dataField: 'detailedInfo.deathRankChange',
         text: '-',
-        style: this.getCellStyle
+        style: Styler.getCellStyle
       },
       {
         dataField: 'detailedInfo.deathChange',

@@ -66,6 +66,11 @@ table.table-bordered > tbody > tr > td {
     border: 1px solid black;
 }
 
+.basic-single-select {
+  min-width: 250px;
+  text-align: left;
+}
+
 .basic-multi-select {
   min-width: 550px;
   text-align: left;

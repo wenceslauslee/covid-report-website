@@ -1,9 +1,11 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
 import { Component } from 'react';
+import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import Select from 'react-select';
+import Styler from '../utils/Styler';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -11,50 +13,51 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 class DetailedInfo extends Component {
   constructor(props) {
     super(props);
-    this.enterPostalCode = this.enterPostalCode.bind(this);
+    this.onChangePostalCode = this.onChangePostalCode.bind(this);
     this.submitPostalCode = this.submitPostalCode.bind(this);
+    this.onStateChange1 = this.onStateChange1.bind(this);
+    this.submitState = this.submitState.bind(this);
 
     this.state = {
       showTable: false,
       tableInfo: {},
       postalCodeValueInput: '',
       postalCodeErrorMessage: '',
-      countyStateName: ''
+      countyStateName: '',
+      stateValues: [],
+      stateValueInput: '',
+      date: ''
     };
   }
 
   componentDidMount() {
+    const stateValues = _.map(data.states, s => {
+      return {
+        label: s,
+        value: s.toLowerCase()
+      };
+    });
 
+    this.setState(prevState => ({
+      ...prevState,
+      stateValues: stateValues
+    }));
   }
 
-  getDetailedTable() {
-    if (this.state.showTable) {
-      const columns = [
-        {
-          dataField: 'key',
-          text: ''
-        },
-        {
-          dataField: 'value',
-          text: this.state.countyStateName
-        }
-      ];
-
-      return <BootstrapTable bootstrap4={ true } keyField='detailed-table'
-        data={ this.state.tableInfo } columns={ columns }>
-        </BootstrapTable>
-    }
-
-    return null;
-  }
-
-  enterPostalCode(event) {
+  onChangePostalCode(event) {
     const value = event.target.value;
     this.setState(prevState => ({
       ...prevState,
       postalCodeValueInput: value
     }));
   }
+
+  onStateChange1(objects, action) {
+    this.setState(prevState => ({
+      ...prevState,
+      stateValueInput: objects.value
+    }));
+  };
 
   async submitPostalCode(event) {
     event.preventDefault();
@@ -73,55 +76,15 @@ class DetailedInfo extends Component {
           return;
         }
 
-        const tableData = [
-          {
-            key: "Active case count",
-            value: rdata.detailedInfo.activeCount
-          },
-          {
-            key: "Active case count change",
-            value: rdata.detailedInfo.activeChange
-          },
-          {
-            key: "Active count of population %",
-            value: rdata.detailedInfo.activePercentage
-          },
-          {
-            key: "Active case rankings by county",
-            value: rdata.detailedInfo.activeRank
-          },
-          {
-            key: "Active case rankings by county change",
-            value: rdata.detailedInfo.activeRank
-          },
-          {
-            key: "Death count",
-            value: rdata.detailedInfo.deathCount
-          },
-          {
-            key: "Death count change over a day",
-            value: rdata.detailedInfo.deathChange
-          },
-          {
-            key: "Death count of population %",
-            value: rdata.detailedInfo.deathPercentage
-          },
-          {
-            key: "Death count rankings by county",
-            value: rdata.detailedInfo.deathRank
-          },
-          {
-            key: "Death count rankings by county change",
-            value: rdata.detailedInfo.deathRank
-          }
-        ]
+        const tableData = this.getTableData(rdata);
 
         this.setState(prevState => ({
           ...prevState,
           postalCodeErrorMessage: '',
           showTable: true,
           tableInfo: tableData,
-          countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`
+          countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
         }));
       })
       .catch(err => {
@@ -129,47 +92,141 @@ class DetailedInfo extends Component {
       });
   }
 
+  async submitState(event) {
+    event.preventDefault();
+
+    const state = encodeURIComponent(this.state.stateValueInput);
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
+      .then(res => res.json())
+      .then(rdata => {
+        const tableData = this.getTableData(rdata);
+
+        this.setState(prevState => ({
+          ...prevState,
+          postalCodeErrorMessage: '',
+          showTable: true,
+          tableInfo: tableData,
+          countyStateName: `${rdata.stateNameFullProper}`,
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
+        }));
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  getTableData(rdata) {
+    return [
+      {
+        key: "Active case count",
+        value: rdata.detailedInfo.activeCount
+      },
+      {
+        key: "Active case count change over a day",
+        value: (rdata.detailedInfo.activeChange >= 0) ? `+${rdata.detailedInfo.activeChange}` : rdata.detailedInfo.activeChange
+      },
+      {
+        key: "Active count of population %",
+        value: rdata.detailedInfo.activePercentage
+      },
+      {
+        key: "Active case rankings",
+        value: rdata.detailedInfo.activeRank
+      },
+      {
+        key: "Change in active case rankings",
+        value: Styler.modifyChangeRank(rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank)
+      },
+      {
+        key: "Death count",
+        value: rdata.detailedInfo.deathCount
+      },
+      {
+        key: "Death count change over a day",
+        value: (rdata.detailedInfo.deathChange >= 0) ? `+${rdata.detailedInfo.deathChange}` : rdata.detailedInfo.deathChange
+      },
+      {
+        key: "Death count of population %",
+        value: rdata.detailedInfo.deathPercentage
+      },
+      {
+        key: "Death count rankings",
+        value: rdata.detailedInfo.deathRank
+      },
+      {
+        key: "Change in death count rankings",
+        value: Styler.modifyChangeRank(rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank)
+      }
+    ];
+  }
+
+  getDetailedTable() {
+    if (this.state.showTable) {
+      const columns = [
+        {
+          dataField: 'key',
+          text: this.state.date
+        },
+        {
+          dataField: 'value',
+          text: this.state.countyStateName,
+          style: Styler.getCellStyle
+        }
+      ];
+
+      return <BootstrapTable bootstrap4={ true } keyField='detailed-table'
+        data={ this.state.tableInfo } columns={ columns }>
+        </BootstrapTable>
+    }
+
+    return null;
+  }
+
   render() {
     return (
       <div>
         <div style={{ display: "flex" }}>
           <Form style={{ display: "flex" }}>
-            <Form.Control type="postal" placeholder="Enter postal code" onChange={ this.enterPostalCode } value={ this.state.postalCodeValueInput }/>
-            <Button variant="primary" type="submit" style={{ 'margin-left': '10px' }} onClick={ this.submitPostalCode }>
+            <Form.Control type="postal" placeholder="Enter postal code" onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
+            <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitPostalCode }>
               Submit
             </Button>
           </Form>
-          <p style={{ 'margin-left': '25px' }}> { this.state.postalCodeErrorMessage }</p>
+          <p style={{ 'marginLeft': '25px' }}> { this.state.postalCodeErrorMessage }</p>
         </div>
-        <div style={{ 'margin-top': '10px', 'margin-bottom': '10px' }}>
+        <div style={{ 'marginTop': '10px', 'marginBottom': '10px' }}>
           <p>OR</p>
         </div>
         <div style={{ display: "flex" }}>
-          <Form>
-            <Form.Control type="state" placeholder="Enter state" />
-          </Form>
-          <Button variant="primary" type="submit" style={{ 'margin-left': '10px' }}>
+          <Select
+            options={ this.state.stateValues }
+            placeholder="Select a state..."
+            SingleValue
+            className="basic-single-select"
+            onChange= { this.onStateChange1 }
+          />
+          <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitState }>
             Submit
           </Button>
         </div>
-        <div style={{ 'margin-top': '10px', 'margin-bottom': '10px' }}>
+        <div style={{ 'marginTop': '10px', 'marginBottom': '10px' }}>
           <p>OR</p>
         </div>
         <div style={{ display: "flex" }}>
           <Form>
             <Form.Control type="state" placeholder="Enter state" />
           </Form>
-          <Form style={{ 'margin-left': '10px' }}>
+          <Form style={{ 'marginLeft': '10px' }}>
             <Form.Control type="county" placeholder="Enter county" />
           </Form>
-          <Button variant="primary" type="submit" style={{ 'margin-left': '10px' }}>
+          <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }}>
             Submit
           </Button>
         </div>
-        <div style={{ 'margin-top': '30px', 'margin-bottom': '10px' }}>
+        <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
           { this.getDetailedTable() }
         </div>
-        <div style={{ 'margin-top': '30px', 'margin-bottom': '10px' }}>
+        <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
           <p>MORE INFORMATION TO COME! WIP!</p>
         </div>
       </div>
