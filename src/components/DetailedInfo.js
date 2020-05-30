@@ -1,5 +1,6 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart } from "react-timeseries-charts";
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
@@ -255,7 +256,7 @@ class DetailedInfo extends Component {
 
   render() {
     return (
-      <div>
+      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
         <div style={{ display: "flex" }}>
           <Form style={{ display: "flex" }}>
             <Form.Control type="postal" placeholder="Enter postal code..." onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
@@ -305,8 +306,12 @@ class DetailedInfo extends Component {
             Submit
           </Button>
         </div>
-        <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-          { this.getDetailedTable() }
+        <div>
+          <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
+            { this.getDetailedTable() }
+          </div>
+          <div>
+          </div>
         </div>
         <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
           <p>MORE INFORMATION TO COME! WIP!</p>

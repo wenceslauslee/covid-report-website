@@ -144,7 +144,7 @@ class StateRankTable extends Component {
     }; */
 
     return (
-      <div>
+      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
         <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
         <p align="left"> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
         <BootstrapTable bootstrap4={ true } keyField='county-rank-table'

@@ -160,7 +160,7 @@ class StateRankTable extends Component {
     }];
 
     return (
-      <div>
+      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
         <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
         <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
           data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>

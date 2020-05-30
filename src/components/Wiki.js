@@ -2,6 +2,12 @@ import { Component } from 'react';
 import React from 'react';
 
 class Wiki extends Component {
+  componentDidMount() {
+    // Warm things up backend
+    fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=postal&key=02453`)
+      .then(res => res.json())
+  }
+
   render() {
     return (
       <p style={{ display: 'inline-block', textAlign: 'left', maxWidth: '750px' }}>
