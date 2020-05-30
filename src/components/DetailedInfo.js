@@ -13,10 +13,14 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 class DetailedInfo extends Component {
   constructor(props) {
     super(props);
+
     this.onChangePostalCode = this.onChangePostalCode.bind(this);
     this.submitPostalCode = this.submitPostalCode.bind(this);
     this.onStateChange1 = this.onStateChange1.bind(this);
     this.submitState = this.submitState.bind(this);
+    this.onStateChange2 = this.onStateChange2.bind(this);
+    this.onCountyChange = this.onCountyChange.bind(this);
+    this.submitStateCounty = this.submitStateCounty.bind(this);
 
     this.state = {
       showTable: false,
@@ -25,7 +29,12 @@ class DetailedInfo extends Component {
       postalCodeErrorMessage: '',
       countyStateName: '',
       stateValues: [],
-      stateValueInput: '',
+      stateValueInput1: '',
+      stateValueInput2: '',
+      countyValues: [],
+      countyValueMap: {},
+      countyValueInput: '',
+      countyValueFips: '',
       date: ''
     };
   }
@@ -55,7 +64,7 @@ class DetailedInfo extends Component {
   onStateChange1(objects, action) {
     this.setState(prevState => ({
       ...prevState,
-      stateValueInput: objects.value
+      stateValueInput1: objects.value
     }));
   };
 
@@ -92,10 +101,49 @@ class DetailedInfo extends Component {
       });
   }
 
+  onStateChange2(objects, action) {
+    const stateName = encodeURIComponent(objects.value);
+
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=${stateName}`)
+      .then(res => res.json())
+      .then(rdata => {
+        const countyValues = [];
+        const countyValueMap = {};
+
+        _.each(rdata.mappings, m => {
+          countyValueMap[m.name.toLowerCase()] = m.fips;
+          countyValues.push({
+            label: m.name,
+            value: m.name.toLowerCase()
+          });
+        });
+
+        this.setState(prevState => ({
+          ...prevState,
+          stateValueInput2: objects.value,
+          countyValues: countyValues,
+          countyValueMap: countyValueMap,
+          countyValueInput: null,
+          countyValueFips: ''
+        }));
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  onCountyChange(objects, action) {
+    this.setState(prevState => ({
+      ...prevState,
+      countyValueFips: this.state.countyValueMap[objects.value.toLowerCase()],
+      countyValueInput: objects
+    }));
+  };
+
   async submitState(event) {
     event.preventDefault();
 
-    const state = encodeURIComponent(this.state.stateValueInput);
+    const state = encodeURIComponent(this.state.stateValueInput1);
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
       .then(res => res.json())
       .then(rdata => {
@@ -107,6 +155,29 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.stateNameFullProper}`,
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
+        }));
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  async submitStateCounty(event) {
+    event.preventDefault();
+
+    const fips = this.state.countyValueFips;
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=county&key=${fips}`)
+      .then(res => res.json())
+      .then(rdata => {
+        const tableData = this.getTableData(rdata);
+
+        this.setState(prevState => ({
+          ...prevState,
+          postalCodeErrorMessage: '',
+          showTable: true,
+          tableInfo: tableData,
+          countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
         }));
       })
@@ -213,13 +284,24 @@ class DetailedInfo extends Component {
           <p>OR</p>
         </div>
         <div style={{ display: "flex" }}>
-          <Form>
-            <Form.Control type="state" placeholder="Enter state" />
-          </Form>
-          <Form style={{ 'marginLeft': '10px' }}>
-            <Form.Control type="county" placeholder="Enter county" />
-          </Form>
-          <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }}>
+          <Select
+            options={ this.state.stateValues }
+            placeholder="Select a state..."
+            SingleValue
+            className="basic-single-select"
+            onChange= { this.onStateChange2 }
+          />
+          <div style={{ marginLeft: '10px' }}>
+            <Select
+              options={ this.state.countyValues }
+              placeholder="Select a county..."
+              SingleValue
+              className="basic-single-select"
+              onChange= { this.onCountyChange }
+              value={ this.state.countyValueInput }
+            />
+          </div>
+          <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
             Submit
           </Button>
         </div>
