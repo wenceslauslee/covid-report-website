@@ -258,7 +258,7 @@ class DetailedInfo extends Component {
       <div>
         <div style={{ display: "flex" }}>
           <Form style={{ display: "flex" }}>
-            <Form.Control type="postal" placeholder="Enter postal code" onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
+            <Form.Control type="postal" placeholder="Enter postal code..." onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
             <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitPostalCode }>
               Submit
             </Button>

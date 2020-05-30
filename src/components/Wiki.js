@@ -4,7 +4,7 @@ import React from 'react';
 class Wiki extends Component {
   render() {
     return (
-      <p align="left">
+      <p style={{ display: 'inline-block', textAlign: 'left', maxWidth: '750px' }}>
         Coronavirus disease 2019 (COVID-19) is an infectious disease caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2). It was first identified
         in December 2019 in Wuhan, China, and has since spread globally, resulting in an ongoing pandemic. As of today, cases have been reported across 188 countries
         and territories. Common symptoms include fever, cough, fatigue, shortness of breath, and loss of smell and taste. While the majority of cases result in mild symptoms,

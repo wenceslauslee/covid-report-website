@@ -8,20 +8,20 @@
 }
 
 .App-description {
-  background-color: #FAFAD2;
+  background-color: #f2f2f2;
   min-height: 10vh;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
   padding-left: calc(20px);
-  text-align: left;
+  text-align: center;
   font-size: calc(14px);
   color: black;
 }
 
 .App-body {
-  background-color: #DCDCDC;
+  background-color: #f2f2f2;
   min-height: calc(100vh - 110px);
   display: flex;
   flex-direction: column;
