@@ -1,12 +1,13 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
-import { Charts, ChartContainer, ChartRow, YAxis, LineChart } from "react-timeseries-charts";
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, styler } from "react-timeseries-charts";
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import Select from 'react-select';
-import Styler from '../utils/Styler';
+import Formatter from '../utils/Formatter';
+import { TimeSeries } from 'pondjs';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -207,7 +208,7 @@ class DetailedInfo extends Component {
       },
       {
         key: "Change in active case rankings",
-        value: Styler.modifyChangeRank(rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank)
+        value: Formatter.modifyChangeRank(rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank)
       },
       {
         key: "Death count",
@@ -227,7 +228,7 @@ class DetailedInfo extends Component {
       },
       {
         key: "Change in death count rankings",
-        value: Styler.modifyChangeRank(rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank)
+        value: Formatter.modifyChangeRank(rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank)
       }
     ];
   }
@@ -242,13 +243,102 @@ class DetailedInfo extends Component {
         {
           dataField: 'value',
           text: this.state.countyStateName,
-          style: Styler.getCellStyle
+          style: Formatter.getCellStyle
         }
       ];
 
       return <BootstrapTable bootstrap4={ true } keyField='detailed-table'
         data={ this.state.tableInfo } columns={ columns }>
         </BootstrapTable>
+    }
+
+    return null;
+  }
+
+  getDetailedGraph() {
+    if (this.state.showTable) {
+      const series = new TimeSeries(
+        {
+          name: "CovidStats",
+          columns: ["time", "cases", "deaths"],
+          points: [
+            [1590624000000, 100000, 10000],
+            [1590710400000, 200000, 10100],
+            [1590796800000, 302000, 10200],
+            [1590883200000, 403000, 10300],
+          ]
+        }
+      );
+      /*const style = {
+        cases: {
+          width: 2,
+          stroke: 'steelblue',
+          opacity: 0.25
+        },
+        deaths: {
+          width: 2,
+          stroke: 'red',
+          opacity: 0.25
+        }
+      };*/
+      const style = styler([
+        { key: "cases", color: "#0000ff", width: 1 },
+        { key: "deaths", color: "#ff0000", width: 1 }
+      ]);
+      const darkAxis = {
+        label: {
+            stroke: "none",
+            fill: "#000000", // Default label color
+            fontWeight: 200,
+            fontSize: 14,
+            font: '"Goudy Bookletter 1911", sans-serif"'
+        },
+        values: {
+            stroke: "none",
+            fill: "#000000",
+            fontWeight: 100,
+            fontSize: 11,
+            font: '"Goudy Bookletter 1911", sans-serif"'
+        },
+        ticks: {
+            fill: "none",
+            stroke: "#000000",
+            opacity: 0.2
+        },
+        axis: {
+            fill: "none",
+            stroke: "#000000",
+            opacity: 0.25
+        }
+      };
+      const legend = [
+        {
+          key: 'cases',
+          label: 'Case Counts'
+        },
+        {
+          key: 'deaths',
+          label: 'Death Counts'
+        }
+      ];
+
+      return <div>
+        <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
+        width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
+        timeAxisStyle={ darkAxis }>
+          <ChartRow height='400'>
+            <YAxis id="y" label="Count" min={ 0 } max={ 1000000 } width="60" type="linear" showGrid
+              style={ darkAxis } />
+             <Charts>
+              <LineChart axis="y" series={ series } columns={ ['cases', 'deaths'] } style={ style }
+                interpolation='curveBasis'/>
+            </Charts>
+          </ChartRow>
+        </ChartContainer>
+        <div style={{ justifyContent: 'flex-end' }}>
+          <Legend type="line" style={ style } categories={ legend } align='right'/>
+        </div>
+      </div>;
     }
 
     return null;
@@ -266,10 +356,7 @@ class DetailedInfo extends Component {
           </Form>
           <p style={{ 'marginLeft': '25px' }}> { this.state.postalCodeErrorMessage }</p>
         </div>
-        <div style={{ 'marginTop': '10px', 'marginBottom': '10px' }}>
-          <p>OR</p>
-        </div>
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", marginTop: '25px' }}>
           <Select
             options={ this.state.stateValues }
             placeholder="Select a state..."
@@ -281,10 +368,7 @@ class DetailedInfo extends Component {
             Submit
           </Button>
         </div>
-        <div style={{ 'marginTop': '10px', 'marginBottom': '10px' }}>
-          <p>OR</p>
-        </div>
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", marginTop: '25px' }}>
           <Select
             options={ this.state.stateValues }
             placeholder="Select a state..."
@@ -306,15 +390,13 @@ class DetailedInfo extends Component {
             Submit
           </Button>
         </div>
-        <div>
+        <div style={{ display: 'flex', minWidth: '1200px' }}>
           <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
             { this.getDetailedTable() }
           </div>
-          <div>
+          <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
+            { this.getDetailedGraph() }
           </div>
-        </div>
-        <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-          <p>MORE INFORMATION TO COME! WIP!</p>
         </div>
       </div>
     );

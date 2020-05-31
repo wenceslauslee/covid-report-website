@@ -1,4 +1,4 @@
-const Styler = {
+const Formatter = {
   modifyChangeRank: (rankChange) => {
     if (rankChange > 0) {
       return `↑${rankChange}`;
@@ -30,4 +30,4 @@ const Styler = {
   }
 }
 
-export default Styler
+export default Formatter

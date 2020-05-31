@@ -1,7 +1,7 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import { Component } from 'react';
 import React from 'react';
-import Styler from '../utils/Styler';
+import Formatter from '../utils/Formatter';
 // import paginationFactory from 'react-bootstrap-table2-paginator';
 import _ from 'lodash';
 
@@ -44,9 +44,9 @@ class StateRankTable extends Component {
     _.each(filtered, f => {
       f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper}`;
       f.detailedInfo.activeRankChange =
-        Styler.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
+        Formatter.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
       f.detailedInfo.deathRankChange =
-        Styler.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
+        Formatter.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
 
       if (f.detailedInfo.activeChange >= 0) {
         f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
@@ -91,7 +91,7 @@ class StateRankTable extends Component {
       {
         dataField: 'detailedInfo.activeRankChange',
         text: '-',
-        style: Styler.getCellStyle
+        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeChange',
@@ -108,7 +108,7 @@ class StateRankTable extends Component {
       {
         dataField: 'detailedInfo.deathRankChange',
         text: '-',
-        style: Styler.getCellStyle
+        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.deathChange',
