@@ -1,6 +1,6 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
-import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, styler } from "react-timeseries-charts";
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
@@ -23,6 +23,8 @@ class DetailedInfo extends Component {
     this.onStateChange2 = this.onStateChange2.bind(this);
     this.onCountyChange = this.onCountyChange.bind(this);
     this.submitStateCounty = this.submitStateCounty.bind(this);
+    this.setSelection = this.setSelection.bind(this);
+    this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
 
     this.state = {
       showTable: false,
@@ -37,7 +39,13 @@ class DetailedInfo extends Component {
       countyValueMap: {},
       countyValueInput: '',
       countyValueFips: '',
-      date: ''
+      date: '',
+      dataPoints: [],
+      dataMax: 0,
+      selection: '',
+      tracker: null,
+      x: null,
+      y: null
     };
   }
 
@@ -95,7 +103,9 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          dataPoints: rdata.dataPoints,
+          dataMax: this.getMaxValue(rdata.dataPoints)
         }));
       })
       .catch(err => {
@@ -126,7 +136,7 @@ class DetailedInfo extends Component {
           countyValues: countyValues,
           countyValueMap: countyValueMap,
           countyValueInput: null,
-          countyValueFips: ''
+          countyValueFips: '',
         }));
       })
       .catch(err => {
@@ -157,7 +167,9 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.stateNameFullProper}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          dataPoints: rdata.dataPoints,
+          dataMax: this.getMaxValue(rdata.dataPoints)
         }));
       })
       .catch(err => {
@@ -180,12 +192,18 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          dataPoints: rdata.dataPoints,
+          dataMax: this.getMaxValue(rdata.dataPoints)
         }));
       })
       .catch(err => {
         console.log(err);
       });
+  }
+
+  getMaxValue(dataPoints) {
+    return Math.round(_.maxBy(dataPoints, p => p[1])[1] * 1.05);
   }
 
   getTableData(rdata) {
@@ -260,30 +278,15 @@ class DetailedInfo extends Component {
       const series = new TimeSeries(
         {
           name: "CovidStats",
-          columns: ["time", "cases", "deaths"],
-          points: [
-            [1590624000000, 100000, 10000],
-            [1590710400000, 200000, 10100],
-            [1590796800000, 302000, 10200],
-            [1590883200000, 403000, 10300],
-          ]
+          columns: ["time", "cases", "deaths", "increase"],
+          points: this.state.dataPoints
         }
       );
-      /*const style = {
-        cases: {
-          width: 2,
-          stroke: 'steelblue',
-          opacity: 0.25
-        },
-        deaths: {
-          width: 2,
-          stroke: 'red',
-          opacity: 0.25
-        }
-      };*/
       const style = styler([
+        { key: "time", color: "#0000ff", width: 1 },
         { key: "cases", color: "#0000ff", width: 1 },
-        { key: "deaths", color: "#ff0000", width: 1 }
+        { key: "deaths", color: "#ff0000", width: 1 },
+        { key: "increase", color: "#ff0000", width: 1 },
       ]);
       const darkAxis = {
         label: {
@@ -311,37 +314,86 @@ class DetailedInfo extends Component {
             opacity: 0.25
         }
       };
+
+      let dateValue, caseValue, deathValue, increaseValue;
+      if (this.state.tracker) {
+        const index = series.bisect(this.state.tracker);
+        const trackerEvent = series.at(index);
+        const utcDate = trackerEvent.timestamp();
+        dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
+        caseValue = `${trackerEvent.get('cases')}`;
+        deathValue = `${trackerEvent.get('deaths')}`;
+        increaseValue = `${trackerEvent.get('increase')}`;
+      }
       const legend = [
         {
+          key: 'time',
+          label: 'Date',
+          value: dateValue
+        },
+        {
           key: 'cases',
-          label: 'Case Counts'
+          label: 'Case Counts',
+          value: caseValue
         },
         {
           key: 'deaths',
-          label: 'Death Counts'
+          label: 'Death Counts',
+          value: deathValue
+        },
+        {
+          key: 'increase',
+          label: 'Daily Increase',
+          value: increaseValue
         }
       ];
 
       return <div>
         <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
-        width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
-        timeAxisStyle={ darkAxis }>
+          width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
+          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
+          onBackgroundClick={ () => this.setSelection(null) } onTrackerChanged={ this.handleTrackerChanged }>
+          <TimeAxis format="day"/>
           <ChartRow height='400'>
-            <YAxis id="y" label="Count" min={ 0 } max={ 1000000 } width="60" type="linear" showGrid
+            <YAxis id="y" label="Count" min={ 0 } max={ this.state.dataMax } width="60" type="linear" showGrid
               style={ darkAxis } />
              <Charts>
               <LineChart axis="y" series={ series } columns={ ['cases', 'deaths'] } style={ style }
-                interpolation='curveBasis'/>
+                interpolation='curveBasis' selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
             </Charts>
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right'/>
+          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }
+            selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
         </div>
       </div>;
     }
 
     return null;
+  }
+
+  setSelection(selection) {
+    this.setState(prevState => ({
+      ...prevState,
+      selection: selection
+    }));
+  }
+
+  handleTrackerChanged(tracker) {
+    if (!tracker) {
+      this.setState(prevState => ({
+        ...prevState,
+        tracker: tracker,
+        x: null,
+        y: null
+      }));
+    } else {
+      this.setState(prevState => ({
+        ...prevState,
+        tracker: tracker
+      }));
+    }
   }
 
   render() {
