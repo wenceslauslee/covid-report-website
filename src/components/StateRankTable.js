@@ -1,16 +1,18 @@
 import { Component } from 'react';
 import React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
+import { Spinner } from 'react-bootstrap';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 class StateRankTable extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       data: [],
-      validDate: ''
+      validDate: '',
+      loading: true
     };
   }
 
@@ -44,7 +46,8 @@ class StateRankTable extends Component {
         })
         this.setState({
           data: filtered,
-          validDate: rdata.reportDate
+          validDate: rdata.reportDate,
+          loading: false
         });
       })
       .catch(err => {
@@ -159,14 +162,22 @@ class StateRankTable extends Component {
       order: 'desc'
     }];
 
-    return (
-      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-        <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
-        <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
-          data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
-        </BootstrapTable>
-      </div>
-    );
+    if (this.state.loading) {
+      return (
+        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+          <Spinner animation="border" />
+        </div>
+      );
+    } else {
+      return (
+        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+          <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
+            data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
+          </BootstrapTable>
+        </div>
+      );
+    }
   }
 }
 

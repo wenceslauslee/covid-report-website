@@ -2,7 +2,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import { Component } from 'react';
 import React from 'react';
 import Formatter from '../utils/Formatter';
-// import paginationFactory from 'react-bootstrap-table2-paginator';
+import { Spinner } from 'react-bootstrap';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -13,7 +13,8 @@ class StateRankTable extends Component {
     super();
     this.state = {
       data: [],
-      validDate: ''
+      validDate: '',
+      loading: true
     };
   }
 
@@ -65,7 +66,8 @@ class StateRankTable extends Component {
 
     this.setState({
       data: this.state.data.concat(filtered),
-      validDate: rdata.reportDate
+      validDate: rdata.reportDate,
+      loading: false
     });
   }
 
@@ -120,37 +122,22 @@ class StateRankTable extends Component {
       }
     ];
 
-    /* const customTotal = (from, to, size) => (
-      <span className="react-bootstrap-table-pagination-total">
-        Showing { from } to { to } of { size } Results
-      </span>
-    );
-
-    const options = {
-      pageStartIndex: 0,
-      hideSizePerPage: true,
-      firstPageText: 'First',
-      prePageText: 'Back',
-      nextPageText: 'Next',
-      lastPageText: 'Last',
-      nextPageTitle: 'First page',
-      prePageTitle: 'Pre page',
-      firstPageTitle: 'Next page',
-      lastPageTitle: 'Last page',
-      showTotal: true,
-      sizePerPage: 50,
-      paginationTotalRenderer: customTotal,
-      disablePageTitle: true
-    }; */
-
-    return (
-      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-        <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
-        <p align="left"> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
-        <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
-          data={ this.state.data } columns={ columns }/>
-      </div>
-    );
+    if (this.state.loading) {
+      return (
+        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+          <Spinner animation="border" />
+        </div>
+      );
+    } else {
+      return (
+        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+          <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align="left"> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
+          <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
+            data={ this.state.data } columns={ columns }/>
+        </div>
+      );
+    }
   }
 }
 

@@ -40,7 +40,7 @@ class SearchByState extends Component {
     };
 
     return (
-      <div>
+      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
         <p align="left">Select up to 4 states.</p>
         <div style={{ display: "flex" }}>
           <form>
@@ -54,7 +54,7 @@ class SearchByState extends Component {
           </form>
           <Button variant="warning" style={{ 'margin-left': '10px' }}>Plot!</Button>
         </div>
-        <div style={{ 'margin-top': '10px', 'margin-bottom': '10px' }}>
+        <div style={{ marginTop: '20px', 'margin-bottom': '10px' }}>
           <p>DOES NOT WORK YET! WIP!</p>
         </div>
       </div>

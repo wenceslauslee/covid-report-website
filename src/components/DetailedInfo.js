@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form';
 import React from 'react';
 import Select from 'react-select';
 import Formatter from '../utils/Formatter';
+import { Spinner } from 'react-bootstrap';
 import { TimeSeries } from 'pondjs';
 import _ from 'lodash';
 
@@ -45,7 +46,8 @@ class DetailedInfo extends Component {
       selection: '',
       tracker: null,
       x: null,
-      y: null
+      y: null,
+      loading: false
     };
   }
 
@@ -82,6 +84,10 @@ class DetailedInfo extends Component {
     event.preventDefault();
 
     const postalCode = this.state.postalCodeValueInput;
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=postal&key=${postalCode}`)
       .then(res => res.json())
       .then(rdata => {
@@ -89,7 +95,8 @@ class DetailedInfo extends Component {
           this.setState(prevState => ({
             ...prevState,
             postalCodeErrorMessage: `'${postalCode}' is not a valid postal code.`,
-            showTable: false
+            showTable: false,
+            loading: false
           }));
 
           return;
@@ -105,7 +112,8 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints)
+          dataMax: this.getMaxValue(rdata.dataPoints),
+          loading: false
         }));
       })
       .catch(err => {
@@ -116,6 +124,10 @@ class DetailedInfo extends Component {
   onStateChange2(objects, action) {
     const stateName = encodeURIComponent(objects.value);
 
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=${stateName}`)
       .then(res => res.json())
       .then(rdata => {
@@ -137,6 +149,7 @@ class DetailedInfo extends Component {
           countyValueMap: countyValueMap,
           countyValueInput: null,
           countyValueFips: '',
+          loading: false
         }));
       })
       .catch(err => {
@@ -156,6 +169,10 @@ class DetailedInfo extends Component {
     event.preventDefault();
 
     const state = encodeURIComponent(this.state.stateValueInput1);
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
       .then(res => res.json())
       .then(rdata => {
@@ -169,7 +186,8 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.stateNameFullProper}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints)
+          dataMax: this.getMaxValue(rdata.dataPoints),
+          loading: false
         }));
       })
       .catch(err => {
@@ -181,6 +199,10 @@ class DetailedInfo extends Component {
     event.preventDefault();
 
     const fips = this.state.countyValueFips;
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=county&key=${fips}`)
       .then(res => res.json())
       .then(rdata => {
@@ -194,7 +216,8 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints)
+          dataMax: this.getMaxValue(rdata.dataPoints),
+          loading: false
         }));
       })
       .catch(err => {
@@ -252,7 +275,7 @@ class DetailedInfo extends Component {
   }
 
   getDetailedTable() {
-    if (this.state.showTable) {
+    if (this.state.showTable && !this.state.loading) {
       const columns = [
         {
           dataField: 'key',
@@ -274,7 +297,7 @@ class DetailedInfo extends Component {
   }
 
   getDetailedGraph() {
-    if (this.state.showTable) {
+    if (this.state.showTable && !this.state.loading) {
       const series = new TimeSeries(
         {
           name: "CovidStats",
@@ -442,6 +465,12 @@ class DetailedInfo extends Component {
             Submit
           </Button>
         </div>
+        { this.state.loading ?
+            <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px', marginTop: '80px' }}>
+              <Spinner animation="border" />
+            </div> :
+            ''
+        }
         <div style={{ display: 'flex', minWidth: '1200px' }}>
           <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
             { this.getDetailedTable() }
