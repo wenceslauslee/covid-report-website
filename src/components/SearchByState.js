@@ -65,20 +65,21 @@ const darkAxis = {
   }
 ];*/
 
+const stateCache = {};
+
 class SearchByState extends Component {
   constructor(props) {
     super(props);
     this.state = {
       stateValues: [],
       selectedStates: [],
+      showTables: false,
+      loading: false,
       caseCountDataPoints: [],
-      deathCountDataPoints: [],
-      dailyIncreaseDataPoints: [],
-      caseCountMax: 1000,
-      deathCountMax: 1000,
-      dailyIncreaseMax: 1000,
-      loading: false
+      caseCountMax: 0
     };
+
+    this.submitPlot = this.submitPlot.bind(this);
   }
 
   componentDidMount() {
@@ -89,104 +90,118 @@ class SearchByState extends Component {
       };
     });
 
-    this.setState({
-      stateValues: stateValuesModified,
-      selectedStates: []
-    });
-  }
-
-  async submitState(event) {
-    event.preventDefault();
-
-    const state = encodeURIComponent(this.state.stateValueInput1);
     this.setState(prevState => ({
       ...prevState,
-      loading: true
+      stateValues: stateValuesModified,
+      selectedStates: []
     }));
-    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
-      .then(res => res.json())
-      .then(rdata => {
-        const tableData = this.getTableData(rdata);
-
-        this.setState(prevState => ({
-          ...prevState,
-          postalCodeErrorMessage: '',
-          showTable: true,
-          tableInfo: tableData,
-          countyStateName: `${rdata.stateNameFullProper}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
-          dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints),
-          loading: false
-        }));
-      })
-      .catch(err => {
-        console.log(err);
-      });
   }
-
-  getCaseCountGraph() {
-    const series = new TimeSeries(
-      {
-        name: "CaseCount",
-        columns: ["time"],
-        points: this.state.caseCountDataPoints
-      }
-    );
-
-    return (
-      <div>
-        <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
-          width={ 400 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
-          onTrackerChanged={ this.handleTrackerChanged }>
-          <TimeAxis format="day"/>
-          <ChartRow height='400'>
-            <YAxis id="y" label="Count" min={ 0 } max={ this.state.caseCountMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
-             <Charts>
-              <LineChart axis="y" series={ series } columns={ [] } style={ style }
-                interpolation='curveBasis'/>
-            </Charts>
-          </ChartRow>
-        </ChartContainer>
-        <div style={{ justifyContent: 'flex-end' }}>
-
-        </div>
-      </div>
-    );
-  }
-  // <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
 
   async submitPlot(event) {
     event.preventDefault();
 
-    const state = encodeURIComponent(this.state.stateValueInput1);
+    if (this.state.selectedStates.length === 0) {
+      return;
+    }
+
     this.setState(prevState => ({
       ...prevState,
       loading: true
     }));
-    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
-      .then(res => res.json())
-      .then(rdata => {
-        const tableData = this.getTableData(rdata);
 
-        this.setState(prevState => ({
-          ...prevState,
-          postalCodeErrorMessage: '',
-          showTable: true,
-          tableInfo: tableData,
-          countyStateName: `${rdata.stateNameFullProper}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
-          dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints),
-          loading: false
-        }));
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    const promises = this.state.selectedStates.map(async stateObj => {
+      return await this.submitState(stateObj);
+    });
+    const allStates = await Promise.all(promises);
+
+    const results = this.combineDataAcrossStates(allStates);
+    console.log(results);
+
+    this.setState(prevState => ({
+      ...prevState,
+      loading: false,
+      showTables: true,
+      caseCountDataPoints: results.caseCounts,
+      caseCountMax: results.caseCountMax
+    }));
   }
+
+  submitState(stateObj) {
+    const stateSanitized = encodeURIComponent(stateObj.value);
+
+    if (!Object.prototype.hasOwnProperty.call(stateCache, stateSanitized)) {
+      return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${stateSanitized}`)
+        .then(res => res.json())
+        .then(rdata => {
+          stateCache[stateSanitized] = rdata.dataPoints;
+
+          return rdata.dataPoints;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
+
+    return stateCache[stateSanitized];
+  }
+
+  combineDataAcrossStates(allStates) {
+    const results = {};
+    const caseCount = [];
+    var caseCountMax = 0;
+
+    for (var index in allStates[0]) {
+      caseCount.push([allStates[0][index][0]]);
+    }
+
+    for (var i = 0; i < allStates.length; i++) {
+      for (var j = 0; j < allStates[i].length; j++) {
+        caseCountMax = Math.max(caseCountMax, allStates[i][1]);
+        caseCount[j].push(allStates[i][1]);
+      }
+    }
+
+    results.caseCount = caseCount;
+    results.caseCountMax = Math.round(caseCountMax * 1.05);
+    return results;
+  }
+
+  getCaseCountGraph() {
+    if (this.state.showTable && !this.state.loading) {
+      const series = new TimeSeries(
+        {
+          name: "CaseCount",
+          columns: ["time"],
+          points: this.state.caseCountDataPoints
+        }
+      );
+
+      return (
+        <div>
+          <ChartContainer title='Case Counts' timeRange={ series.range() }
+            width={ 400 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
+            minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
+            onTrackerChanged={ this.handleTrackerChanged }>
+            <TimeAxis format="day"/>
+            <ChartRow height='400'>
+              <YAxis id="y" label="Count" min={ 0 } max={ this.state.caseCountMax } width="60" type="linear" showGrid
+                style={ darkAxis } />
+               <Charts>
+                <LineChart axis="y" series={ series } columns={ [] } style={ style }
+                  interpolation='curveBasis'/>
+              </Charts>
+            </ChartRow>
+          </ChartContainer>
+          <div style={{ justifyContent: 'flex-end' }}>
+
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  }
+  // <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
 
   render() {
     const onChange = (objects, action) => {
