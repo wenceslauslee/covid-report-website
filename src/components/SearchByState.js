@@ -42,7 +42,7 @@ const darkAxis = {
   }
 };
 
-const legend = [
+/*const legend = [
   {
     key: 'time',
     label: 'Date',
@@ -63,7 +63,7 @@ const legend = [
     label: 'Daily Increase',
     value: increaseValue
   }
-];
+];*/
 
 class SearchByState extends Component {
   constructor(props) {
@@ -95,6 +95,36 @@ class SearchByState extends Component {
     });
   }
 
+  async submitState(event) {
+    event.preventDefault();
+
+    const state = encodeURIComponent(this.state.stateValueInput1);
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
+      .then(res => res.json())
+      .then(rdata => {
+        const tableData = this.getTableData(rdata);
+
+        this.setState(prevState => ({
+          ...prevState,
+          postalCodeErrorMessage: '',
+          showTable: true,
+          tableInfo: tableData,
+          countyStateName: `${rdata.stateNameFullProper}`,
+          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          dataPoints: rdata.dataPoints,
+          dataMax: this.getMaxValue(rdata.dataPoints),
+          loading: false
+        }));
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   getCaseCountGraph() {
     const series = new TimeSeries(
       {
@@ -121,77 +151,12 @@ class SearchByState extends Component {
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
+
         </div>
       </div>
     );
   }
-
-  getDeathCountGraph() {
-    const series = new TimeSeries(
-      {
-        name: "DeathCount",
-        columns: ["time", "cases", "deaths", "increase"],
-        points: this.state.deathCountDataPoints
-      }
-    );
-
-    return (
-      <div>
-        <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
-          width={ 400 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
-          onBackgroundClick={ () => this.setSelection(null) } onTrackerChanged={ this.handleTrackerChanged }>
-          <TimeAxis format="day"/>
-          <ChartRow height='400'>
-            <YAxis id="y" label="Count" min={ 0 } max={ this.state.dataMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
-             <Charts>
-              <LineChart axis="y" series={ series } columns={ ['cases', 'deaths'] } style={ style }
-                interpolation='curveBasis' selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
-            </Charts>
-          </ChartRow>
-        </ChartContainer>
-        <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }
-            selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
-        </div>
-      </div>
-    );
-  }
-
-  getDailyIncreaseGraph() {
-    const series = new TimeSeries(
-      {
-        name: "CovidStats",
-        columns: ["time", "cases", "deaths", "increase"],
-        points: this.state.dailyIncreaseDataPoints
-      }
-    );
-
-    return (
-      <div>
-        <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
-          width={ 400 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
-          onBackgroundClick={ () => this.setSelection(null) } onTrackerChanged={ this.handleTrackerChanged }>
-          <TimeAxis format="day"/>
-          <ChartRow height='400'>
-            <YAxis id="y" label="Count" min={ 0 } max={ this.state.dataMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
-             <Charts>
-              <LineChart axis="y" series={ series } columns={ ['cases', 'deaths'] } style={ style }
-                interpolation='curveBasis' selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
-            </Charts>
-          </ChartRow>
-        </ChartContainer>
-        <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }
-            selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
-        </div>
-      </div>
-    );
-  }
+  // <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
 
   async submitPlot(event) {
     event.preventDefault();
@@ -253,10 +218,10 @@ class SearchByState extends Component {
             { this.getCaseCountGraph() }
           </div>
           <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-            { this.getDeathCountGraph() }
+            { this.getCaseCountGraph() }
           </div>
           <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-            { this.getDailyIncreaseGraph() }
+            { this.getCaseCountGraph() }
           </div>
         </div>
       </div>

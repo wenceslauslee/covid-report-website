@@ -30,6 +30,18 @@ class Wiki extends Component {
         <br/>
         <br/>
         Lastly, stay vigilant, healthy and safe!
+        <br/>
+        <br/>
+        <br/>
+        Work In Progress...
+        <br/>
+        1. Refresh button on state/county rankings
+        <br/>
+        2. Add more live updates to the page. Currently the page refreshes around 12PM daily, when NYT posts the updates from yesterday.
+        <br/>
+        3. Add US increase
+        <br/>
+        4. Convert to https under my own domain
       </p>
     );
   }
