@@ -8,13 +8,6 @@ import { Spinner } from 'react-bootstrap';
 import { TimeSeries } from 'pondjs';
 import _ from 'lodash';
 
-const style = styler([
-  { key: "time", color: "#0000ff", width: 1 },
-  { key: "cases", color: "#0000ff", width: 1 },
-  { key: "deaths", color: "#ff0000", width: 1 },
-  { key: "increase", color: "#ff0000", width: 1 }
-]);
-
 const darkAxis = {
   label: {
       stroke: "none",
@@ -42,29 +35,6 @@ const darkAxis = {
   }
 };
 
-/*const legend = [
-  {
-    key: 'time',
-    label: 'Date',
-    value: dateValue
-  },
-  {
-    key: 'cases',
-    label: 'Case Counts',
-    value: caseValue
-  },
-  {
-    key: 'deaths',
-    label: 'Death Counts',
-    value: deathValue
-  },
-  {
-    key: 'increase',
-    label: 'Daily Increase',
-    value: increaseValue
-  }
-];*/
-
 const stateCache = {};
 
 class SearchByState extends Component {
@@ -75,6 +45,7 @@ class SearchByState extends Component {
       selectedStates: [],
       showTables: false,
       loading: false,
+      columns: [],
       caseCountDataPoints: [],
       caseCountMax: 0
     };
@@ -115,13 +86,17 @@ class SearchByState extends Component {
     const allStates = await Promise.all(promises);
 
     const results = this.combineDataAcrossStates(allStates);
-    console.log(results);
+    const stateColumns = ['time'];
+    this.state.selectedStates.forEach(stateObj => {
+      stateColumns.push(stateObj.label);
+    })
 
     this.setState(prevState => ({
       ...prevState,
       loading: false,
       showTables: true,
-      caseCountDataPoints: results.caseCounts,
+      columns: stateColumns,
+      caseCountDataPoints: results.caseCount,
       caseCountMax: results.caseCountMax
     }));
   }
@@ -156,8 +131,8 @@ class SearchByState extends Component {
 
     for (var i = 0; i < allStates.length; i++) {
       for (var j = 0; j < allStates[i].length; j++) {
-        caseCountMax = Math.max(caseCountMax, allStates[i][1]);
-        caseCount[j].push(allStates[i][1]);
+        caseCountMax = Math.max(caseCountMax, allStates[i][j][1]);
+        caseCount[j].push(allStates[i][j][1]);
       }
     }
 
@@ -166,15 +141,48 @@ class SearchByState extends Component {
     return results;
   }
 
+  getColor(order) {
+    const colors = ['ff0000', '006400', 'B8860B', '4B0082'];
+
+    return colors[order];
+  }
+
   getCaseCountGraph() {
-    if (this.state.showTable && !this.state.loading) {
+    if (this.state.showTables && !this.state.loading) {
+      const lowerCaseColumns = this.state.columns.map(state => state.toLowerCase());
       const series = new TimeSeries(
         {
           name: "CaseCount",
-          columns: ["time"],
+          columns: lowerCaseColumns,
           points: this.state.caseCountDataPoints
         }
       );
+
+      const legend = [];
+      var style = [];
+
+      legend.push({
+        key: 'time',
+        label: 'Date'
+      });
+      style.push({
+        key: 'time',
+        color: '0000ff',
+        width: 1
+      });
+
+      for (var i = 1; i < this.state.columns.length; i++) {
+        legend.push({
+          key: this.state.columns[i].toLowerCase(),
+          label: this.state.columns[i]
+        });
+        style.push({
+          key: this.state.columns[i].toLowerCase(),
+          color: this.getColor(i),
+          width: 1
+        });
+      }
+      style = styler(style);
 
       return (
         <div>
@@ -193,7 +201,7 @@ class SearchByState extends Component {
             </ChartRow>
           </ChartContainer>
           <div style={{ justifyContent: 'flex-end' }}>
-
+            <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
           </div>
         </div>
       );
@@ -201,7 +209,6 @@ class SearchByState extends Component {
 
     return null;
   }
-  // <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
 
   render() {
     const onChange = (objects, action) => {
