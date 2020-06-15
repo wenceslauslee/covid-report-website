@@ -47,10 +47,12 @@ class SearchByState extends Component {
       loading: false,
       columns: [],
       caseCountDataPoints: [],
-      caseCountMax: 0
+      caseCountMax: 0,
+      caseCountTracker: null,
     };
 
     this.submitPlot = this.submitPlot.bind(this);
+    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
   }
 
   componentDidMount() {
@@ -158,12 +160,27 @@ class SearchByState extends Component {
         }
       );
 
+      let dateValue;
+      const stateLegendValues = [];
+      if (this.state.caseCountTracker) {
+        const index = series.bisect(this.state.caseCountTracker);
+        const trackerEvent = series.at(index);
+        const utcDate = trackerEvent.timestamp();
+        dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
+
+        for (var i = 1; i < lowerCaseColumns.length; i++) {
+          stateLegendValues.push(`${trackerEvent.get(lowerCaseColumns[i])}`);
+        }
+      }
+
       const legend = [];
       var style = [];
+      const yColumns = [];
 
       legend.push({
         key: 'time',
-        label: 'Date'
+        label: 'Date',
+        value: dateValue
       });
       style.push({
         key: 'time',
@@ -171,16 +188,18 @@ class SearchByState extends Component {
         width: 1
       });
 
-      for (var i = 1; i < this.state.columns.length; i++) {
+      for (var j = 1; j < this.state.columns.length; j++) {
         legend.push({
-          key: this.state.columns[i].toLowerCase(),
-          label: this.state.columns[i]
+          key: lowerCaseColumns[j],
+          label: this.state.columns[j],
+          value: stateLegendValues[j - 1]
         });
         style.push({
-          key: this.state.columns[i].toLowerCase(),
-          color: this.getColor(i),
+          key: lowerCaseColumns[j],
+          color: this.getColor(j),
           width: 1
         });
+        yColumns.push(lowerCaseColumns[j]);
       }
       style = styler(style);
 
@@ -189,13 +208,13 @@ class SearchByState extends Component {
           <ChartContainer title='Case Counts' timeRange={ series.range() }
             width={ 400 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
             minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
-            onTrackerChanged={ this.handleTrackerChanged }>
+            onTrackerChanged={ this.handleTrackerChanged1 }>
             <TimeAxis format="day"/>
             <ChartRow height='400'>
               <YAxis id="y" label="Count" min={ 0 } max={ this.state.caseCountMax } width="60" type="linear" showGrid
                 style={ darkAxis } />
                <Charts>
-                <LineChart axis="y" series={ series } columns={ [] } style={ style }
+                <LineChart axis="y" series={ series } columns={ yColumns } style={ style }
                   interpolation='curveBasis'/>
               </Charts>
             </ChartRow>
@@ -208,6 +227,13 @@ class SearchByState extends Component {
     }
 
     return null;
+  }
+
+  handleTrackerChanged1(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      caseCountTracker: tracker,
+    }));
   }
 
   render() {
