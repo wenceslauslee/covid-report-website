@@ -52,11 +52,19 @@ class SearchByState extends Component {
       caseCountIncreaseDataPoints: [],
       caseCountIncreaseMax: 0,
       caseCountIncreaseTracker: null,
+      deathCountDataPoints: [],
+      deathCountMax: 0,
+      deathCountTracker: null,
+      deathCountIncreaseDataPoints: [],
+      deathCountIncreaseMax: 0,
+      deathCountIncreaseTracker: null,
     };
 
     this.submitPlot = this.submitPlot.bind(this);
     this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
     this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
+    this.handleTrackerChanged3 = this.handleTrackerChanged3.bind(this);
+    this.handleTrackerChanged4 = this.handleTrackerChanged4.bind(this);
   }
 
   componentDidMount() {
@@ -106,6 +114,10 @@ class SearchByState extends Component {
       caseCountMax: results.caseCountMax,
       caseCountIncreaseDataPoints: results.caseCountIncrease,
       caseCountIncreaseMax: results.caseCountIncreaseMax
+      deathCountDataPoints: results.deathCount,
+      deathCountMax: results.deathCountMax,
+      deathCountIncreaseDataPoints: results.deathCountIncrease,
+      deathCountIncreaseMax: results.deathCountIncreaseMax
     }));
   }
 
@@ -134,18 +146,28 @@ class SearchByState extends Component {
     var caseCountMax = 0;
     const caseCountIncrease = [];
     var caseCountIncreaseMax = 0;
+    const deathCount = [];
+    var deathCountMax = 0;
+    const deathCountIncrease = [];
+    var deathCountIncreaseMax = 0;
 
     for (var index in allStates[0]) {
       caseCount.push([allStates[0][index][0]]);
       caseCountIncrease.push([allStates[0][index][0]]);
+      deathCount.push([allStates[0][index][0]]);
+      deathCountIncrease.push([allStates[0][index][0]]);
     }
 
     for (var i = 0; i < allStates.length; i++) {
       for (var j = 0; j < allStates[i].length; j++) {
         caseCountMax = Math.max(caseCountMax, allStates[i][j][1]);
         caseCount[j].push(allStates[i][j][1]);
+        deathCountMax = Math.max(deathCountMax, allStates[i][j][2]);
+        deathCount[j].push(allStates[i][j][2]);
         caseCountIncreaseMax = Math.max(caseCountIncreaseMax, allStates[i][j][3]);
         caseCountIncrease[j].push(allStates[i][j][3]);
+        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, allStates[i][j][4]);
+        deathCountIncrease[j].push(allStates[i][j][4]);
       }
     }
 
@@ -153,6 +175,10 @@ class SearchByState extends Component {
     results.caseCountMax = Math.round(caseCountMax * 1.05);
     results.caseCountIncrease = caseCountIncrease;
     results.caseCountIncreaseMax = Math.round(caseCountIncreaseMax * 1.05);
+    results.deathCount = deathCount;
+    results.deathCountMax = Math.round(deathCountMax * 1.05);
+    results.deathCountIncrease = deathCountIncrease;
+    results.deathCountIncreaseMax = Math.round(deathCountIncreaseMax * 1.05);
     return results;
   }
 
@@ -251,8 +277,20 @@ class SearchByState extends Component {
 
   getCaseCountIncreaseGraph() {
     return this.getGraph(
-      'CaseCountIncrease', 'Case Count Increase', this.state.caseCountIncreaseDataPoints,
+      'CaseCountDailyIncrease', 'Case Count Daily Increase', this.state.caseCountIncreaseDataPoints,
       this.state.caseCountIncreaseTracker, this.handleTrackerChanged2, this.state.caseCountIncreaseMax);
+  }
+
+  getDeathCountGraph() {
+    return this.getGraph(
+      'DeathCount', 'Death Count', this.state.deathCountDataPoints, this.state.deathCountTracker,
+      this.handleTrackerChanged3, this.state.deathCountMax);
+  }
+
+  getDeathCountIncreaseGraph() {
+    return this.getGraph(
+      'DeathCountDailyIncrease', 'Death Count Daily Increase', this.state.deathCountIncreaseDataPoints,
+      this.state.deathCountIncreaseTracker, this.handleTrackerChanged4, this.state.deathCountIncreaseMax);
   }
 
   handleTrackerChanged1(tracker) {
@@ -266,6 +304,20 @@ class SearchByState extends Component {
     this.setState(prevState => ({
       ...prevState,
       caseCountIncreaseTracker: tracker,
+    }));
+  }
+
+  handleTrackerChanged3(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      deathCountTracker: tracker,
+    }));
+  }
+
+  handleTrackerChanged4(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      deathCountIncreaseTracker: tracker,
     }));
   }
 
@@ -310,10 +362,10 @@ class SearchByState extends Component {
         </div>
         <div style={{ display: 'flex', minWidth: '1200px' }}>
           <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-            { this.getCaseCountGraph() }
+            { this.getDeathCountGraph() }
           </div>
           <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-            { this.getCaseCountGraph() }
+            { this.getDeathCountIncreaseGraph() }
           </div>
         </div>
       </div>
