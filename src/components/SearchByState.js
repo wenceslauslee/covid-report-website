@@ -113,7 +113,7 @@ class SearchByState extends Component {
       caseCountDataPoints: results.caseCount,
       caseCountMax: results.caseCountMax,
       caseCountIncreaseDataPoints: results.caseCountIncrease,
-      caseCountIncreaseMax: results.caseCountIncreaseMax
+      caseCountIncreaseMax: results.caseCountIncreaseMax,
       deathCountDataPoints: results.deathCount,
       deathCountMax: results.deathCountMax,
       deathCountIncreaseDataPoints: results.deathCountIncrease,

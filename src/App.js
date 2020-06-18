@@ -24,7 +24,7 @@ function App() {
         </header>
       </div>
       <div className="App-body" style={{ display: 'inline-block',  justifyContent: 'center', alignItems: 'center', height: '85vh', width: '100vw' }}>
-        <Tabs defaultActiveKey="general" id="tab-table" style={{ alignItems: 'center', 'justifyContent': 'center' }} mountOnEnter>
+        <Tabs defaultActiveKey="general" id="tab-table" style={{ alignItems: 'center', 'justifyContent': 'center' }} mountOnEnter unmountOnExit>
           <Tab eventKey="general" title="General">
             <TabContent>
               <Wiki/>
@@ -36,6 +36,11 @@ function App() {
             </TabContent>
           </Tab>
           <Tab eventKey="stateranking" title="50 States Rankings">
+            <TabContent>
+              <StateRankTable/>
+            </TabContent>
+          </Tab>
+          <Tab eventKey="usoverall" title="US Overall">
             <TabContent>
               <StateRankTable/>
             </TabContent>

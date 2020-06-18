@@ -35,8 +35,6 @@ class Wiki extends Component {
         <br/>
         Work In Progress...
         <br/>
-        1. Refresh button on state/county rankings
-        <br/>
         2. Add more live updates to the page. Currently the page refreshes around 12PM daily, when NYT posts the updates from yesterday.
         <br/>
         3. Add US increase
