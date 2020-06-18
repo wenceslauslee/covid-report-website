@@ -11,7 +11,7 @@ import _ from 'lodash';
 const darkAxis = {
   label: {
       stroke: "none",
-      fill: "#000000", // Default label color
+      fill: "#000000",
       fontWeight: 200,
       fontSize: 14,
       font: '"Goudy Bookletter 1911", sans-serif"'
@@ -35,9 +35,9 @@ const darkAxis = {
   }
 };
 
-const stateCache = {};
+const countyCache = {};
 
-class SearchByStateCounty extends Component {
+class SearchByCounty extends Component {
   constructor() {
     super();
     this.state = {
@@ -133,11 +133,11 @@ class SearchByStateCounty extends Component {
   submitState(stateObj) {
     const stateSanitized = encodeURIComponent(stateObj.value);
 
-    if (!Object.prototype.hasOwnProperty.call(stateCache, stateSanitized)) {
+    if (!Object.prototype.hasOwnProperty.call(countyCache, stateSanitized)) {
       return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${stateSanitized}`)
         .then(res => res.json())
         .then(rdata => {
-          stateCache[stateSanitized] = rdata.dataPoints;
+          countyCache[stateSanitized] = rdata.dataPoints;
 
           return rdata.dataPoints;
         })
@@ -146,7 +146,7 @@ class SearchByStateCounty extends Component {
         });
     }
 
-    return stateCache[stateSanitized];
+    return countyCache[stateSanitized];
   }
 
   combineDataAcrossStates(allStates) {
@@ -382,4 +382,4 @@ class SearchByStateCounty extends Component {
   }
 }
 
-export default SearchByStateCounty;
+export default SearchByCounty;

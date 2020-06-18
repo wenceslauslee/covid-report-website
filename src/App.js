@@ -3,10 +3,11 @@ import DetailedInfo from './components/DetailedInfo';
 import StateRankTable from './components/StateRankTable';
 import React from 'react';
 import SearchByState from './components/SearchByState';
-import SearchByStateCounty from './components/SearchByStateCounty';
+import SearchByCounty from './components/SearchByCounty';
 import Tab from 'react-bootstrap/Tab';
-import TabContent from 'react-bootstrap/TabContent'
+import TabContent from 'react-bootstrap/TabContent';
 import Tabs from 'react-bootstrap/Tabs';
+import USOverallTable from './components/USOverallTable';
 import Wiki from './components/Wiki';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -42,7 +43,7 @@ function App() {
           </Tab>
           <Tab eventKey="usoverall" title="US Overall">
             <TabContent>
-              <StateRankTable/>
+              <USOverallTable/>
             </TabContent>
           </Tab>
           <Tab eventKey="detailedsearch" title="Detailed">
@@ -55,9 +56,9 @@ function App() {
               <SearchByState/>
             </TabContent>
           </Tab>
-          <Tab eventKey="statecountysearch" title="Plot By State/County">
+          <Tab eventKey="countysearch" title="Plot By County">
             <TabContent>
-              <SearchByStateCounty/>
+              <SearchByCounty/>
             </TabContent>
           </Tab>
         </Tabs>
