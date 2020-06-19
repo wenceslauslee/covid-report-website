@@ -1,7 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
 import { Component } from 'react';
-import data from '../data/data.json';
 import React from 'react';
 import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
@@ -42,8 +41,29 @@ class SearchByCounty extends Component {
     super();
     this.state = {
       groupedOptions: [],
-      selectedCounties: []
+      selectedCounties: [],
+      showTables: false,
+      loading: false,
+      columns: [],
+      caseCountDataPoints: [],
+      caseCountMax: 0,
+      caseCountTracker: null,
+      caseCountIncreaseDataPoints: [],
+      caseCountIncreaseMax: 0,
+      caseCountIncreaseTracker: null,
+      deathCountDataPoints: [],
+      deathCountMax: 0,
+      deathCountTracker: null,
+      deathCountIncreaseDataPoints: [],
+      deathCountIncreaseMax: 0,
+      deathCountIncreaseTracker: null,
     };
+
+    this.submitPlot = this.submitPlot.bind(this);
+    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
+    this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
+    this.handleTrackerChanged3 = this.handleTrackerChanged3.bind(this);
+    this.handleTrackerChanged4 = this.handleTrackerChanged4.bind(this);
   }
 
   async componentDidMount() {
@@ -65,36 +85,21 @@ class SearchByCounty extends Component {
           };
         });
 
-        console.log(groupedOptions);
-        this.setState({
+        this.setState(prevState => ({
+          ...prevState,
           groupedOptions: groupedOptions,
           selectedCounties: []
-        });
+        }));
       })
       .catch(err => {
         console.log(err);
       });
   }
 
-  componentDidMount() {
-    const stateValuesModified = _.map(data.states, s => {
-      return {
-        label: s,
-        value: s.toLowerCase()
-      };
-    });
-
-    this.setState(prevState => ({
-      ...prevState,
-      stateValues: stateValuesModified,
-      selectedStates: []
-    }));
-  }
-
   async submitPlot(event) {
     event.preventDefault();
 
-    if (this.state.selectedStates.length === 0) {
+    if (this.state.selectedCounties.length === 0) {
       return;
     }
 
@@ -103,22 +108,22 @@ class SearchByCounty extends Component {
       loading: true
     }));
 
-    const promises = this.state.selectedStates.map(async stateObj => {
-      return await this.submitState(stateObj);
+    const promises = this.state.selectedCounties.map(async countyObj => {
+      return await this.submitCounty(countyObj);
     });
-    const allStates = await Promise.all(promises);
+    const allCounties = await Promise.all(promises);
 
-    const results = this.combineDataAcrossStates(allStates);
-    const stateColumns = ['time'];
-    this.state.selectedStates.forEach(stateObj => {
-      stateColumns.push(stateObj.label);
+    const results = this.combineDataAcrossCounties(allCounties);
+    const countyColumns = ['time'];
+    this.state.selectedCounties.forEach(countyObj => {
+      countyColumns.push(countyObj.label);
     })
 
     this.setState(prevState => ({
       ...prevState,
       loading: false,
       showTables: true,
-      columns: stateColumns,
+      columns: countyColumns,
       caseCountDataPoints: results.caseCount,
       caseCountMax: results.caseCountMax,
       caseCountIncreaseDataPoints: results.caseCountIncrease,
@@ -130,14 +135,14 @@ class SearchByCounty extends Component {
     }));
   }
 
-  submitState(stateObj) {
-    const stateSanitized = encodeURIComponent(stateObj.value);
+  submitCounty(countyObj) {
+    const countySanitized = encodeURIComponent(countyObj.value);
 
-    if (!Object.prototype.hasOwnProperty.call(countyCache, stateSanitized)) {
-      return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${stateSanitized}`)
+    if (!Object.prototype.hasOwnProperty.call(countyCache, countySanitized)) {
+      return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=county&key=${countySanitized}`)
         .then(res => res.json())
         .then(rdata => {
-          countyCache[stateSanitized] = rdata.dataPoints;
+          countyCache[countySanitized] = rdata.dataPoints;
 
           return rdata.dataPoints;
         })
@@ -146,10 +151,10 @@ class SearchByCounty extends Component {
         });
     }
 
-    return countyCache[stateSanitized];
+    return countyCache[countySanitized];
   }
 
-  combineDataAcrossStates(allStates) {
+  combineDataAcrossCounties(allCounties) {
     const results = {};
     const caseCount = [];
     var caseCountMax = 0;
@@ -160,23 +165,23 @@ class SearchByCounty extends Component {
     const deathCountIncrease = [];
     var deathCountIncreaseMax = 0;
 
-    for (var index in allStates[0]) {
-      caseCount.push([allStates[0][index][0]]);
-      caseCountIncrease.push([allStates[0][index][0]]);
-      deathCount.push([allStates[0][index][0]]);
-      deathCountIncrease.push([allStates[0][index][0]]);
+    for (var index in allCounties[0]) {
+      caseCount.push([allCounties[0][index][0]]);
+      caseCountIncrease.push([allCounties[0][index][0]]);
+      deathCount.push([allCounties[0][index][0]]);
+      deathCountIncrease.push([allCounties[0][index][0]]);
     }
 
-    for (var i = 0; i < allStates.length; i++) {
-      for (var j = 0; j < allStates[i].length; j++) {
-        caseCountMax = Math.max(caseCountMax, allStates[i][j][1]);
-        caseCount[j].push(allStates[i][j][1]);
-        deathCountMax = Math.max(deathCountMax, allStates[i][j][2]);
-        deathCount[j].push(allStates[i][j][2]);
-        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, allStates[i][j][3]);
-        caseCountIncrease[j].push(allStates[i][j][3]);
-        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, allStates[i][j][4]);
-        deathCountIncrease[j].push(allStates[i][j][4]);
+    for (var i = 0; i < allCounties.length; i++) {
+      for (var j = 0; j < allCounties[i].length; j++) {
+        caseCountMax = Math.max(caseCountMax, allCounties[i][j][1]);
+        caseCount[j].push(allCounties[i][j][1]);
+        deathCountMax = Math.max(deathCountMax, allCounties[i][j][2]);
+        deathCount[j].push(allCounties[i][j][2]);
+        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, allCounties[i][j][3]);
+        caseCountIncrease[j].push(allCounties[i][j][3]);
+        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, allCounties[i][j][4]);
+        deathCountIncrease[j].push(allCounties[i][j][4]);
       }
     }
 
@@ -336,7 +341,7 @@ class SearchByCounty extends Component {
       if (objects !== null && objects !== undefined && objects.length > 4) {
         objects.shift();
       }
-      currentState.selectedStates = objects;
+      currentState.selectedCounties = objects;
 
       this.setState(currentState);
     };
@@ -347,7 +352,7 @@ class SearchByCounty extends Component {
         <div style={{ display: "flex" }}>
           <form>
             <Select
-              options={ this.state.stateValues }
+              options={ this.state.groupedOptions }
               isMulti
               className="basic-multi-select"
               onChange= { onChange }
