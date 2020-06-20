@@ -241,7 +241,7 @@ class DetailedInfo extends Component {
       },
       {
         key: "Active count of population %",
-        value: rdata.detailedInfo.activePercentage
+        value: `${rdata.detailedInfo.activePercentage}%`
       },
       {
         key: "Active case rankings",
@@ -261,7 +261,7 @@ class DetailedInfo extends Component {
       },
       {
         key: "Death count of population %",
-        value: rdata.detailedInfo.deathPercentage
+        value: `${rdata.detailedInfo.deathPercentage}%`
       },
       {
         key: "Death count rankings",
