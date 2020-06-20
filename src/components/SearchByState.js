@@ -2,6 +2,7 @@ import Button from 'react-bootstrap/Button';
 import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
 import { Component } from 'react';
 import data from '../data/data.json';
+import Form from 'react-bootstrap/Form';
 import React from 'react';
 import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
@@ -172,13 +173,13 @@ class SearchByState extends Component {
     }
 
     results.caseCount = caseCount;
-    results.caseCountMax = Math.round(caseCountMax * 1.05);
+    results.caseCountMax = Math.max(5, Math.round(caseCountMax * 1.05));
     results.caseCountIncrease = caseCountIncrease;
-    results.caseCountIncreaseMax = Math.round(caseCountIncreaseMax * 1.05);
+    results.caseCountIncreaseMax = Math.max(5, Math.round(caseCountIncreaseMax * 1.05));
     results.deathCount = deathCount;
-    results.deathCountMax = Math.round(deathCountMax * 1.05);
+    results.deathCountMax = Math.max(5, Math.round(deathCountMax * 1.05));
     results.deathCountIncrease = deathCountIncrease;
-    results.deathCountIncreaseMax = Math.round(deathCountIncreaseMax * 1.05);
+    results.deathCountIncreaseMax = Math.max(5, Math.round(deathCountIncreaseMax * 1.05));
     return results;
   }
 
@@ -247,7 +248,7 @@ class SearchByState extends Component {
         <div>
           <ChartContainer title={ titleName } timeRange={ series.range() }
             width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-            minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
+            minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
             onTrackerChanged={ handleTrackerChanged }>
             <TimeAxis format="day"/>
             <ChartRow height='400'>
@@ -336,15 +337,17 @@ class SearchByState extends Component {
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
         <p align="left">Select up to 4 states.</p>
         <div style={{ display: "flex" }}>
-          <form>
+          <Form style={{ display: "flex" }}>
             <Select
               options={ this.state.stateValues }
               isMulti
               className="basic-multi-select"
               onChange= { onChange }
             />
-          </form>
-          <Button variant="warning" style={{ 'margin-left': '10px' }} onClick={ this.submitPlot }>Plot!</Button>
+            <Button variant="warning" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitPlot }>
+              Plot!
+            </Button>
+          </Form>
         </div>
         { this.state.loading ?
             <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px', marginTop: '80px' }}>

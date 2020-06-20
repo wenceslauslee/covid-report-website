@@ -374,7 +374,7 @@ class DetailedInfo extends Component {
       return <div>
         <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
           width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 10 }
+          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
           onBackgroundClick={ () => this.setSelection(null) } onTrackerChanged={ this.handleTrackerChanged }>
           <TimeAxis format="day"/>
           <ChartRow height='400'>
@@ -432,38 +432,42 @@ class DetailedInfo extends Component {
           <p style={{ 'marginLeft': '25px' }}> { this.state.postalCodeErrorMessage }</p>
         </div>
         <div style={{ display: "flex", marginTop: '25px' }}>
-          <Select
-            options={ this.state.stateValues }
-            placeholder="Select a state..."
-            SingleValue
-            className="basic-single-select"
-            onChange= { this.onStateChange1 }
-          />
-          <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitState }>
-            Submit
-          </Button>
-        </div>
-        <div style={{ display: "flex", marginTop: '25px' }}>
-          <Select
-            options={ this.state.stateValues }
-            placeholder="Select a state..."
-            SingleValue
-            className="basic-single-select"
-            onChange= { this.onStateChange2 }
-          />
-          <div style={{ marginLeft: '10px' }}>
+          <Form style={{ display: "flex" }}>
             <Select
-              options={ this.state.countyValues }
-              placeholder="Select a county..."
+              options={ this.state.stateValues }
+              placeholder="Select a state..."
               SingleValue
               className="basic-single-select"
-              onChange= { this.onCountyChange }
-              value={ this.state.countyValueInput }
+              onChange= { this.onStateChange1 }
             />
-          </div>
-          <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
-            Submit
-          </Button>
+            <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitState }>
+              Submit
+            </Button>
+          </Form>
+        </div>
+        <div style={{ display: "flex", marginTop: '25px' }}>
+          <Form style={{ display: "flex" }}>
+            <Select
+              options={ this.state.stateValues }
+              placeholder="Select a state..."
+              SingleValue
+              className="basic-single-select"
+              onChange= { this.onStateChange2 }
+            />
+            <div style={{ marginLeft: '10px' }}>
+              <Select
+                options={ this.state.countyValues }
+                placeholder="Select a county..."
+                SingleValue
+                className="basic-single-select"
+                onChange= { this.onCountyChange }
+                value={ this.state.countyValueInput }
+              />
+            </div>
+            <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
+              Submit
+            </Button>
+          </Form>
         </div>
         { this.state.loading ?
             <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px', marginTop: '80px' }}>
