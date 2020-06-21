@@ -17,12 +17,8 @@ class USOverallTable extends Component {
       validDate: '',
       loading: true,
       caseCountDataPoints: [],
-      caseCountMax: 0,
-      caseCountIncreaseMax: 0,
       caseCountTracker: null,
       deathCountDataPoints: [],
-      deathCountMax: 0,
-      deathCountIncreaseMax: 0,
       deathCountTracker: null
     };
 
@@ -40,10 +36,6 @@ class USOverallTable extends Component {
         const deathCountDataPoints = _.map(rdata.dataPoints, d => {
           return [d[0], d[2], d[4]];
         });
-        const caseCountMax = Formatter.getMaxValue(_.maxBy(caseCountDataPoints, d => d[1])[1]);
-        const caseCountIncreaseMax = Formatter.getMaxValue(_.maxBy(caseCountDataPoints, d => d[2])[2]);
-        const deathCountMax = Formatter.getMaxValue(_.maxBy(deathCountDataPoints, d => d[1])[1]);
-        const deathCountIncreaseMax = Formatter.getMaxValue(_.maxBy(deathCountDataPoints, d => d[2])[2]);
 
         this.setState({
           data: [{
@@ -56,11 +48,7 @@ class USOverallTable extends Component {
           validDate: rdata.currentDate,
           loading: false,
           caseCountDataPoints: caseCountDataPoints,
-          caseCountMax: caseCountMax,
-          caseCountIncreaseMax: caseCountIncreaseMax,
-          deathCountDataPoints: deathCountDataPoints,
-          deathCountMax: deathCountMax,
-          deathCountIncreaseMax: deathCountIncreaseMax,
+          deathCountDataPoints: deathCountDataPoints
         });
       })
       .catch(err => {
@@ -69,16 +57,16 @@ class USOverallTable extends Component {
   }
 
   getCaseCountGraph() {
-    return this.getGraph(this.state.caseCountDataPoints, 'Case', this.state.caseCountMax,
-      this.state.caseCountIncreaseMax, this.state.caseCountTracker, this.handleTrackerChanged1);
+    return this.getGraph(this.state.caseCountDataPoints, 'Case', this.state.caseCountTracker,
+      this.handleTrackerChanged1);
   }
 
   getDeathCountGraph() {
-    return this.getGraph(this.state.deathCountDataPoints, 'Death', this.state.deathCountMax,
-      this.state.deathCountIncreaseMax, this.state.deathCountTracker, this.handleTrackerChanged2);
+    return this.getGraph(this.state.deathCountDataPoints, 'Death', this.state.deathCountTracker,
+      this.handleTrackerChanged2);
   }
 
-  getGraph(dataPoints, chartName, countMax, increaseMax, tracker, handleTrackerChanged) {
+  getGraph(dataPoints, chartName, tracker, handleTrackerChanged) {
     if (!this.state.loading) {
       const series = new TimeSeries(
         {
@@ -153,16 +141,16 @@ class USOverallTable extends Component {
           onTrackerChanged={ handleTrackerChanged }>
           <TimeAxis format="day"/>
           <ChartRow height='400'>
-            <YAxis id="y1" label="Count" min={ 0 } max={ countMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
+            <YAxis id="y1" label="Count" min={ 0 } max={ Formatter.getMaxValue(series.max('count')) } width="60"
+              type="linear" showGrid style={ darkAxis } />
             <Charts>
               <LineChart axis="y1" series={ series } columns={ ['count'] } style={ style }
                 interpolation='curveBasis'/>
               <LineChart axis="y2" series={ series } columns={ ['increase'] } style={ style }
                 interpolation='curveBasis'/>
             </Charts>
-            <YAxis id="y2" label="Count" min={ 0 } max={ increaseMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
+            <YAxis id="y2" label="Count" min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) } width="60"
+              type="linear" showGrid style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>

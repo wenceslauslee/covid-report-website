@@ -1,6 +1,7 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
-import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
+import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
+  from "react-timeseries-charts";
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
@@ -41,8 +42,6 @@ class DetailedInfo extends Component {
       countyValueFips: '',
       date: '',
       dataPoints: [],
-      caseMax: 0,
-      deathMax: 0,
       tracker: null,
       x: null,
       y: null,
@@ -111,8 +110,6 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          caseMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[1])[1]),
-          deathMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[2])[2]),
           loading: false
         }));
       })
@@ -186,8 +183,6 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.stateNameFullProper}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          caseMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[1])[1]),
-          deathMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[2])[2]),
           loading: false
         }));
       })
@@ -217,8 +212,6 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          caseMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[1])[1]),
-          deathMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[2])[2]),
           loading: false
         }));
       })
@@ -376,16 +369,16 @@ class DetailedInfo extends Component {
           onTrackerChanged={ this.handleTrackerChanged }>
           <TimeAxis format="day"/>
           <ChartRow height='400'>
-            <YAxis id="y1" label="Case Count" min={ 0 } max={ this.state.caseMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
+            <YAxis id="y1" label="Case Count" min={ 0 } max={ Formatter.getMaxValue(series.max('cases')) } width="60"
+              type="linear" showGrid style={ darkAxis } />
             <Charts>
               <LineChart axis="y1" series={ series } columns={ ['cases'] } style={ style }
                 interpolation='curveBasis'/>
               <LineChart axis="y2" series={ series } columns={ ['deaths'] } style={ style }
                 interpolation='curveBasis'/>
             </Charts>
-            <YAxis id="y2" label="Death Count" min={ 0 } max={ this.state.deathMax } width="60" type="linear" showGrid
-              style={ darkAxis } />
+            <YAxis id="y2" label="Death Count" min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width="60"
+              type="linear" showGrid style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
