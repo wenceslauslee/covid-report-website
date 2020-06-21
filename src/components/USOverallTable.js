@@ -1,10 +1,11 @@
 import BootstrapTable from 'react-bootstrap-table-next';
-import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
+import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
+  from "react-timeseries-charts";
 import { Component } from 'react';
 import Formatter from '../utils/Formatter';
 import React from 'react';
 import { Spinner } from 'react-bootstrap';
-import { TimeSeries } from 'pondjs';
+import { Index, TimeSeries } from 'pondjs';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -73,6 +74,15 @@ class USOverallTable extends Component {
           name: "USStats",
           columns: ["time", "count", "increase"],
           points: dataPoints
+        }
+      );
+      const timeSeries = new TimeSeries(
+        {
+          name: "USStatsBar",
+          columns: ['index', 'increase'],
+          points: _.map(dataPoints, d => {
+            return [Index.getIndexString('1d', d[0]), d[2]];
+          })
         }
       );
       const style = styler([
@@ -146,8 +156,7 @@ class USOverallTable extends Component {
             <Charts>
               <LineChart axis="y1" series={ series } columns={ ['count'] } style={ style }
                 interpolation='curveBasis'/>
-              <LineChart axis="y2" series={ series } columns={ ['increase'] } style={ style }
-                interpolation='curveBasis'/>
+              <BarChart axis="y2" series={ timeSeries } columns={ ['increase'] } style={ style } />
             </Charts>
             <YAxis id="y2" label="Count" min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) } width="60"
               type="linear" showGrid style={ darkAxis } />

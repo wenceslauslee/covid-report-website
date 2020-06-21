@@ -9,7 +9,7 @@ import Formatter from '../utils/Formatter';
 import React from 'react';
 import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
-import { TimeSeries } from 'pondjs';
+import { Index, TimeSeries } from 'pondjs';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -296,6 +296,15 @@ class DetailedInfo extends Component {
           points: this.state.dataPoints
         }
       );
+      const timeSeries = new TimeSeries(
+        {
+          name: "CovidStatsBar",
+          columns: ['index', 'increase'],
+          points: _.map(this.state.dataPoints, d => {
+            return [Index.getIndexString('1d', d[0]), d[3]];
+          })
+        }
+      );
       const style = styler([
         { key: "time", color: "#0000ff", width: 1 },
         { key: "cases", color: "#0000ff", width: 1 },
@@ -368,17 +377,24 @@ class DetailedInfo extends Component {
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
           onTrackerChanged={ this.handleTrackerChanged }>
           <TimeAxis format="day"/>
-          <ChartRow height='400'>
+          <ChartRow height='300'>
             <YAxis id="y1" label="Case Count" min={ 0 } max={ Formatter.getMaxValue(series.max('cases')) } width="60"
               type="linear" showGrid style={ darkAxis } />
             <Charts>
               <LineChart axis="y1" series={ series } columns={ ['cases'] } style={ style }
                 interpolation='curveBasis'/>
-              <LineChart axis="y2" series={ series } columns={ ['deaths'] } style={ style }
+              <BarChart axis="y2" series={ timeSeries } columns={ ['increase'] } style={ style } />
+            </Charts>
+            <YAxis id="y2" label="Daily Increase" min={ 0 } max={ Formatter.getMaxValue(timeSeries.max('increase')) }
+              width="60" type="linear" showGrid style={ darkAxis } />
+          </ChartRow>
+          <ChartRow height='200'>
+            <YAxis id="y1" label="Death Count" min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width="60"
+              type="linear" showGrid style={ darkAxis } />
+            <Charts>
+              <LineChart axis="y1" series={ series } columns={ ['deaths'] } style={ style }
                 interpolation='curveBasis'/>
             </Charts>
-            <YAxis id="y2" label="Death Count" min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width="60"
-              type="linear" showGrid style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
