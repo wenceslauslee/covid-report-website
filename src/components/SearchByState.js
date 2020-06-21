@@ -221,23 +221,23 @@ class SearchByState extends Component {
 
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
-        <p align="left">Select up to 4 states.</p>
-        <div style={{ display: "flex" }}>
-          <Form style={{ display: "flex" }}>
+        <p align='left'>Select up to 4 states.</p>
+        <div style={{ display: 'flex' }}>
+          <Form style={{ display: 'flex' }}>
             <Select
               options={ this.state.stateValues }
               isMulti
-              className="basic-multi-select"
+              className='basic-multi-select'
               onChange= { onChange }
             />
-            <Button variant="warning" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitPlot }>
+            <Button variant='warning' type='submit' style={{ 'marginLeft': '10px' }} onClick={ this.submitPlot }>
               Plot!
             </Button>
           </Form>
         </div>
         { this.state.loading ?
             <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px', marginTop: '80px' }}>
-              <Spinner animation="border" />
+              <Spinner animation='border' />
             </div> :
             ''
         }

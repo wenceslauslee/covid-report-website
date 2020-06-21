@@ -6,7 +6,6 @@ import { Spinner } from 'react-bootstrap';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-// import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 class StateRankTable extends Component {
   constructor() {
@@ -125,14 +124,14 @@ class StateRankTable extends Component {
     if (this.state.loading) {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <Spinner animation="border" />
+          <Spinner animation='border' />
         </div>
       );
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
-          <p align="left"> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
+          <p align='left'> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align='left'> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
           <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
             data={ this.state.data } columns={ columns }/>
         </div>

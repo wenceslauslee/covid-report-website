@@ -1,6 +1,6 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
-  from "react-timeseries-charts";
+  from 'react-timeseries-charts';
 import { Component } from 'react';
 import Formatter from '../utils/Formatter';
 import React from 'react';
@@ -71,14 +71,14 @@ class USOverallTable extends Component {
     if (!this.state.loading) {
       const series = new TimeSeries(
         {
-          name: "USStats",
-          columns: ["time", "count", "increase"],
+          name: 'USStats',
+          columns: ['time', 'count', 'increase'],
           points: dataPoints
         }
       );
       const timeSeries = new TimeSeries(
         {
-          name: "USStatsBar",
+          name: 'USStatsBar',
           columns: ['index', 'increase'],
           points: _.map(dataPoints, d => {
             return [Index.getIndexString('1d', d[0]), d[2]];
@@ -86,33 +86,33 @@ class USOverallTable extends Component {
         }
       );
       const style = styler([
-        { key: "time", color: "#0000ff", width: 1 },
-        { key: "count", color: "#0000ff", width: 1 },
-        { key: "increase", color: "#ff0000", width: 1 },
+        { key: 'time', color: '#0000ff', width: 1 },
+        { key: 'count', color: '#0000ff', width: 1 },
+        { key: 'increase', color: '#ff0000', width: 1 },
       ]);
       const darkAxis = {
         label: {
-            stroke: "none",
-            fill: "#000000", // Default label color
+            stroke: 'none',
+            fill: '#000000', // Default label color
             fontWeight: 200,
             fontSize: 14,
-            font: '"Goudy Bookletter 1911", sans-serif"'
+            font: 'Goudy Bookletter 1911\', sans-serif'
         },
         values: {
-            stroke: "none",
-            fill: "#000000",
+            stroke: 'none',
+            fill: '#000000',
             fontWeight: 100,
             fontSize: 11,
-            font: '"Goudy Bookletter 1911", sans-serif"'
+            font: 'Goudy Bookletter 1911\', sans-serif'
         },
         ticks: {
-            fill: "none",
-            stroke: "#000000",
+            fill: 'none',
+            stroke: '#000000',
             opacity: 0.2
         },
         axis: {
-            fill: "none",
-            stroke: "#000000",
+            fill: 'none',
+            stroke: '#000000',
             opacity: 0.25
         }
       };
@@ -149,21 +149,21 @@ class USOverallTable extends Component {
           width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
           onTrackerChanged={ handleTrackerChanged }>
-          <TimeAxis format="day"/>
+          <TimeAxis format='day'/>
           <ChartRow height='400'>
-            <YAxis id="y1" label="Count" min={ 0 } max={ Formatter.getMaxValue(series.max('count')) } width="60"
-              type="linear" showGrid style={ darkAxis } />
+            <YAxis id='y1' label='Count' min={ 0 } max={ Formatter.getMaxValue(series.max('count')) } width='60'
+              type='linear' showGrid style={ darkAxis } />
             <Charts>
-              <LineChart axis="y1" series={ series } columns={ ['count'] } style={ style }
+              <LineChart axis='y1' series={ series } columns={ ['count'] } style={ style }
                 interpolation='curveBasis'/>
-              <BarChart axis="y2" series={ timeSeries } columns={ ['increase'] } style={ style } />
+              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
             </Charts>
-            <YAxis id="y2" label="Daily Increase" min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) }
-              width="60" type="linear" showGrid style={ darkAxis } />
+            <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) }
+              width='60' type='linear' showGrid style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
+          <Legend type='line' style={ style } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }
@@ -212,13 +212,13 @@ class USOverallTable extends Component {
     if (this.state.loading) {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <Spinner animation="border" />
+          <Spinner animation='border' />
         </div>
       );
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align='left'> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
           <BootstrapTable bootstrap4={ true } keyField='us-overall-table'
             data={ this.state.data } columns={ columns }>
           </BootstrapTable>

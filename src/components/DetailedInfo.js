@@ -1,7 +1,7 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
 import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
-  from "react-timeseries-charts";
+  from 'react-timeseries-charts';
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
@@ -223,43 +223,43 @@ class DetailedInfo extends Component {
   getTableData(rdata) {
     return [
       {
-        key: "Active case count",
+        key: 'Active case count',
         value: rdata.detailedInfo.activeCount
       },
       {
-        key: "Active case count change over a day",
+        key: 'Active case count change over a day',
         value: (rdata.detailedInfo.activeChange >= 0) ? `+${rdata.detailedInfo.activeChange}` : rdata.detailedInfo.activeChange
       },
       {
-        key: "Active count of population %",
+        key: 'Active count of population %',
         value: `${rdata.detailedInfo.activePercentage}%`
       },
       {
-        key: "Active case rankings",
+        key: 'Active case rankings',
         value: rdata.detailedInfo.activeRank
       },
       {
-        key: "Change in active case rankings",
+        key: 'Change in active case rankings',
         value: Formatter.modifyChangeRank(rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank)
       },
       {
-        key: "Death count",
+        key: 'Death count',
         value: rdata.detailedInfo.deathCount
       },
       {
-        key: "Death count change over a day",
+        key: 'Death count change over a day',
         value: (rdata.detailedInfo.deathChange >= 0) ? `+${rdata.detailedInfo.deathChange}` : rdata.detailedInfo.deathChange
       },
       {
-        key: "Death count of population %",
+        key: 'Death count of population %',
         value: `${rdata.detailedInfo.deathPercentage}%`
       },
       {
-        key: "Death count rankings",
+        key: 'Death count rankings',
         value: rdata.detailedInfo.deathRank
       },
       {
-        key: "Change in death count rankings",
+        key: 'Change in death count rankings',
         value: Formatter.modifyChangeRank(rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank)
       }
     ];
@@ -291,14 +291,14 @@ class DetailedInfo extends Component {
     if (this.state.showTable && !this.state.loading) {
       const series = new TimeSeries(
         {
-          name: "CovidStats",
-          columns: ["time", "cases", "deaths", "increase"],
+          name: 'CovidStats',
+          columns: ['time', 'cases', 'deaths', 'increase'],
           points: this.state.dataPoints
         }
       );
       const timeSeries = new TimeSeries(
         {
-          name: "CovidStatsBar",
+          name: 'CovidStatsBar',
           columns: ['index', 'increase'],
           points: _.map(this.state.dataPoints, d => {
             return [Index.getIndexString('1d', d[0]), d[3]];
@@ -306,34 +306,34 @@ class DetailedInfo extends Component {
         }
       );
       const style = styler([
-        { key: "time", color: "#0000ff", width: 1 },
-        { key: "cases", color: "#0000ff", width: 1 },
-        { key: "deaths", color: "#ff0000", width: 1 },
-        { key: "increase", color: "#ff0000", width: 1 },
+        { key: 'time', color: '#0000ff', width: 1 },
+        { key: 'cases', color: '#0000ff', width: 1 },
+        { key: 'deaths', color: '#ff0000', width: 1 },
+        { key: 'increase', color: '#ff0000', width: 1 },
       ]);
       const darkAxis = {
         label: {
-            stroke: "none",
-            fill: "#000000", // Default label color
+            stroke: 'none',
+            fill: '#000000', // Default label color
             fontWeight: 200,
             fontSize: 14,
-            font: '"Goudy Bookletter 1911", sans-serif"'
+            font: 'Goudy Bookletter 1911\', sans-serif'
         },
         values: {
-            stroke: "none",
-            fill: "#000000",
+            stroke: 'none',
+            fill: '#000000',
             fontWeight: 100,
             fontSize: 11,
-            font: '"Goudy Bookletter 1911", sans-serif"'
+            font: 'Goudy Bookletter 1911\', sans-serif'
         },
         ticks: {
-            fill: "none",
-            stroke: "#000000",
+            fill: 'none',
+            stroke: '#000000',
             opacity: 0.2
         },
         axis: {
-            fill: "none",
-            stroke: "#000000",
+            fill: 'none',
+            stroke: '#000000',
             opacity: 0.25
         }
       };
@@ -376,29 +376,29 @@ class DetailedInfo extends Component {
           width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
           onTrackerChanged={ this.handleTrackerChanged }>
-          <TimeAxis format="day"/>
+          <TimeAxis format='day'/>
           <ChartRow height='300'>
-            <YAxis id="y1" label="Case Count" min={ 0 } max={ Formatter.getMaxValue(series.max('cases')) } width="60"
-              type="linear" showGrid style={ darkAxis } />
+            <YAxis id='y1' label='Case Count' min={ 0 } max={ Formatter.getMaxValue(series.max('cases')) } width='60'
+              type='linear' showGrid style={ darkAxis } />
             <Charts>
-              <LineChart axis="y1" series={ series } columns={ ['cases'] } style={ style }
+              <LineChart axis='y1' series={ series } columns={ ['cases'] } style={ style }
                 interpolation='curveBasis'/>
-              <BarChart axis="y2" series={ timeSeries } columns={ ['increase'] } style={ style } />
+              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
             </Charts>
-            <YAxis id="y2" label="Daily Increase" min={ 0 } max={ Formatter.getMaxValue(timeSeries.max('increase')) }
-              width="60" type="linear" showGrid style={ darkAxis } />
+            <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(timeSeries.max('increase')) }
+              width='60' type='linear' showGrid style={ darkAxis } />
           </ChartRow>
           <ChartRow height='200'>
-            <YAxis id="y1" label="Death Count" min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width="60"
-              type="linear" showGrid style={ darkAxis } />
+            <YAxis id='y1' label='Death Count' min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width='60'
+              type='linear' showGrid style={ darkAxis } />
             <Charts>
-              <LineChart axis="y1" series={ series } columns={ ['deaths'] } style={ style }
+              <LineChart axis='y1' series={ series } columns={ ['deaths'] } style={ style }
                 interpolation='curveBasis'/>
             </Charts>
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
+          <Legend type='line' style={ style } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }
@@ -425,56 +425,56 @@ class DetailedInfo extends Component {
   render() {
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
-        <div style={{ display: "flex" }}>
-          <Form style={{ display: "flex" }}>
-            <Form.Control type="postal" placeholder="Enter postal code..." onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
-            <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitPostalCode }>
+        <div style={{ display: 'flex' }}>
+          <Form style={{ display: 'flex' }}>
+            <Form.Control type='postal' placeholder='Enter postal code...' onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
+            <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick={ this.submitPostalCode }>
               Submit
             </Button>
           </Form>
           <p style={{ 'marginLeft': '25px' }}> { this.state.postalCodeErrorMessage }</p>
         </div>
-        <div style={{ display: "flex", marginTop: '25px' }}>
-          <Form style={{ display: "flex" }}>
+        <div style={{ display: 'flex', marginTop: '25px' }}>
+          <Form style={{ display: 'flex' }}>
             <Select
               options={ this.state.stateValues }
-              placeholder="Select a state..."
+              placeholder='Select a state...'
               SingleValue
-              className="basic-single-select"
+              className='basic-single-select'
               onChange= { this.onStateChange1 }
             />
-            <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick={ this.submitState }>
+            <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick={ this.submitState }>
               Submit
             </Button>
           </Form>
         </div>
-        <div style={{ display: "flex", marginTop: '25px' }}>
-          <Form style={{ display: "flex" }}>
+        <div style={{ display: 'flex', marginTop: '25px' }}>
+          <Form style={{ display: 'flex' }}>
             <Select
               options={ this.state.stateValues }
-              placeholder="Select a state..."
+              placeholder='Select a state...'
               SingleValue
-              className="basic-single-select"
+              className='basic-single-select'
               onChange= { this.onStateChange2 }
             />
             <div style={{ marginLeft: '10px' }}>
               <Select
                 options={ this.state.countyValues }
-                placeholder="Select a county..."
+                placeholder='Select a county...'
                 SingleValue
-                className="basic-single-select"
+                className='basic-single-select'
                 onChange= { this.onCountyChange }
                 value={ this.state.countyValueInput }
               />
             </div>
-            <Button variant="primary" type="submit" style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
+            <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
               Submit
             </Button>
           </Form>
         </div>
         { this.state.loading ?
             <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px', marginTop: '80px' }}>
-              <Spinner animation="border" />
+              <Spinner animation='border' />
             </div> :
             ''
         }

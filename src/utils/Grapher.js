@@ -1,30 +1,30 @@
-import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from 'react-timeseries-charts';
 import React from 'react';
 import { TimeSeries } from 'pondjs';
 
 const darkAxis = {
   label: {
-      stroke: "none",
-      fill: "#000000", // Default label color
+      stroke: 'none',
+      fill: '#000000', // Default label color
       fontWeight: 200,
       fontSize: 14,
-      font: '"Goudy Bookletter 1911", sans-serif"'
+      font: 'Goudy Bookletter 1911\', sans-serif'
   },
   values: {
-      stroke: "none",
-      fill: "#000000",
+      stroke: 'none',
+      fill: '#000000',
       fontWeight: 100,
       fontSize: 11,
-      font: '"Goudy Bookletter 1911", sans-serif"'
+      font: 'Goudy Bookletter 1911\', sans-serif'
   },
   ticks: {
-      fill: "none",
-      stroke: "#000000",
+      fill: 'none',
+      stroke: '#000000',
       opacity: 0.2
   },
   axis: {
-      fill: "none",
-      stroke: "#000000",
+      fill: 'none',
+      stroke: '#000000',
       opacity: 0.25
   }
 };
@@ -97,18 +97,18 @@ const Grapher = {
             width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
             minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
             onTrackerChanged={ handleTrackerChanged }>
-            <TimeAxis format="day"/>
+            <TimeAxis format='day'/>
             <ChartRow height='400'>
-              <YAxis id="y" label="Count" min={ 0 } max={ dataMax } width="60" type="linear" showGrid
+              <YAxis id='y' label='Count' min={ 0 } max={ dataMax } width='60' type='linear' showGrid
                 style={ darkAxis } />
                <Charts>
-                <LineChart axis="y" series={ series } columns={ yColumns } style={ style }
+                <LineChart axis='y' series={ series } columns={ yColumns } style={ style }
                   interpolation='curveBasis'/>
               </Charts>
             </ChartRow>
           </ChartContainer>
           <div style={{ justifyContent: 'flex-end' }}>
-            <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
+            <Legend type='line' style={ style } categories={ legend } align='right' stack={ false }/>
           </div>
         </div>
       );

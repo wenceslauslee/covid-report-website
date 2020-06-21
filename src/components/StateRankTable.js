@@ -165,13 +165,13 @@ class StateRankTable extends Component {
     if (this.state.loading) {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <Spinner animation="border" />
+          <Spinner animation='border' />
         </div>
       );
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align="left"> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align='left'> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
           <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
             data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
           </BootstrapTable>

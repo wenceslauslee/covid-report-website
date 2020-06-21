@@ -25,8 +25,8 @@ class Wiki extends Component {
         <br/>
         <br/>
         Helpful links that I have been following over the last few months.
-        <br/>1. <a href="https://coronavirus.jhu.edu/map.html">Johns Hopkins Coronavirus Resource Center</a>
-        <br/>2. <a href="https://www.cnn.com/interactive/2020/health/coronavirus-us-maps-and-cases/">CNN Tracking COVID-19 Cases In The US</a>
+        <br/>1. <a href='https://coronavirus.jhu.edu/map.html'>Johns Hopkins Coronavirus Resource Center</a>
+        <br/>2. <a href='https://www.cnn.com/interactive/2020/health/coronavirus-us-maps-and-cases/'>CNN Tracking COVID-19 Cases In The US</a>
         <br/>
         <br/>
         Lastly, stay vigilant, healthy and safe!
