@@ -16,6 +16,7 @@ class USOverallTable extends Component {
     this.state = {
       data: [],
       validDate: '',
+      timestamp: '',
       loading: true,
       caseCountDataPoints: [],
       caseCountTracker: null,
@@ -47,6 +48,7 @@ class USOverallTable extends Component {
             deathChange: `+${rdata.detailedInfo.deathChange}`
           }],
           validDate: rdata.currentDate,
+          timestamp: rdata.reportTimestamp,
           loading: false,
           caseCountDataPoints: caseCountDataPoints,
           deathCountDataPoints: deathCountDataPoints
@@ -218,7 +220,11 @@ class USOverallTable extends Component {
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align='left'> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align='left'>
+            * Data reflects situation at
+            <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+            <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+          </p>
           <BootstrapTable bootstrap4={ true } keyField='us-overall-table'
             data={ this.state.data } columns={ columns }>
           </BootstrapTable>

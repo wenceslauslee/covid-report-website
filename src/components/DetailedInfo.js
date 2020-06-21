@@ -41,6 +41,7 @@ class DetailedInfo extends Component {
       countyValueInput: '',
       countyValueFips: '',
       date: '',
+      timestamp: '',
       dataPoints: [],
       tracker: null,
       x: null,
@@ -109,6 +110,7 @@ class DetailedInfo extends Component {
           tableInfo: tableData,
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          timestamp: rdata.reportTimestamp,
           dataPoints: rdata.dataPoints,
           loading: false
         }));
@@ -182,6 +184,7 @@ class DetailedInfo extends Component {
           tableInfo: tableData,
           countyStateName: `${rdata.stateNameFullProper}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          timestamp: rdata.reportTimestamp,
           dataPoints: rdata.dataPoints,
           loading: false
         }));
@@ -211,6 +214,7 @@ class DetailedInfo extends Component {
           tableInfo: tableData,
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          timestamp: rdata.reportTimestamp,
           dataPoints: rdata.dataPoints,
           loading: false
         }));
@@ -279,9 +283,13 @@ class DetailedInfo extends Component {
         }
       ];
 
-      return <BootstrapTable bootstrap4={ true } keyField='detailed-table'
-        data={ this.state.tableInfo } columns={ columns }>
+      return <div>
+        <p align='left'>
+          <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+        </p>
+        <BootstrapTable bootstrap4={ true } keyField='detailed-table' data={ this.state.tableInfo } columns={ columns }>
         </BootstrapTable>
+      </div>
     }
 
     return null;

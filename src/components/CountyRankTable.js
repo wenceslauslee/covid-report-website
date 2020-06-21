@@ -1,18 +1,19 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import { Component } from 'react';
-import React from 'react';
 import Formatter from '../utils/Formatter';
+import React from 'react';
 import { Spinner } from 'react-bootstrap';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
-class StateRankTable extends Component {
+class CountyRankTable extends Component {
   constructor() {
     super();
     this.state = {
       data: [],
       validDate: '',
+      timestamp: '',
       loading: true
     };
   }
@@ -66,6 +67,7 @@ class StateRankTable extends Component {
     this.setState({
       data: this.state.data.concat(filtered),
       validDate: rdata.reportDate,
+      timestamp: rdata.reportTimestamp,
       loading: false
     });
   }
@@ -130,7 +132,11 @@ class StateRankTable extends Component {
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align='left'> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align='left'>
+             * Data reflects situation at
+            <span style={{ 'fontWeight': 'bold' }}> { this.state.validDate } 23:59:59 EST</span>
+            <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+          </p>
           <p align='left'> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
           <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
             data={ this.state.data } columns={ columns }/>
@@ -140,4 +146,4 @@ class StateRankTable extends Component {
   }
 }
 
-export default StateRankTable;
+export default CountyRankTable;

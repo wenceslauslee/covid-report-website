@@ -19,6 +19,8 @@ class SearchByCounty extends Component {
       showTables: false,
       loading: false,
       columns: [],
+      validDate: '',
+      timestamp: '',
       caseCountDataPoints: [],
       caseCountMax: 0,
       caseCountTracker: null,
@@ -98,6 +100,8 @@ class SearchByCounty extends Component {
       loading: false,
       showTables: true,
       columns: countyColumns,
+      validDate: allCounties[0].currentDate,
+      timestamp: allCounties[0].reportTimestamp,
       caseCountDataPoints: results.caseCount,
       caseCountMax: results.caseCountMax,
       caseCountIncreaseDataPoints: results.caseCountIncrease,
@@ -254,6 +258,16 @@ class SearchByCounty extends Component {
               <Spinner animation='border' />
             </div> :
             ''
+        }
+        { (this.state.showTables && !this.state.loading) ?
+          <div style={{ marginTop: '30px' }}>
+            <p align='left'>
+              * Data reflects situation at
+              <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+              <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+            </p>
+          </div> :
+          ''
         }
         <div style={{ display: 'flex', minWidth: '1200px' }}>
           <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>

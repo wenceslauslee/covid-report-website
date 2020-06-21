@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const Formatter = {
   modifyChangeRank: (rankChange) => {
     if (rankChange > 0) {
@@ -31,6 +33,12 @@ const Formatter = {
 
   getMaxValue: (maxValue) => {
     return Math.max(5, Math.round(maxValue * 1.05));
+  },
+
+  getTimestamp: (timestamp) => {
+    const date = moment(timestamp);
+
+    return `${date.format('YYYY-MM-DD HH:mm:ss')}`;
   }
 }
 

@@ -1,6 +1,7 @@
-import { Component } from 'react';
-import React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
+import { Component } from 'react';
+import Formatter from '../utils/Formatter';
+import React from 'react';
 import { Spinner } from 'react-bootstrap';
 import _ from 'lodash';
 
@@ -12,6 +13,7 @@ class StateRankTable extends Component {
     this.state = {
       data: [],
       validDate: '',
+      timestamp: '',
       loading: true
     };
   }
@@ -47,6 +49,7 @@ class StateRankTable extends Component {
         this.setState({
           data: filtered,
           validDate: rdata.reportDate,
+          timestamp: rdata.reportTimestamp,
           loading: false
         });
       })
@@ -171,7 +174,11 @@ class StateRankTable extends Component {
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align='left'> * Data reflects situation at <span style={{ 'fontWeight': 'bold'}}>{ this.state.validDate } 23:59:59 PM EST</span>.</p>
+          <p align='left'>
+            * Data reflects situation at
+            <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+            <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+          </p>
           <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
             data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
           </BootstrapTable>
