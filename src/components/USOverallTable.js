@@ -158,8 +158,8 @@ class USOverallTable extends Component {
                 interpolation='curveBasis'/>
               <BarChart axis="y2" series={ timeSeries } columns={ ['increase'] } style={ style } />
             </Charts>
-            <YAxis id="y2" label="Count" min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) } width="60"
-              type="linear" showGrid style={ darkAxis } />
+            <YAxis id="y2" label="Daily Increase" min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) }
+              width="60" type="linear" showGrid style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
