@@ -123,10 +123,6 @@ class DetailedInfo extends Component {
   onStateChange2(objects, action) {
     const stateName = encodeURIComponent(objects.value);
 
-    this.setState(prevState => ({
-      ...prevState,
-      loading: true
-    }));
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=${stateName}`)
       .then(res => res.json())
       .then(rdata => {
@@ -147,8 +143,7 @@ class DetailedInfo extends Component {
           countyValues: countyValues,
           countyValueMap: countyValueMap,
           countyValueInput: null,
-          countyValueFips: '',
-          loading: false
+          countyValueFips: ''
         }));
       })
       .catch(err => {
