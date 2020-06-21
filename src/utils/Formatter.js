@@ -27,6 +27,10 @@ const Formatter = {
     return {
       color: colorToUse
     };
+  },
+
+  getMaxValue: (maxValue) => {
+    return Math.max(5, Math.round(maxValue * 1.05));
   }
 }
 

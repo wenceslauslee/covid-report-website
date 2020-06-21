@@ -4,9 +4,9 @@ import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, s
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
+import Formatter from '../utils/Formatter';
 import React from 'react';
 import Select from 'react-select';
-import Formatter from '../utils/Formatter';
 import { Spinner } from 'react-bootstrap';
 import { TimeSeries } from 'pondjs';
 import _ from 'lodash';
@@ -24,7 +24,6 @@ class DetailedInfo extends Component {
     this.onStateChange2 = this.onStateChange2.bind(this);
     this.onCountyChange = this.onCountyChange.bind(this);
     this.submitStateCounty = this.submitStateCounty.bind(this);
-    this.setSelection = this.setSelection.bind(this);
     this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
 
     this.state = {
@@ -42,8 +41,8 @@ class DetailedInfo extends Component {
       countyValueFips: '',
       date: '',
       dataPoints: [],
-      dataMax: 0,
-      selection: '',
+      caseMax: 0,
+      deathMax: 0,
       tracker: null,
       x: null,
       y: null,
@@ -112,7 +111,8 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints),
+          caseMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[1])[1]),
+          deathMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[2])[2]),
           loading: false
         }));
       })
@@ -186,7 +186,8 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.stateNameFullProper}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints),
+          caseMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[1])[1]),
+          deathMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[2])[2]),
           loading: false
         }));
       })
@@ -216,17 +217,14 @@ class DetailedInfo extends Component {
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
           date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
           dataPoints: rdata.dataPoints,
-          dataMax: this.getMaxValue(rdata.dataPoints),
+          caseMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[1])[1]),
+          deathMax: Formatter.getMaxValue(_.maxBy(rdata.dataPoints, p => p[2])[2]),
           loading: false
         }));
       })
       .catch(err => {
         console.log(err);
       });
-  }
-
-  getMaxValue(dataPoints) {
-    return Math.round(_.maxBy(dataPoints, p => p[1])[1] * 1.05);
   }
 
   getTableData(rdata) {
@@ -375,32 +373,28 @@ class DetailedInfo extends Component {
         <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
           width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
-          onBackgroundClick={ () => this.setSelection(null) } onTrackerChanged={ this.handleTrackerChanged }>
+          onTrackerChanged={ this.handleTrackerChanged }>
           <TimeAxis format="day"/>
           <ChartRow height='400'>
-            <YAxis id="y" label="Count" min={ 0 } max={ this.state.dataMax } width="60" type="linear" showGrid
+            <YAxis id="y1" label="Case Count" min={ 0 } max={ this.state.caseMax } width="60" type="linear" showGrid
               style={ darkAxis } />
-             <Charts>
-              <LineChart axis="y" series={ series } columns={ ['cases', 'deaths'] } style={ style }
-                interpolation='curveBasis' selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
+            <Charts>
+              <LineChart axis="y1" series={ series } columns={ ['cases'] } style={ style }
+                interpolation='curveBasis'/>
+              <LineChart axis="y2" series={ series } columns={ ['deaths'] } style={ style }
+                interpolation='curveBasis'/>
             </Charts>
+            <YAxis id="y2" label="Death Count" min={ 0 } max={ this.state.deathMax } width="60" type="linear" showGrid
+              style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }
-            selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
+          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }
 
     return null;
-  }
-
-  setSelection(selection) {
-    this.setState(prevState => ({
-      ...prevState,
-      selection: selection
-    }));
   }
 
   handleTrackerChanged(tracker) {

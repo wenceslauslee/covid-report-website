@@ -1,6 +1,7 @@
 import Button from 'react-bootstrap/Button';
 import { Component } from 'react';
 import Form from 'react-bootstrap/Form';
+import Formatter from '../utils/Formatter';
 import Grapher from '../utils/Grapher';
 import React from 'react';
 import Select from 'react-select';
@@ -159,13 +160,13 @@ class SearchByCounty extends Component {
     }
 
     results.caseCount = caseCount;
-    results.caseCountMax = Math.max(5, Math.round(caseCountMax * 1.05));
+    results.caseCountMax = Formatter.getMaxValue(caseCountMax);
     results.caseCountIncrease = caseCountIncrease;
-    results.caseCountIncreaseMax = Math.max(5, Math.round(caseCountIncreaseMax * 1.05));
+    results.caseCountIncreaseMax = Formatter.getMaxValue(caseCountIncreaseMax);
     results.deathCount = deathCount;
-    results.deathCountMax = Math.max(5, Math.round(deathCountMax * 1.05));
+    results.deathCountMax = Formatter.getMaxValue(deathCountMax);
     results.deathCountIncrease = deathCountIncrease;
-    results.deathCountIncreaseMax = Math.max(5, Math.round(deathCountIncreaseMax * 1.05));
+    results.deathCountIncreaseMax = Formatter.getMaxValue(deathCountIncreaseMax);
     return results;
   }
 

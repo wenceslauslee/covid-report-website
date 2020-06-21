@@ -1,7 +1,10 @@
-import { Component } from 'react';
-import React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
+import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from "react-timeseries-charts";
+import { Component } from 'react';
+import Formatter from '../utils/Formatter';
+import React from 'react';
 import { Spinner } from 'react-bootstrap';
+import { TimeSeries } from 'pondjs';
 import _ from 'lodash';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -13,14 +16,35 @@ class USOverallTable extends Component {
       data: [],
       validDate: '',
       loading: true,
-      dataPoints: []
+      caseCountDataPoints: [],
+      caseCountMax: 0,
+      caseCountIncreaseMax: 0,
+      caseCountTracker: null,
+      deathCountDataPoints: [],
+      deathCountMax: 0,
+      deathCountIncreaseMax: 0,
+      deathCountTracker: null
     };
+
+    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
+    this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
   }
 
   componentDidMount() {
     fetch('https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=usa')
       .then(res => res.json())
       .then(rdata => {
+        const caseCountDataPoints = _.map(rdata.dataPoints, d => {
+          return [d[0], d[1], d[3]];
+        });
+        const deathCountDataPoints = _.map(rdata.dataPoints, d => {
+          return [d[0], d[2], d[4]];
+        });
+        const caseCountMax = Formatter.getMaxValue(_.maxBy(caseCountDataPoints, d => d[1])[1]);
+        const caseCountIncreaseMax = Formatter.getMaxValue(_.maxBy(caseCountDataPoints, d => d[2])[2]);
+        const deathCountMax = Formatter.getMaxValue(_.maxBy(deathCountDataPoints, d => d[1])[1]);
+        const deathCountIncreaseMax = Formatter.getMaxValue(_.maxBy(deathCountDataPoints, d => d[2])[2]);
+
         this.setState({
           data: [{
             country: 'USA',
@@ -31,7 +55,12 @@ class USOverallTable extends Component {
           }],
           validDate: rdata.currentDate,
           loading: false,
-          dataPoints: rdata.dataPoints
+          caseCountDataPoints: caseCountDataPoints,
+          caseCountMax: caseCountMax,
+          caseCountIncreaseMax: caseCountIncreaseMax,
+          deathCountDataPoints: deathCountDataPoints,
+          deathCountMax: deathCountMax,
+          deathCountIncreaseMax: deathCountIncreaseMax,
         });
       })
       .catch(err => {
@@ -39,19 +68,28 @@ class USOverallTable extends Component {
       });
   }
 
-  getDetailedGraph() {
-    if (this.state.showTable && !this.state.loading) {
+  getCaseCountGraph() {
+    return this.getGraph(this.state.caseCountDataPoints, 'Case', this.state.caseCountMax,
+      this.state.caseCountIncreaseMax, this.state.caseCountTracker, this.handleTrackerChanged1);
+  }
+
+  getDeathCountGraph() {
+    return this.getGraph(this.state.deathCountDataPoints, 'Death', this.state.deathCountMax,
+      this.state.deathCountIncreaseMax, this.state.deathCountTracker, this.handleTrackerChanged2);
+  }
+
+  getGraph(dataPoints, chartName, countMax, increaseMax, tracker, handleTrackerChanged) {
+    if (!this.state.loading) {
       const series = new TimeSeries(
         {
-          name: "CovidStats",
-          columns: ["time", "cases", "deaths", "increase"],
-          points: this.state.dataPoints
+          name: "USStats",
+          columns: ["time", "count", "increase"],
+          points: dataPoints
         }
       );
       const style = styler([
         { key: "time", color: "#0000ff", width: 1 },
-        { key: "cases", color: "#0000ff", width: 1 },
-        { key: "deaths", color: "#ff0000", width: 1 },
+        { key: "count", color: "#0000ff", width: 1 },
         { key: "increase", color: "#ff0000", width: 1 },
       ]);
       const darkAxis = {
@@ -81,14 +119,13 @@ class USOverallTable extends Component {
         }
       };
 
-      let dateValue, caseValue, deathValue, increaseValue;
-      if (this.state.tracker) {
-        const index = series.bisect(this.state.tracker);
+      let dateValue, countValue, increaseValue;
+      if (tracker) {
+        const index = series.bisect(tracker);
         const trackerEvent = series.at(index);
         const utcDate = trackerEvent.timestamp();
         dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
-        caseValue = `${trackerEvent.get('cases')}`;
-        deathValue = `${trackerEvent.get('deaths')}`;
+        countValue = `${trackerEvent.get('count')}`;
         increaseValue = `${trackerEvent.get('increase')}`;
       }
       const legend = [
@@ -98,14 +135,9 @@ class USOverallTable extends Component {
           value: dateValue
         },
         {
-          key: 'cases',
-          label: 'Case Counts',
-          value: caseValue
-        },
-        {
-          key: 'deaths',
-          label: 'Death Counts',
-          value: deathValue
+          key: 'count',
+          label: `${chartName} Counts`,
+          value: countValue
         },
         {
           key: 'increase',
@@ -115,28 +147,45 @@ class USOverallTable extends Component {
       ];
 
       return <div>
-        <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
+        <ChartContainer title={ `${chartName} Counts and Daily Increases` } timeRange={ series.range() }
           width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
-          onBackgroundClick={ () => this.setSelection(null) } onTrackerChanged={ this.handleTrackerChanged }>
+          onTrackerChanged={ handleTrackerChanged }>
           <TimeAxis format="day"/>
           <ChartRow height='400'>
-            <YAxis id="y" label="Count" min={ 0 } max={ this.state.dataMax } width="60" type="linear" showGrid
+            <YAxis id="y1" label="Count" min={ 0 } max={ countMax } width="60" type="linear" showGrid
               style={ darkAxis } />
-             <Charts>
-              <LineChart axis="y" series={ series } columns={ ['cases', 'deaths'] } style={ style }
-                interpolation='curveBasis' selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
+            <Charts>
+              <LineChart axis="y1" series={ series } columns={ ['count'] } style={ style }
+                interpolation='curveBasis'/>
+              <LineChart axis="y2" series={ series } columns={ ['increase'] } style={ style }
+                interpolation='curveBasis'/>
             </Charts>
+            <YAxis id="y2" label="Count" min={ 0 } max={ increaseMax } width="60" type="linear" showGrid
+              style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }
-            selection={ this.state.selection } onSelectionChange={ this.setSelection }/>
+          <Legend type="line" style={ style } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }
 
     return null;
+  }
+
+  handleTrackerChanged1(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      caseCountTracker: tracker,
+    }));
+  }
+
+  handleTrackerChanged2(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      deathCountTracker: tracker,
+    }));
   }
 
   render() {
@@ -181,7 +230,7 @@ class USOverallTable extends Component {
               { this.getCaseCountGraph() }
             </div>
             <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-              { this.getCaseCountIncreaseGraph() }
+              { this.getDeathCountGraph() }
             </div>
         </div>
         </div>
