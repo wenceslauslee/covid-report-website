@@ -33,11 +33,27 @@ class Wiki extends Component {
         <br/>
         <br/>
         <br/>
-        Work In Progress...
+        <b>Work In Progress...</b>
         <br/>
-        1. Add more live updates to the page. Currently the page refreshes around 12PM daily, when NYT posts the updates from yesterday.
+        1. Add seven day moving average to US overall.
         <br/>
-        2. Convert to https under my own domain
+        2. Add more documentation on sources.
+        <br/>
+        3. Update legend styling to be more opaque and clear.
+        <br/>
+        4. Add changelog section and links.
+        <br/>
+        5. Add seven day moving average to states/counties.
+        <br/>
+        6. Add option for graphing in logarithmic axis.
+        <br/>
+        7. Add more live updates to the page. Currently the page refreshes once daily, when NYT posts the updates from yesterday.
+        <br/>
+        8. Add more appendix to what the columns mean.
+        <br/>
+        8. Update timestamp to be relative and easier to read.
+        <br/>
+        9. Convert to https under my own domain.
       </p>
     );
   }

@@ -1,3 +1,4 @@
+import ChangeLog from './components/ChangeLog';
 import CountyRankTable from './components/CountyRankTable';
 import DetailedInfo from './components/DetailedInfo';
 import StateRankTable from './components/StateRankTable';
@@ -59,6 +60,11 @@ function App() {
           <Tab eventKey='countysearch' title='Plot By County'>
             <TabContent>
               <SearchByCounty/>
+            </TabContent>
+          </Tab>
+          <Tab eventKey='changelog' title='Change Log'>
+            <TabContent>
+              <ChangeLog/>
             </TabContent>
           </Tab>
         </Tabs>
