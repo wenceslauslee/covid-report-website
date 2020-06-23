@@ -42,11 +42,11 @@ class Wiki extends Component {
         <br/>
         <b>Work In Progress...</b>
         <br/>
-        * Add seven day moving average to US overall.
-        <br/>
         * Update legend styling to be more opaque and clear.
         <br/>
         * Add seven day moving average to states/counties.
+        <br/>
+        * Add logic to remove/pad trailing days when period is uneven.
         <br/>
         * Add option for graphing in logarithmic axis.
         <br/>

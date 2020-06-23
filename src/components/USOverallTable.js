@@ -33,10 +33,10 @@ class USOverallTable extends Component {
       .then(res => res.json())
       .then(rdata => {
         const caseCountDataPoints = _.map(rdata.dataPoints, d => {
-          return [d[0], d[1], d[3]];
+          return [d[0], d[1], d[3], d[5]];
         });
         const deathCountDataPoints = _.map(rdata.dataPoints, d => {
-          return [d[0], d[2], d[4]];
+          return [d[0], d[2], d[4], d[6]];
         });
 
         this.setState({
@@ -74,7 +74,7 @@ class USOverallTable extends Component {
       const series = new TimeSeries(
         {
           name: 'USStats',
-          columns: ['time', 'count', 'increase'],
+          columns: ['time', 'count', 'increase', 'moving'],
           points: dataPoints
         }
       );
@@ -90,7 +90,8 @@ class USOverallTable extends Component {
       const style = styler([
         { key: 'time', color: '#0000ff', width: 1 },
         { key: 'count', color: '#0000ff', width: 1 },
-        { key: 'increase', color: '#ff0000', width: 1 },
+        { key: 'increase', color: '#c4b8b7', width: 1 },
+        { key: 'moving', color: '#ff0000', width: 1 },
       ]);
       const darkAxis = {
         label: {
@@ -119,7 +120,7 @@ class USOverallTable extends Component {
         }
       };
 
-      let dateValue, countValue, increaseValue;
+      let dateValue, countValue, increaseValue, movingValue;
       if (tracker) {
         const index = series.bisect(tracker);
         const trackerEvent = series.at(index);
@@ -127,6 +128,7 @@ class USOverallTable extends Component {
         dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
         countValue = `${trackerEvent.get('count')}`;
         increaseValue = `${trackerEvent.get('increase')}`;
+        movingValue = `${trackerEvent.get('moving')}`;
       }
       const legend = [
         {
@@ -143,6 +145,11 @@ class USOverallTable extends Component {
           key: 'increase',
           label: 'Daily Increase',
           value: increaseValue
+        },
+        {
+          key: 'moving',
+          label: '7-Day Moving Average',
+          value: movingValue
         }
       ];
 
@@ -156,12 +163,14 @@ class USOverallTable extends Component {
             <YAxis id='y1' label='Count' min={ 0 } max={ Formatter.getMaxValue(series.max('count')) } width='60'
               type='linear' showGrid style={ darkAxis } />
             <Charts>
+              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
               <LineChart axis='y1' series={ series } columns={ ['count'] } style={ style }
                 interpolation='curveBasis'/>
-              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
+              <LineChart axis='y2' series={ series } columns={ ['moving'] } style={ style }
+                interpolation='curveBasis'/>
             </Charts>
             <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) }
-              width='60' type='linear' showGrid style={ darkAxis } />
+              width='60' type='linear' showGrid={ false } style={ darkAxis } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>

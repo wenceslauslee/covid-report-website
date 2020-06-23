@@ -312,7 +312,7 @@ class DetailedInfo extends Component {
         { key: 'time', color: '#0000ff', width: 1 },
         { key: 'cases', color: '#0000ff', width: 1 },
         { key: 'deaths', color: '#ff0000', width: 1 },
-        { key: 'increase', color: '#ff0000', width: 1 },
+        { key: 'increase', color: '#c4b8b7', width: 1 },
       ]);
       const darkAxis = {
         label: {
@@ -376,20 +376,20 @@ class DetailedInfo extends Component {
 
       return <div>
         <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
-          width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
+          width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
           onTrackerChanged={ this.handleTrackerChanged }>
           <TimeAxis format='day'/>
-          <ChartRow height='300'>
+          <ChartRow height='400'>
             <YAxis id='y1' label='Case Count' min={ 0 } max={ Formatter.getMaxValue(series.max('cases')) } width='60'
               type='linear' showGrid style={ darkAxis } />
             <Charts>
+              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
               <LineChart axis='y1' series={ series } columns={ ['cases'] } style={ style }
                 interpolation='curveBasis'/>
-              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
             </Charts>
             <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(timeSeries.max('increase')) }
-              width='60' type='linear' showGrid style={ darkAxis } />
+              width='60' type='linear' showGrid={ false } style={ darkAxis } />
           </ChartRow>
           <ChartRow height='200'>
             <YAxis id='y1' label='Death Count' min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width='60'
