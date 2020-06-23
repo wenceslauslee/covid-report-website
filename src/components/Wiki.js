@@ -1,6 +1,11 @@
 import { Component } from 'react';
 import React from 'react';
 
+const enlargeStyle = {
+  fontSize: '18px',
+  fontWeight: 'bold'
+};
+
 class Wiki extends Component {
   componentDidMount() {
     // Warm things up backend
@@ -24,36 +29,34 @@ class Wiki extends Component {
         although spread is possible before symptoms appear, and from people who do not show symptoms.
         <br/>
         <br/>
-        Helpful links that I have been following over the last few months.
-        <br/>1. <a href='https://coronavirus.jhu.edu/map.html'>Johns Hopkins Coronavirus Resource Center</a>
-        <br/>2. <a href='https://www.cnn.com/interactive/2020/health/coronavirus-us-maps-and-cases/'>CNN Tracking COVID-19 Cases In The US</a>
+        Helpful links that I have been following and got inspired from over the last few months.
+        <br/>* <a href='https://coronavirus.jhu.edu/map.html'>Johns Hopkins Coronavirus Resource Center</a>
+        <br/>* <a href='https://www.cnn.com/interactive/2020/health/coronavirus-us-maps-and-cases/'>CNN Tracking COVID-19 Cases In The US</a>
+        <br/>* <a href='https://covidtracking.com/'>The COVID Tracking Project</a>
+        <br/>* <a href='https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html'>Coronavirus in the U.S. NY Times</a>
+        <br/>* <a href='https://github.com/nytimes/covid-19-data'>NY Times COVID-19 Data</a>
+        <br/>* <a href='http://91-divoc.com/pages/covid-visualization/'>91-DIVOC</a>
         <br/>
         <br/>
-        Lastly, stay vigilant, healthy and safe!
-        <br/>
-        <br/>
+        <div style={ enlargeStyle }>Lastly, stay vigilant, healthy and safe!</div>
         <br/>
         <b>Work In Progress...</b>
         <br/>
-        1. Add seven day moving average to US overall.
+        * Add seven day moving average to US overall.
         <br/>
-        2. Add more documentation on sources.
+        * Update legend styling to be more opaque and clear.
         <br/>
-        3. Update legend styling to be more opaque and clear.
+        * Add seven day moving average to states/counties.
         <br/>
-        4. Add changelog section and links.
+        * Add option for graphing in logarithmic axis.
         <br/>
-        5. Add seven day moving average to states/counties.
+        * Add more live updates to the page. Currently the page refreshes once daily, when NYT posts the updates from yesterday.
         <br/>
-        6. Add option for graphing in logarithmic axis.
+        * Add more appendix to what the columns mean.
         <br/>
-        7. Add more live updates to the page. Currently the page refreshes once daily, when NYT posts the updates from yesterday.
+        * Update timestamp to be relative and easier to read.
         <br/>
-        8. Add more appendix to what the columns mean.
-        <br/>
-        8. Update timestamp to be relative and easier to read.
-        <br/>
-        9. Convert to https under my own domain.
+        * Convert to https under my own domain.
       </p>
     );
   }
