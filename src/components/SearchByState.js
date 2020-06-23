@@ -106,9 +106,14 @@ class SearchByState extends Component {
       return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${stateSanitized}`)
         .then(res => res.json())
         .then(rdata => {
-          stateCache[stateSanitized] = rdata.dataPoints;
+          const results = {
+            dataPoints: rdata.dataPoints,
+            currentDate: rdata.currentDate,
+            reportTimestamp: rdata.reportTimestamp
+          };
+          stateCache[stateSanitized] = results;
 
-          return rdata.dataPoints;
+          return results;
         })
         .catch(err => {
           console.log(err);
@@ -129,23 +134,23 @@ class SearchByState extends Component {
     const deathCountIncrease = [];
     var deathCountIncreaseMax = 0;
 
-    for (var index in allStates[0]) {
-      caseCount.push([allStates[0][index][0]]);
-      caseCountIncrease.push([allStates[0][index][0]]);
-      deathCount.push([allStates[0][index][0]]);
-      deathCountIncrease.push([allStates[0][index][0]]);
+    for (var index in allStates[0].dataPoints) {
+      caseCount.push([(allStates[0].dataPoints)[index][0]]);
+      caseCountIncrease.push([(allStates[0].dataPoints)[index][0]]);
+      deathCount.push([(allStates[0].dataPoints)[index][0]]);
+      deathCountIncrease.push([(allStates[0].dataPoints)[index][0]]);
     }
 
     for (var i = 0; i < allStates.length; i++) {
-      for (var j = 0; j < allStates[i].length; j++) {
-        caseCountMax = Math.max(caseCountMax, allStates[i][j][1]);
-        caseCount[j].push(allStates[i][j][1]);
-        deathCountMax = Math.max(deathCountMax, allStates[i][j][2]);
-        deathCount[j].push(allStates[i][j][2]);
-        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, allStates[i][j][3]);
-        caseCountIncrease[j].push(allStates[i][j][3]);
-        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, allStates[i][j][4]);
-        deathCountIncrease[j].push(allStates[i][j][4]);
+      for (var j = 0; j < allStates[i].dataPoints.length; j++) {
+        caseCountMax = Math.max(caseCountMax, (allStates[i].dataPoints)[j][1]);
+        caseCount[j].push((allStates[i].dataPoints)[j][1]);
+        deathCountMax = Math.max(deathCountMax, (allStates[i].dataPoints)[j][2]);
+        deathCount[j].push((allStates[i].dataPoints)[j][2]);
+        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, (allStates[i].dataPoints)[j][3]);
+        caseCountIncrease[j].push((allStates[i].dataPoints)[j][3]);
+        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, (allStates[i].dataPoints)[j][4]);
+        deathCountIncrease[j].push((allStates[i].dataPoints)[j][4]);
       }
     }
 

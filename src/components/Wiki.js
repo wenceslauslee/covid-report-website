@@ -56,6 +56,8 @@ class Wiki extends Component {
         <br/>
         * Update timestamp to be relative and easier to read.
         <br/>
+        * Swap out cache implementations.
+        <br/>
         * Convert to https under my own domain.
       </p>
     );
