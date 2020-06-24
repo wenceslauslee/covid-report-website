@@ -6,6 +6,7 @@ import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
 import Formatter from '../utils/Formatter';
+import Grapher from '../utils/Grapher';
 import React from 'react';
 import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
@@ -48,6 +49,10 @@ class DetailedInfo extends Component {
       y: null,
       loading: false
     };
+
+    const columns = ['time', 'cases', 'deaths', 'increase'];
+    const columnColors = ['#000000', '#0000ff', '#ff0000', '#c4b8b7'];
+    this.legendStyle = Grapher.getLegendStyle(columns, columnColors);
   }
 
   componentDidMount() {
@@ -310,9 +315,9 @@ class DetailedInfo extends Component {
       );
       const style = styler([
         { key: 'time', color: '#0000ff', width: 1 },
-        { key: 'cases', color: '#0000ff', width: 1 },
-        { key: 'deaths', color: '#ff0000', width: 1 },
-        { key: 'increase', color: '#c4b8b7', width: 1 },
+        { key: 'cases', color: '#0000ff', width: 2 },
+        { key: 'deaths', color: '#ff0000', width: 2 },
+        { key: 'increase', color: '#c4b8b7', width: 2 },
       ]);
       const darkAxis = {
         label: {
@@ -401,7 +406,7 @@ class DetailedInfo extends Component {
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type='line' style={ style } categories={ legend } align='right' stack={ false }/>
+          <Legend type='line' style={ this.legendStyle } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }

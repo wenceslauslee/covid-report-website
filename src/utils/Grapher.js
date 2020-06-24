@@ -28,15 +28,18 @@ const darkAxis = {
       opacity: 0.25
   }
 };
+const colors = ['#0000ff', '#ff0000', '#2bcc12', '#770b9c'];
 
 const Grapher = {
   getColor(order) {
-    const colors = ['ff0000', '006400', 'B8860B', '4B0082'];
-
     return colors[order];
   },
 
-  getGraph(state, seriesName, titleName, seriesDataPoints, tracker, handleTrackerChanged, dataMax) {
+  getColors() {
+    return colors;
+  },
+
+  getGraph(state, seriesName, titleName, seriesDataPoints, tracker, handleTrackerChanged, dataMax, legendStyle) {
     if (state.showTables && !state.loading) {
       const lowerCaseColumns = state.columns.map(state => state.toLowerCase());
       const series = new TimeSeries(
@@ -72,8 +75,8 @@ const Grapher = {
       });
       style.push({
         key: 'time',
-        color: '0000ff',
-        width: 1
+        color: '#000000',
+        width: 2
       });
 
       for (var j = 1; j < state.columns.length; j++) {
@@ -84,8 +87,8 @@ const Grapher = {
         });
         style.push({
           key: lowerCaseColumns[j],
-          color: this.getColor(j),
-          width: 1
+          color: this.getColor(j - 1),
+          width: 2
         });
         yColumns.push(lowerCaseColumns[j]);
       }
@@ -108,13 +111,54 @@ const Grapher = {
             </ChartRow>
           </ChartContainer>
           <div style={{ justifyContent: 'flex-end' }}>
-            <Legend type='line' style={ style } categories={ legend } align='right' stack={ false }/>
+            <Legend type='line' style={ state.legendStyle } categories={ legend } align='right' stack={ false }/>
           </div>
         </div>
       );
     }
 
     return null;
+  },
+
+  getLegendStyle(columns, color) {
+    const legendStyle = {};
+
+    for (var i = 0; i < columns.length; i++) {
+      legendStyle[columns[i]] = {
+        symbol: this.getSymbolStyle(color[i]),
+        label: this.getLabelStyle(),
+        value: this.getValueStyle()
+      };
+    }
+
+    return legendStyle;
+  },
+
+  getSymbolStyle(color) {
+    return {
+      normal: {opacity: 1.0, stroke: color, strokeWidth: 1, cursor: 'pointer'},
+      highlighted: {opacity: 1.0, stroke: color, strokeWidth: 1, cursor: 'pointer'},
+      selected: {opacity: 1.0, stroke: color, strokeWidth: 1, cursor: 'pointer'},
+      muted: {opacity: 1.0, stroke: color, strokeWidth: 1, cursor: 'pointer'},
+    };
+  },
+
+  getLabelStyle() {
+    return {
+      normal: {fontSize: 'normal', color: '#333', paddingRight: 10, cursor: 'pointer', opacity: 1.0},
+      highlighted: {fontSize: 'normal', color: '#333', paddingRight: 10, cursor: 'pointer', opacity: 1.0},
+      selected: {fontSize: 'normal', color: '#333', paddingRight: 10, cursor: 'pointer', opacity: 1.0},
+      muted: {fontSize: 'normal', color: '#333', paddingRight: 10, cursor: 'pointer', opacity: 1.0},
+    };
+  },
+
+  getValueStyle() {
+    return {
+      normal: {fontSize: 'smaller', color: '#333', cursor: 'pointer', opacity: 1.0},
+      highlighted: {fontSize: 'smaller', color: '#333', cursor: 'pointer', opacity: 1.0},
+      selected: {fontSize: 'smaller', color: '#333', cursor: 'pointer', opacity: 1.0},
+      muted: {fontSize: 'smaller', color: '#333', cursor: 'pointer', opacity: 1.0}
+    };
   }
 }
 

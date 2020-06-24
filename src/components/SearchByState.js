@@ -34,6 +34,7 @@ class SearchByState extends Component {
       deathCountIncreaseDataPoints: [],
       deathCountIncreaseMax: 0,
       deathCountIncreaseTracker: null,
+      legendStyle: {}
     };
 
     this.submitPlot = this.submitPlot.bind(this);
@@ -79,7 +80,14 @@ class SearchByState extends Component {
     const stateColumns = ['time'];
     this.state.selectedStates.forEach(stateObj => {
       stateColumns.push(stateObj.label);
-    })
+    });
+
+    const legendColumns = ['time'];
+    const colorColumns = ['#000000'];
+    for (var i = 1; i < stateColumns.length; i++) {
+      legendColumns.push(stateColumns[i].toLowerCase());
+      colorColumns.push(Grapher.getColor(i - 1));
+    }
 
     this.setState(prevState => ({
       ...prevState,
@@ -95,7 +103,8 @@ class SearchByState extends Component {
       deathCountDataPoints: results.deathCount,
       deathCountMax: results.deathCountMax,
       deathCountIncreaseDataPoints: results.deathCountIncrease,
-      deathCountIncreaseMax: results.deathCountIncreaseMax
+      deathCountIncreaseMax: results.deathCountIncreaseMax,
+      legendStyle: Grapher.getLegendStyle(legendColumns, colorColumns)
     }));
   }
 

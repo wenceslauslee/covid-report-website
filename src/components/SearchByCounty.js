@@ -33,6 +33,7 @@ class SearchByCounty extends Component {
       deathCountIncreaseDataPoints: [],
       deathCountIncreaseMax: 0,
       deathCountIncreaseTracker: null,
+      legendStyle: {}
     };
 
     this.submitPlot = this.submitPlot.bind(this);
@@ -93,7 +94,15 @@ class SearchByCounty extends Component {
     const countyColumns = ['time'];
     this.state.selectedCounties.forEach(countyObj => {
       countyColumns.push(countyObj.label);
-    })
+    });
+
+    const legendColumns = ['time'];
+    const colorColumns = ['#000000'];
+    for (var i = 1; i < countyColumns.length; i++) {
+      legendColumns.push(countyColumns[i].toLowerCase());
+      colorColumns.push(Grapher.getColor(i - 1));
+    }
+    console.log(legendColumns);
 
     this.setState(prevState => ({
       ...prevState,
@@ -109,7 +118,8 @@ class SearchByCounty extends Component {
       deathCountDataPoints: results.deathCount,
       deathCountMax: results.deathCountMax,
       deathCountIncreaseDataPoints: results.deathCountIncrease,
-      deathCountIncreaseMax: results.deathCountIncreaseMax
+      deathCountIncreaseMax: results.deathCountIncreaseMax,
+      legendStyle: Grapher.getLegendStyle(legendColumns, colorColumns)
     }));
   }
 

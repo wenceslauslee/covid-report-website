@@ -3,6 +3,7 @@ import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, T
   from 'react-timeseries-charts';
 import { Component } from 'react';
 import Formatter from '../utils/Formatter';
+import Grapher from '../utils/Grapher';
 import React from 'react';
 import { Spinner } from 'react-bootstrap';
 import { Index, TimeSeries } from 'pondjs';
@@ -26,6 +27,10 @@ class USOverallTable extends Component {
 
     this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
     this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
+
+    const columns = ['time', 'count', 'increase', 'moving'];
+    const columnColors = ['#000000', '#0000ff', '#c4b8b7', '#ff0000'];
+    this.legendStyle = Grapher.getLegendStyle(columns, columnColors);
   }
 
   componentDidMount() {
@@ -89,9 +94,9 @@ class USOverallTable extends Component {
       );
       const style = styler([
         { key: 'time', color: '#0000ff', width: 1 },
-        { key: 'count', color: '#0000ff', width: 1 },
+        { key: 'count', color: '#0000ff', width: 2 },
         { key: 'increase', color: '#c4b8b7', width: 1 },
-        { key: 'moving', color: '#ff0000', width: 1 },
+        { key: 'moving', color: '#ff0000', width: 2 },
       ]);
       const darkAxis = {
         label: {
@@ -116,7 +121,7 @@ class USOverallTable extends Component {
         axis: {
             fill: 'none',
             stroke: '#000000',
-            opacity: 0.25
+            opacity: 0.3
         }
       };
 
@@ -174,7 +179,7 @@ class USOverallTable extends Component {
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type='line' style={ style } categories={ legend } align='right' stack={ false }/>
+          <Legend type='line' style={ this.legendStyle } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }

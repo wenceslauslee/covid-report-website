@@ -42,8 +42,6 @@ class Wiki extends Component {
         <br/>
         <b>Work In Progress...</b>
         <br/>
-        * Update legend styling to be more opaque and clear.
-        <br/>
         * Add seven day moving average to states/counties.
         <br/>
         * Add logic to remove/pad trailing days when period is uneven.
@@ -57,6 +55,12 @@ class Wiki extends Component {
         * Update timestamp to be relative and easier to read.
         <br/>
         * Swap out cache implementations.
+        <br/>
+        * Add option to display number of days to show.
+        <br/>
+        * Add double trend.
+        <br/>
+        * Add refresh button.
         <br/>
         * Convert to https under my own domain.
       </p>
