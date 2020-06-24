@@ -1,6 +1,8 @@
 import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from 'react-timeseries-charts';
+import Formatter from '../utils/Formatter';
 import React from 'react';
 import { TimeSeries } from 'pondjs';
+import _ from 'lodash';
 
 const darkAxis = {
   label: {
@@ -159,6 +161,65 @@ const Grapher = {
       selected: {fontSize: 'smaller', color: '#333', cursor: 'pointer', opacity: 1.0},
       muted: {fontSize: 'smaller', color: '#333', cursor: 'pointer', opacity: 1.0}
     };
+  },
+
+  combineData(allStates) {
+    const results = {};
+    const caseCount = [];
+    var caseCountMax = 0;
+    const caseCountIncrease = [];
+    var caseCountIncreaseMax = 0;
+    const deathCount = [];
+    var deathCountMax = 0;
+    const deathCountIncrease = [];
+    var deathCountIncreaseMax = 0;
+
+    const maxPointCount = (_.maxBy(allStates, s => s.dataPoints.length)).dataPoints.length;
+    var currentDate;
+    var reportTimestamp;
+    for (var k = 0; k < allStates.length; k++) {
+      if (allStates[k].dataPoints.length === maxPointCount) {
+        currentDate = allStates[k].currentDate;
+        reportTimestamp = allStates[k].reportTimestamp;
+      } else {
+        while (allStates[k].dataPoints.length < maxPointCount) {
+          allStates[k].dataPoints.push(allStates[k].dataPoints[allStates[k].dataPoints.length - 1]);
+        }
+      }
+    }
+
+    for (var index in allStates[0].dataPoints) {
+      caseCount.push([(allStates[0].dataPoints)[index][0]]);
+      caseCountIncrease.push([(allStates[0].dataPoints)[index][0]]);
+      deathCount.push([(allStates[0].dataPoints)[index][0]]);
+      deathCountIncrease.push([(allStates[0].dataPoints)[index][0]]);
+    }
+
+    for (var i = 0; i < allStates.length; i++) {
+      for (var j = 0; j < allStates[i].dataPoints.length; j++) {
+        caseCountMax = Math.max(caseCountMax, (allStates[i].dataPoints)[j][1]);
+        caseCount[j].push((allStates[i].dataPoints)[j][1]);
+        deathCountMax = Math.max(deathCountMax, (allStates[i].dataPoints)[j][2]);
+        deathCount[j].push((allStates[i].dataPoints)[j][2]);
+        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, (allStates[i].dataPoints)[j][3]);
+        caseCountIncrease[j].push((allStates[i].dataPoints)[j][3]);
+        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, (allStates[i].dataPoints)[j][4]);
+        deathCountIncrease[j].push((allStates[i].dataPoints)[j][4]);
+      }
+    }
+
+    results.caseCount = caseCount;
+    results.caseCountMax = Formatter.getMaxValue(caseCountMax);
+    results.caseCountIncrease = caseCountIncrease;
+    results.caseCountIncreaseMax = Formatter.getMaxValue(caseCountIncreaseMax);
+    results.deathCount = deathCount;
+    results.deathCountMax = Formatter.getMaxValue(deathCountMax);
+    results.deathCountIncrease = deathCountIncrease;
+    results.deathCountIncreaseMax = Formatter.getMaxValue(deathCountIncreaseMax);
+    results.currentDate = currentDate;
+    results.reportTimestamp = reportTimestamp;
+
+    return results;
   }
 }
 

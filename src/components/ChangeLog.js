@@ -12,6 +12,8 @@ class ChangeLog extends Component {
       <div>
         <p style={{ display: 'inline-block', textAlign: 'left', minWidth: '750px' }}>
           For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
+          <div style={ dateStyle }>-- June 24, 2020 --</div>
+          * Add logic to remove/pad trailing days when period is uneven.<br/><br/>
           <div style={ dateStyle }>-- June 23, 2020 --</div>
           * Make legend styling more opaque. Choose better colors for graphing.<br/><br/>
           <div style={ dateStyle }>-- June 22, 2020 --</div>

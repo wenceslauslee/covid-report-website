@@ -44,8 +44,6 @@ class Wiki extends Component {
         <br/>
         * Add seven day moving average to states/counties.
         <br/>
-        * Add logic to remove/pad trailing days when period is uneven.
-        <br/>
         * Add option for graphing in logarithmic axis.
         <br/>
         * Add more live updates to the page. Currently the page refreshes once daily, when NYT posts the updates from yesterday.
@@ -61,6 +59,8 @@ class Wiki extends Component {
         * Add double trend.
         <br/>
         * Add refresh button.
+        <br/>
+        * Filter county rankings by state option.
         <br/>
         * Convert to https under my own domain.
       </p>

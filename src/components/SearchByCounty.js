@@ -90,7 +90,7 @@ class SearchByCounty extends Component {
     });
     const allCounties = await Promise.all(promises);
 
-    const results = this.combineDataAcrossCounties(allCounties);
+    const results = Grapher.combineData(allCounties);
     const countyColumns = ['time'];
     this.state.selectedCounties.forEach(countyObj => {
       countyColumns.push(countyObj.label);
@@ -102,15 +102,14 @@ class SearchByCounty extends Component {
       legendColumns.push(countyColumns[i].toLowerCase());
       colorColumns.push(Grapher.getColor(i - 1));
     }
-    console.log(legendColumns);
 
     this.setState(prevState => ({
       ...prevState,
       loading: false,
       showTables: true,
       columns: countyColumns,
-      validDate: allCounties[0].currentDate,
-      timestamp: allCounties[0].reportTimestamp,
+      validDate: results.currentDate,
+      timestamp: results.reportTimestamp,
       caseCountDataPoints: results.caseCount,
       caseCountMax: results.caseCountMax,
       caseCountIncreaseDataPoints: results.caseCountIncrease,
@@ -145,49 +144,6 @@ class SearchByCounty extends Component {
     }
 
     return countyCache[countySanitized];
-  }
-
-  combineDataAcrossCounties(allCounties) {
-    const results = {};
-    const caseCount = [];
-    var caseCountMax = 0;
-    const caseCountIncrease = [];
-    var caseCountIncreaseMax = 0;
-    const deathCount = [];
-    var deathCountMax = 0;
-    const deathCountIncrease = [];
-    var deathCountIncreaseMax = 0;
-
-    for (var index in allCounties[0].dataPoints) {
-      caseCount.push([(allCounties[0].dataPoints)[index][0]]);
-      caseCountIncrease.push([(allCounties[0].dataPoints)[index][0]]);
-      deathCount.push([(allCounties[0].dataPoints)[index][0]]);
-      deathCountIncrease.push([(allCounties[0].dataPoints)[index][0]]);
-    }
-
-    for (var i = 0; i < allCounties.length; i++) {
-      for (var j = 0; j < allCounties[i].dataPoints.length; j++) {
-        caseCountMax = Math.max(caseCountMax, (allCounties[i].dataPoints)[j][1]);
-        caseCount[j].push((allCounties[i].dataPoints)[j][1]);
-        deathCountMax = Math.max(deathCountMax, (allCounties[i].dataPoints)[j][2]);
-        deathCount[j].push((allCounties[i].dataPoints)[j][2]);
-        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, (allCounties[i].dataPoints)[j][3]);
-        caseCountIncrease[j].push((allCounties[i].dataPoints)[j][3]);
-        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, (allCounties[i].dataPoints)[j][4]);
-        deathCountIncrease[j].push((allCounties[i].dataPoints)[j][4]);
-      }
-    }
-
-    results.caseCount = caseCount;
-    results.caseCountMax = Formatter.getMaxValue(caseCountMax);
-    results.caseCountIncrease = caseCountIncrease;
-    results.caseCountIncreaseMax = Formatter.getMaxValue(caseCountIncreaseMax);
-    results.deathCount = deathCount;
-    results.deathCountMax = Formatter.getMaxValue(deathCountMax);
-    results.deathCountIncrease = deathCountIncrease;
-    results.deathCountIncreaseMax = Formatter.getMaxValue(deathCountIncreaseMax);
-
-    return results;
   }
 
   getCaseCountGraph() {

@@ -16,7 +16,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   return (
     <div className='App'>
-      <div className='App-description' style={{ display: 'flex', justifyContent: 'center', height: '15vh', width: '100vw' }}>
+      <div className='App-description' style={{ display: 'flex', justifyContent: 'center', height: '17vh', width: '100vw' }}>
         <header style={{ display: 'inline-block', marginTop: '35px', maxWidth: '600px' }}>
           <p>This <a href='https://github.com/wenceslauslee/covid-report-website'>website</a> is my attempt at helping visualizing some information about COVID-19 in the US.
             All data is gathered from <a href='https://github.com/nytimes/covid-19-data'>NY Times</a> and transformed into the interactive graphs below.

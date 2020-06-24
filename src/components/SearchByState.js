@@ -76,7 +76,7 @@ class SearchByState extends Component {
     });
     const allStates = await Promise.all(promises);
 
-    const results = this.combineDataAcrossStates(allStates);
+    const results = Grapher.combineData(allStates);
     const stateColumns = ['time'];
     this.state.selectedStates.forEach(stateObj => {
       stateColumns.push(stateObj.label);
@@ -94,8 +94,8 @@ class SearchByState extends Component {
       loading: false,
       showTables: true,
       columns: stateColumns,
-      validDate: allStates[0].currentDate,
-      timestamp: allStates[0].reportTimestamp,
+      validDate: results.currentDate,
+      timestamp: results.reportTimestamp,
       caseCountDataPoints: results.caseCount,
       caseCountMax: results.caseCountMax,
       caseCountIncreaseDataPoints: results.caseCountIncrease,
@@ -130,48 +130,6 @@ class SearchByState extends Component {
     }
 
     return stateCache[stateSanitized];
-  }
-
-  combineDataAcrossStates(allStates) {
-    const results = {};
-    const caseCount = [];
-    var caseCountMax = 0;
-    const caseCountIncrease = [];
-    var caseCountIncreaseMax = 0;
-    const deathCount = [];
-    var deathCountMax = 0;
-    const deathCountIncrease = [];
-    var deathCountIncreaseMax = 0;
-
-    for (var index in allStates[0].dataPoints) {
-      caseCount.push([(allStates[0].dataPoints)[index][0]]);
-      caseCountIncrease.push([(allStates[0].dataPoints)[index][0]]);
-      deathCount.push([(allStates[0].dataPoints)[index][0]]);
-      deathCountIncrease.push([(allStates[0].dataPoints)[index][0]]);
-    }
-
-    for (var i = 0; i < allStates.length; i++) {
-      for (var j = 0; j < allStates[i].dataPoints.length; j++) {
-        caseCountMax = Math.max(caseCountMax, (allStates[i].dataPoints)[j][1]);
-        caseCount[j].push((allStates[i].dataPoints)[j][1]);
-        deathCountMax = Math.max(deathCountMax, (allStates[i].dataPoints)[j][2]);
-        deathCount[j].push((allStates[i].dataPoints)[j][2]);
-        caseCountIncreaseMax = Math.max(caseCountIncreaseMax, (allStates[i].dataPoints)[j][3]);
-        caseCountIncrease[j].push((allStates[i].dataPoints)[j][3]);
-        deathCountIncreaseMax = Math.max(deathCountIncreaseMax, (allStates[i].dataPoints)[j][4]);
-        deathCountIncrease[j].push((allStates[i].dataPoints)[j][4]);
-      }
-    }
-
-    results.caseCount = caseCount;
-    results.caseCountMax = Formatter.getMaxValue(caseCountMax);
-    results.caseCountIncrease = caseCountIncrease;
-    results.caseCountIncreaseMax = Formatter.getMaxValue(caseCountIncreaseMax);
-    results.deathCount = deathCount;
-    results.deathCountMax = Formatter.getMaxValue(deathCountMax);
-    results.deathCountIncrease = deathCountIncrease;
-    results.deathCountIncreaseMax = Formatter.getMaxValue(deathCountIncreaseMax);
-    return results;
   }
 
   getCaseCountGraph() {
