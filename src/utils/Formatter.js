@@ -37,8 +37,32 @@ const Formatter = {
 
   getTimestamp: (timestamp) => {
     const date = moment(timestamp);
+    const current = moment();
+    var diff = Math.floor((current - date) / 1000);
+    var timeDiff;
 
-    return `${date.format('YYYY-MM-DD HH:mm:ss')}`;
+    const getPlural = (word, count) => {
+      if (count <= 1) {
+        return word;
+      }
+
+      return `${word}s`;
+    };
+
+    if (diff < 60) {
+      timeDiff = `${diff} ${getPlural('second', diff)}`;
+    } else if (diff < 3600) {
+      diff = Math.floor(diff / 60);
+      timeDiff = `${diff} ${getPlural('minute', diff)}`;
+    } else if (diff < 86400) {
+      diff = Math.floor(diff / 3600);
+      timeDiff = `${diff} ${getPlural('hour', diff)}`;
+    } else {
+      diff = Math.floor(diff / 86400);
+      timeDiff = `${diff} ${getPlural('day', diff)}`;
+    }
+
+    return `${timeDiff} ago`;
   }
 }
 

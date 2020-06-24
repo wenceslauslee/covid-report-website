@@ -50,8 +50,6 @@ class Wiki extends Component {
         <br/>
         * Add more appendix to what the columns mean.
         <br/>
-        * Update timestamp to be relative and easier to read.
-        <br/>
         * Swap out cache implementations.
         <br/>
         * Add option to display number of days to show.
