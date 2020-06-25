@@ -98,11 +98,11 @@ class CountyRankTable extends Component {
       },
       {
         dataField: 'detailedInfo.activeChange',
-        text: 'Daily Change'
+        text: 'Increase'
       },
       {
         dataField: 'detailedInfo.activePercentage',
-        text: 'Case Pop %'
+        text: '% Of People'
       },
       {
         dataField: 'detailedInfo.deathCount',
@@ -115,11 +115,11 @@ class CountyRankTable extends Component {
       },
       {
         dataField: 'detailedInfo.deathChange',
-        text: 'Daily Change',
+        text: 'Increase',
       },
       {
         dataField: 'detailedInfo.deathPercentage',
-        text: 'Death Pop %'
+        text: '% Of People'
       }
     ];
 
@@ -133,11 +133,13 @@ class CountyRankTable extends Component {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
           <p align='left'>
-             * Data reflects situation at
+            * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)
+          </p>
+          <p align='left'>
+            * All data (other than live) reflects situation accurately up till
             <span style={{ 'fontWeight': 'bold' }}> { this.state.validDate } 23:59:59 EST</span>
             <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
           </p>
-          <p align='left'> * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)</p>
           <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
             data={ this.state.data } columns={ columns }/>
         </div>

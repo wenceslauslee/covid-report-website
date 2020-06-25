@@ -237,7 +237,7 @@ class SearchByCounty extends Component {
         { (this.state.showTables && !this.state.loading) ?
           <div style={{ marginTop: '30px' }}>
             <p align='left'>
-              * Data reflects situation at
+              * All data reflects situation accurately up till
               <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
               <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
             </p>

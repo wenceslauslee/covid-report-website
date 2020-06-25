@@ -12,6 +12,8 @@ class ChangeLog extends Component {
       <div>
         <p style={{ display: 'inline-block', textAlign: 'left', minWidth: '750px' }}>
           For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
+          <div style={ dateStyle }>-- June 25, 2020 --</div>
+          * Add more appendix to what the columns mean.<br/><br/>
           <div style={ dateStyle }>-- June 24, 2020 --</div>
           * Swap out cache implementations for data points.<br/>
           * Update timestamp to be relative and easier to read.<br/>

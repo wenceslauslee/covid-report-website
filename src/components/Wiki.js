@@ -48,8 +48,6 @@ class Wiki extends Component {
         <br/>
         * Add more live updates to the page. Currently the page refreshes once daily, when NYT posts the updates from yesterday.
         <br/>
-        * Add more appendix to what the columns mean.
-        <br/>
         * Add option to display number of days to show.
         <br/>
         * Add double trend.

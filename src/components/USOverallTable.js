@@ -213,7 +213,7 @@ class USOverallTable extends Component {
       },
       {
         dataField: 'activeChange',
-        text: 'Daily Change'
+        text: 'Increase'
       },
       {
         dataField: 'deathCount',
@@ -221,7 +221,7 @@ class USOverallTable extends Component {
       },
       {
         dataField: 'deathChange',
-        text: 'Daily Change'
+        text: 'Increase'
       }
     ];
 
@@ -235,7 +235,7 @@ class USOverallTable extends Component {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
           <p align='left'>
-            * Data reflects situation at
+            * All data (other than live) reflects situation accurately up till
             <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
             <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
           </p>

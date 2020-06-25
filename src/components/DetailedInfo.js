@@ -114,7 +114,7 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          date: `As of: ${rdata.currentDate} 23:59:59 EST`,
           timestamp: rdata.reportTimestamp,
           dataPoints: rdata.dataPoints,
           loading: false
@@ -231,19 +231,19 @@ class DetailedInfo extends Component {
         value: rdata.detailedInfo.activeCount
       },
       {
-        key: 'Active case count change over a day',
+        key: 'Daily increase over past day',
         value: (rdata.detailedInfo.activeChange >= 0) ? `+${rdata.detailedInfo.activeChange}` : rdata.detailedInfo.activeChange
       },
       {
-        key: 'Active count of population %',
+        key: '% of population',
         value: `${rdata.detailedInfo.activePercentage}%`
       },
       {
-        key: 'Active case rankings',
+        key: 'Rank in country',
         value: rdata.detailedInfo.activeRank
       },
       {
-        key: 'Change in active case rankings',
+        key: 'Change in rank over past day',
         value: Formatter.modifyChangeRank(rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank)
       },
       {
@@ -251,19 +251,19 @@ class DetailedInfo extends Component {
         value: rdata.detailedInfo.deathCount
       },
       {
-        key: 'Death count change over a day',
+        key: 'Daily increase over past day',
         value: (rdata.detailedInfo.deathChange >= 0) ? `+${rdata.detailedInfo.deathChange}` : rdata.detailedInfo.deathChange
       },
       {
-        key: 'Death count of population %',
+        key: '% of population',
         value: `${rdata.detailedInfo.deathPercentage}%`
       },
       {
-        key: 'Death count rankings',
+        key: 'Rank in country',
         value: rdata.detailedInfo.deathRank
       },
       {
-        key: 'Change in death count rankings',
+        key: 'Change in rank over past day',
         value: Formatter.modifyChangeRank(rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank)
       }
     ];
@@ -380,7 +380,7 @@ class DetailedInfo extends Component {
       ];
 
       return <div>
-        <ChartContainer title='Case/Death Counts and Daily Case Increases' timeRange={ series.range() }
+        <ChartContainer title='Case/Death Counts and Daily Increases' timeRange={ series.range() }
           width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
           minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
           onTrackerChanged={ this.handleTrackerChanged }>

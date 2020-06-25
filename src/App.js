@@ -32,7 +32,7 @@ function App() {
               <Wiki/>
             </TabContent>
           </Tab>
-          <Tab eventKey='countyranking' title='Top 50 County Rankings'>
+          <Tab eventKey='countyranking' title='Top County Rankings'>
             <TabContent>
               <CountyRankTable/>
             </TabContent>
