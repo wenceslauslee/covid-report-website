@@ -1,5 +1,6 @@
 import { Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler } from 'react-timeseries-charts';
 import Formatter from '../utils/Formatter';
+import moment from 'moment';
 import React from 'react';
 import { TimeSeries } from 'pondjs';
 import _ from 'lodash';
@@ -175,12 +176,14 @@ const Grapher = {
     var deathCountIncreaseMax = 0;
 
     const maxPointCount = (_.maxBy(allStates, s => s.dataPoints.length)).dataPoints.length;
-    var currentDate;
-    var reportTimestamp;
+    var currentDate = '';
+    var reportTimestamp = '';
     for (var k = 0; k < allStates.length; k++) {
       if (allStates[k].dataPoints.length === maxPointCount) {
-        currentDate = allStates[k].currentDate;
-        reportTimestamp = allStates[k].reportTimestamp;
+        if (reportTimestamp === '' || moment(reportTimestamp) < moment(allStates[k].reportTimestamp)) {
+          currentDate = allStates[k].currentDate;
+          reportTimestamp = allStates[k].reportTimestamp;
+        }
       } else {
         while (allStates[k].dataPoints.length < maxPointCount) {
           allStates[k].dataPoints.push(allStates[k].dataPoints[allStates[k].dataPoints.length - 1]);

@@ -3,6 +3,7 @@ import { Component } from 'react';
 import Form from 'react-bootstrap/Form';
 import Formatter from '../utils/Formatter';
 import Grapher from '../utils/Grapher';
+import moment from 'moment';
 import React from 'react';
 import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
@@ -125,7 +126,8 @@ class SearchByCounty extends Component {
   submitCounty(countyObj) {
     const countySanitized = encodeURIComponent(countyObj.value);
 
-    if (!Object.prototype.hasOwnProperty.call(countyCache, countySanitized)) {
+    if (!Object.prototype.hasOwnProperty.call(countyCache, countySanitized) ||
+        moment() - moment(countyCache[countySanitized].reportTimestamp) >= 600000) {
       return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=county&key=${countySanitized}`)
         .then(res => res.json())
         .then(rdata => {
@@ -221,7 +223,7 @@ class SearchByCounty extends Component {
               className='basic-multi-select'
               onChange= { onChange }
             />
-            <Button variant='warning' type='submit' style={{ 'margin-left': '10px' }} onClick={ this.submitPlot }>
+            <Button variant='warning' type='submit' style={{ 'marginLeft': '10px' }} onClick={ this.submitPlot }>
               Plot!
             </Button>
           </Form>

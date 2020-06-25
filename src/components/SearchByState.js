@@ -4,6 +4,7 @@ import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
 import Formatter from '../utils/Formatter';
 import Grapher from '../utils/Grapher';
+import moment from 'moment';
 import React from 'react';
 import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
@@ -111,7 +112,8 @@ class SearchByState extends Component {
   submitState(stateObj) {
     const stateSanitized = encodeURIComponent(stateObj.value);
 
-    if (!Object.prototype.hasOwnProperty.call(stateCache, stateSanitized)) {
+    if (!Object.prototype.hasOwnProperty.call(stateCache, stateSanitized) ||
+        moment() - moment(stateCache[stateSanitized].reportTimestamp) >= 600000) {
       return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${stateSanitized}`)
         .then(res => res.json())
         .then(rdata => {
