@@ -67,21 +67,6 @@ class StateRankTable extends Component {
     return '-';
   }
 
-  getCellStyle(cell, row, rowIndex, colIndex) {
-    var colorToUse = '';
-    if (cell.startsWith('↑')) {
-      colorToUse = 'red';
-    } else if (cell.startsWith('↓')) {
-      colorToUse = 'green';
-    } else {
-      colorToUse = 'black';
-    }
-
-    return {
-      color: colorToUse
-    };
-  }
-
   indexN(cell, row, rowIndex) {
     return (<div>{ rowIndex + 1 }</div>);
   }
@@ -109,11 +94,11 @@ class StateRankTable extends Component {
       {
         dataField: 'detailedInfo.activeRankChange',
         text: '-',
-        style: this.getCellStyle
+        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeChange',
-        text: 'Increase',
+        text: 'Daily Increase',
         sort: true,
         sortFunc: (a, b, order, dataField) => {
           if (order === 'asc') {
@@ -138,11 +123,11 @@ class StateRankTable extends Component {
       {
         dataField: 'detailedInfo.deathRankChange',
         text: '-',
-        style: this.getCellStyle
+        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.deathChange',
-        text: 'Increase',
+        text: 'Daily Increase',
         sort: true,
         sortFunc: (a, b, order, dataField) => {
           if (order === 'asc') {

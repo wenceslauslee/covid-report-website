@@ -49,8 +49,10 @@ class USOverallTable extends Component {
             country: 'USA',
             activeCount: rdata.detailedInfo.activeCount,
             activeChange: `+${rdata.detailedInfo.activeChange}`,
+            liveActiveChange: `+${rdata.detailedInfo.liveActiveChange}`,
             deathCount: rdata.detailedInfo.deathCount,
-            deathChange: `+${rdata.detailedInfo.deathChange}`
+            deathChange: `+${rdata.detailedInfo.deathChange}`,
+            liveDeathChange: `+${rdata.detailedInfo.liveDeathChange}`,
           }],
           validDate: rdata.currentDate,
           timestamp: rdata.reportTimestamp,
@@ -213,7 +215,15 @@ class USOverallTable extends Component {
       },
       {
         dataField: 'activeChange',
-        text: 'Increase'
+        text: 'Daily Increase'
+      },
+      {
+        dataField: 'liveActiveChange',
+        text: 'Live Increase',
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
       },
       {
         dataField: 'deathCount',
@@ -221,7 +231,15 @@ class USOverallTable extends Component {
       },
       {
         dataField: 'deathChange',
-        text: 'Increase'
+        text: 'Daily Increase'
+      },
+      {
+        dataField: 'liveDeathChange',
+        text: 'Live Increase',
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
       }
     ];
 

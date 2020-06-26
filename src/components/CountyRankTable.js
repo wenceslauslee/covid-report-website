@@ -98,7 +98,7 @@ class CountyRankTable extends Component {
       },
       {
         dataField: 'detailedInfo.activeChange',
-        text: 'Increase'
+        text: 'Daily Increase'
       },
       {
         dataField: 'detailedInfo.activePercentage',
@@ -115,7 +115,7 @@ class CountyRankTable extends Component {
       },
       {
         dataField: 'detailedInfo.deathChange',
-        text: 'Increase',
+        text: 'Daily Increase',
       },
       {
         dataField: 'detailedInfo.deathPercentage',
