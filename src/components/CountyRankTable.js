@@ -52,8 +52,14 @@ class CountyRankTable extends Component {
       if (f.detailedInfo.activeChange >= 0) {
         f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
       }
+      if (f.detailedInfo.liveActiveChange >= 0) {
+        f.detailedInfo.liveActiveChange = `+${f.detailedInfo.liveActiveChange}`;
+      }
       if (f.detailedInfo.deathChange >= 0) {
         f.detailedInfo.deathChange = `+${f.detailedInfo.deathChange}`;
+      }
+      if (f.detailedInfo.liveDeathChange >= 0) {
+        f.detailedInfo.liveDeathChange = `+${f.detailedInfo.liveDeathChange}`;
       }
 
       f.detailedInfo.activePercentage = `${f.detailedInfo.activePercentage}%`;
@@ -101,12 +107,28 @@ class CountyRankTable extends Component {
         text: 'Daily Increase'
       },
       {
+        dataField: 'detailedInfo.liveActiveChange',
+        text: 'Live',
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
+      },
+      {
         dataField: 'detailedInfo.activePercentage',
         text: '% Of People'
       },
       {
         dataField: 'detailedInfo.deathCount',
         text: 'Death Count'
+      },
+      {
+        dataField: 'detailedInfo.liveDeathChange',
+        text: 'Live',
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
       },
       {
         dataField: 'detailedInfo.deathRankChange',
@@ -136,9 +158,11 @@ class CountyRankTable extends Component {
             * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)
           </p>
           <p align='left'>
-            * All data (other than live) reflects situation accurately up till
-            <span style={{ 'fontWeight': 'bold' }}> { this.state.validDate } 23:59:59 EST</span>
-            <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+            * All data (except live) reflects situation accurately up till
+            <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+            . Live reflects situation from then till now.
+            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+            </span>
           </p>
           <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
             data={ this.state.data } columns={ columns }/>

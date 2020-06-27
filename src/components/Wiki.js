@@ -46,8 +46,6 @@ class Wiki extends Component {
         <br/>
         * Add option for graphing in logarithmic axis.
         <br/>
-        * Add more live updates to the page. Currently the page refreshes once daily, when NYT posts the updates from yesterday.
-        <br/>
         * Add option to display number of days to show.
         <br/>
         * Add double trend.
