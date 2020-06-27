@@ -183,7 +183,7 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.stateNameFullProper}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          date: `As of: ${rdata.currentDate} 23:59:59 EST`,
           timestamp: rdata.reportTimestamp,
           dataPoints: rdata.dataPoints,
           loading: false
@@ -213,7 +213,7 @@ class DetailedInfo extends Component {
           showTable: true,
           tableInfo: tableData,
           countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 PM EST`,
+          date: `As of: ${rdata.currentDate} 23:59:59 EST`,
           timestamp: rdata.reportTimestamp,
           dataPoints: rdata.dataPoints,
           loading: false
@@ -233,6 +233,10 @@ class DetailedInfo extends Component {
       {
         key: 'Daily increase over past day',
         value: (rdata.detailedInfo.activeChange >= 0) ? `+${rdata.detailedInfo.activeChange}` : rdata.detailedInfo.activeChange
+      },
+      {
+        key: 'Live increase since then',
+        value: (rdata.detailedInfo.liveActiveChange >= 0) ? `+${rdata.detailedInfo.liveActiveChange}` : rdata.detailedInfo.liveActiveChange
       },
       {
         key: '% of population',
@@ -255,6 +259,10 @@ class DetailedInfo extends Component {
         value: (rdata.detailedInfo.deathChange >= 0) ? `+${rdata.detailedInfo.deathChange}` : rdata.detailedInfo.deathChange
       },
       {
+        key: 'Live increase since then',
+        value: (rdata.detailedInfo.liveDeathChange >= 0) ? `+${rdata.detailedInfo.liveDeathChange}` : rdata.detailedInfo.liveDeathChange
+      },
+      {
         key: '% of population',
         value: `${rdata.detailedInfo.deathPercentage}%`
       },
@@ -269,6 +277,17 @@ class DetailedInfo extends Component {
     ];
   }
 
+  getCellStyle(cell, row, rowIndex, colIndex) {
+    if (row.key === 'Live increase since then') {
+      return {
+        color: '#ff0000',
+        fontWeight: 'bold'
+      };
+    }
+
+    return Formatter.getCellStyle(cell, row, rowIndex, colIndex);
+  }
+
   getDetailedTable() {
     if (this.state.showTable && !this.state.loading) {
       const columns = [
@@ -279,13 +298,15 @@ class DetailedInfo extends Component {
         {
           dataField: 'value',
           text: this.state.countyStateName,
-          style: Formatter.getCellStyle
+          style: this.getCellStyle
         }
       ];
 
       return <div>
         <p align='left'>
-          <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+          <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}>
+            (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+          </span>
         </p>
         <BootstrapTable bootstrap4={ true } keyField='detailed-table' data={ this.state.tableInfo } columns={ columns }>
         </BootstrapTable>

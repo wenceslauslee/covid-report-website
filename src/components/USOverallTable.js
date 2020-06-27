@@ -219,7 +219,7 @@ class USOverallTable extends Component {
       },
       {
         dataField: 'liveActiveChange',
-        text: 'Live Increase',
+        text: 'Live',
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -235,7 +235,7 @@ class USOverallTable extends Component {
       },
       {
         dataField: 'liveDeathChange',
-        text: 'Live Increase',
+        text: 'Live',
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -253,9 +253,11 @@ class USOverallTable extends Component {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
           <p align='left'>
-            * All data (other than live) reflects situation accurately up till
+            * All data (except live) reflects situation accurately up till
             <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
-            <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+            . Live reflects situation from then till now.
+            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+            </span>
           </p>
           <BootstrapTable bootstrap4={ true } keyField='us-overall-table'
             data={ this.state.data } columns={ columns }>

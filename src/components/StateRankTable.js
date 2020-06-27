@@ -35,8 +35,14 @@ class StateRankTable extends Component {
           if (f.detailedInfo.activeChange >= 0) {
             f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
           }
+          if (f.detailedInfo.liveActiveChange >= 0) {
+            f.detailedInfo.liveActiveChange = `+${f.detailedInfo.liveActiveChange}`;
+          }
           if (f.detailedInfo.deathChange >= 0) {
             f.detailedInfo.deathChange = `+${f.detailedInfo.deathChange}`;
+          }
+          if (f.detailedInfo.liveDeathChange >= 0) {
+            f.detailedInfo.liveDeathChange = `+${f.detailedInfo.liveDeathChange}`;
           }
 
           f.detailedInfo.activePercentage = `${f.detailedInfo.activePercentage}%`;
@@ -109,6 +115,22 @@ class StateRankTable extends Component {
         headerSortingStyle
       },
       {
+        dataField: 'detailedInfo.liveActiveChange',
+        text: 'Live',
+        sort: true,
+        sortFunc: (a, b, order, dataField) => {
+          if (order === 'asc') {
+            return parseInt(a) - parseInt(b);
+          }
+          return parseInt(b) - parseInt(a);
+        },
+        headerSortingStyle,
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
+      },
+      {
         dataField: 'detailedInfo.activePercentage',
         text: '% Of People',
         sort: true,
@@ -138,6 +160,22 @@ class StateRankTable extends Component {
         headerSortingStyle
       },
       {
+        dataField: 'detailedInfo.liveDeathChange',
+        text: 'Live',
+        sort: true,
+        sortFunc: (a, b, order, dataField) => {
+          if (order === 'asc') {
+            return parseInt(a) - parseInt(b);
+          }
+          return parseInt(b) - parseInt(a);
+        },
+        headerSortingStyle,
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
+      },
+      {
         dataField: 'detailedInfo.deathPercentage',
         text: '% Of People',
         sort: true,
@@ -160,9 +198,11 @@ class StateRankTable extends Component {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
           <p align='left'>
-            * All data (other than live) reflects situation accurately up till
+            * All data (except live) reflects situation accurately up till
             <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
-            <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
+            . Live reflects situation from then till now.
+            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+            </span>
           </p>
           <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
             data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
