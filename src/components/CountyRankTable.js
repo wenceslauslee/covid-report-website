@@ -8,14 +8,19 @@ import _ from 'lodash';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 class CountyRankTable extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    this.getCellStyle = this.getCellStyle.bind(this);
+
     this.state = {
       data: [],
       validDate: '',
       timestamp: '',
       loading: true
     };
+
+    this.rankingCache = {};
   }
 
   async componentDidMount() {
@@ -43,12 +48,6 @@ class CountyRankTable extends Component {
     });
 
     _.each(filtered, f => {
-      f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper}`;
-      f.detailedInfo.activeRankChange =
-        Formatter.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
-      f.detailedInfo.deathRankChange =
-        Formatter.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
-
       if (f.detailedInfo.activeChange >= 0) {
         f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
       }
@@ -68,6 +67,14 @@ class CountyRankTable extends Component {
       } else {
         f.detailedInfo.deathPercentage = `${f.detailedInfo.deathPercentage}%`;
       }
+
+      const activeDiff = f.detailedInfo.activeRankPast - f.detailedInfo.activeRank;
+      if (activeDiff !== 0) {
+        f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper} (${Formatter.modifyChangeRank(activeDiff)})`;
+        this.rankingCache[f.fips] = (activeDiff > 0);
+      } else {
+        f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper}`;
+      }
     });
 
     this.setState({
@@ -82,6 +89,18 @@ class CountyRankTable extends Component {
     return (<div>{ rowIndex + 1 }</div>);
   }
 
+  getCellStyle(cell, row, rowIndex, colIndex) {
+    var color = 'black';
+
+    if (Object.prototype.hasOwnProperty.call(this.rankingCache, row.fips)) {
+      color = this.rankingCache[row.fips] ? 'red' : 'green';
+    }
+
+    return {
+      color: color
+    };
+  }
+
   render() {
     const columns = [
       {
@@ -91,16 +110,12 @@ class CountyRankTable extends Component {
       },
       {
         dataField: 'countyDisplayName',
-        text: 'County'
+        text: 'County',
+        style: this.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeCount',
         text: 'Case Count'
-      },
-      {
-        dataField: 'detailedInfo.activeRankChange',
-        text: '-',
-        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeChange',
@@ -129,11 +144,6 @@ class CountyRankTable extends Component {
           color: '#ff0000',
           fontWeight: 'bold'
         }
-      },
-      {
-        dataField: 'detailedInfo.deathRankChange',
-        text: '-',
-        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.deathChange',

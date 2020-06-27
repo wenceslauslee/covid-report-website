@@ -10,12 +10,17 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 class StateRankTable extends Component {
   constructor(props) {
     super(props);
+
+    this.getCellStyle = this.getCellStyle.bind(this);
+
     this.state = {
       data: [],
       validDate: '',
       timestamp: '',
       loading: true
     };
+
+    this.rankingCache = {};
   }
 
   componentDidMount() {
@@ -27,11 +32,6 @@ class StateRankTable extends Component {
         });
 
         _.each(filtered, f => {
-          f.detailedInfo.activeRankChange =
-            this.modifyChangeRank(f.detailedInfo.activeRankPast - f.detailedInfo.activeRank);
-          f.detailedInfo.deathRankChange =
-            this.modifyChangeRank(f.detailedInfo.deathRankPast - f.detailedInfo.deathRank);
-
           if (f.detailedInfo.activeChange >= 0) {
             f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
           }
@@ -51,7 +51,14 @@ class StateRankTable extends Component {
           } else {
             f.detailedInfo.deathPercentage = `${f.detailedInfo.deathPercentage}%`;
           }
-        })
+
+          const activeDiff = f.detailedInfo.activeRankPast - f.detailedInfo.activeRank;
+          if (activeDiff !== 0) {
+            f.stateNameFullProper = `${f.stateNameFullProper} (${Formatter.modifyChangeRank(activeDiff)})`;
+            this.rankingCache[f.fips] = (activeDiff > 0);
+          }
+        });
+
         this.setState({
           data: filtered,
           validDate: rdata.reportDate,
@@ -64,17 +71,20 @@ class StateRankTable extends Component {
       });
   }
 
-  modifyChangeRank(rankChange) {
-    if (rankChange > 0) {
-      return `↑${rankChange}`;
-    } else if (rankChange < 0) {
-      return `↓${Math.abs(rankChange)}`;
-    }
-    return '-';
-  }
-
   indexN(cell, row, rowIndex) {
     return (<div>{ rowIndex + 1 }</div>);
+  }
+
+  getCellStyle(cell, row, rowIndex, colIndex) {
+    var color = 'black';
+
+    if (Object.prototype.hasOwnProperty.call(this.rankingCache, row.fips)) {
+      color = this.rankingCache[row.fips] ? 'red' : 'green';
+    }
+
+    return {
+      color: color
+    };
   }
 
   render() {
@@ -89,18 +99,14 @@ class StateRankTable extends Component {
         dataField: 'stateNameFullProper',
         text: 'State',
         sort: true,
-        headerSortingStyle
+        headerSortingStyle,
+        style: this.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeCount',
         text: 'Case Count',
         sort: true,
         headerSortingStyle
-      },
-      {
-        dataField: 'detailedInfo.activeRankChange',
-        text: '-',
-        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeChange',
@@ -141,11 +147,6 @@ class StateRankTable extends Component {
         text: 'Death Count',
         sort: true,
         headerSortingStyle
-      },
-      {
-        dataField: 'detailedInfo.deathRankChange',
-        text: '-',
-        style: Formatter.getCellStyle
       },
       {
         dataField: 'detailedInfo.deathChange',
