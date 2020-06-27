@@ -179,12 +179,14 @@ class CountyRankTable extends Component {
         dataField: 'detailedInfo.activeChange',
         text: 'Daily Increase',
         sort: this.state.sortable,
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle: this.getHeaderSortingStyle
       },
       {
         dataField: 'detailedInfo.liveActiveChange',
         text: 'Live',
         sort: this.state.sortable,
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle: this.getHeaderSortingStyle,
         style: {
           color: '#ff0000',
@@ -203,20 +205,22 @@ class CountyRankTable extends Component {
         sort: this.state.sortable
       },
       {
+        dataField: 'detailedInfo.deathChange',
+        text: 'Daily Increase',
+        sort: this.state.sortable,
+        sortFunc: Formatter.sortFunc,
+        headerSortingStyle: this.getHeaderSortingStyle
+      },
+      {
         dataField: 'detailedInfo.liveDeathChange',
         text: 'Live',
         sort: this.state.sortable,
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle: this.getHeaderSortingStyle,
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
         }
-      },
-      {
-        dataField: 'detailedInfo.deathChange',
-        text: 'Daily Increase',
-        sort: this.state.sortable,
-        headerSortingStyle: this.getHeaderSortingStyle
       },
       {
         dataField: 'detailedInfo.deathPercentage',

@@ -10,6 +10,13 @@ const Formatter = {
     return '-';
   },
 
+  sortFunc: (a, b, order, dataField) => {
+    if (order === 'asc') {
+      return parseInt(a) - parseInt(b);
+    }
+    return parseInt(b) - parseInt(a);
+  },
+
   getCellStyle: (cell, row, rowIndex, colIndex) => {
     if (typeof cell !== 'string') {
       return {

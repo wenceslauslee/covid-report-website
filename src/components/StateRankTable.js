@@ -112,24 +112,14 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.activeChange',
         text: 'Daily Increase',
         sort: true,
-        sortFunc: (a, b, order, dataField) => {
-          if (order === 'asc') {
-            return parseInt(a) - parseInt(b);
-          }
-          return parseInt(b) - parseInt(a);
-        },
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle
       },
       {
         dataField: 'detailedInfo.liveActiveChange',
         text: 'Live',
         sort: true,
-        sortFunc: (a, b, order, dataField) => {
-          if (order === 'asc') {
-            return parseInt(a) - parseInt(b);
-          }
-          return parseInt(b) - parseInt(a);
-        },
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle,
         style: {
           color: '#ff0000',
@@ -152,24 +142,14 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.deathChange',
         text: 'Daily Increase',
         sort: true,
-        sortFunc: (a, b, order, dataField) => {
-          if (order === 'asc') {
-            return parseInt(a) - parseInt(b);
-          }
-          return parseInt(b) - parseInt(a);
-        },
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle
       },
       {
         dataField: 'detailedInfo.liveDeathChange',
         text: 'Live',
         sort: true,
-        sortFunc: (a, b, order, dataField) => {
-          if (order === 'asc') {
-            return parseInt(a) - parseInt(b);
-          }
-          return parseInt(b) - parseInt(a);
-        },
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle,
         style: {
           color: '#ff0000',
