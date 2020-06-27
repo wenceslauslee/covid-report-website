@@ -1,7 +1,9 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import { Component } from 'react';
+import data from '../data/data.json';
 import Formatter from '../utils/Formatter';
 import React from 'react';
+import Select from 'react-select';
 import { Spinner } from 'react-bootstrap';
 import _ from 'lodash';
 
@@ -12,27 +14,44 @@ class CountyRankTable extends Component {
     super(props);
 
     this.getCellStyle = this.getCellStyle.bind(this);
+    this.onStateChange = this.onStateChange.bind(this);
 
     this.state = {
       data: [],
       validDate: '',
       timestamp: '',
-      loading: true
+      stateValues: [],
+      stateValueInput: 'default',
+      loading: true,
+      sortable: false
     };
 
     this.rankingCache = {};
   }
 
   async componentDidMount() {
-    var i = 0;
-    while (i < 1) {
-      await this.fetchAndProcessData(i);
-      i++;
-    }
+    await this.fetchAndProcessData('countyRanking', 0);
+
+    const defaultValues = [{
+      label: '-----',
+      value: 'default'
+    }];
+    const dataValues = _.map(data.states, s => {
+      return {
+        label: s,
+        value: s.toLowerCase()
+      };
+    });
+    const stateValues = defaultValues.concat(dataValues);
+
+    this.setState(prevState => ({
+      ...prevState,
+      stateValues: stateValues
+    }));
   }
 
-  fetchAndProcessData(pageValue) {
-    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=countyRanking&pageValue=${pageValue}`)
+  fetchAndProcessData(infoKey, pageValue) {
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=${infoKey}&pageValue=${pageValue}`)
       .then(res => res.json())
       .then(rdata => {
         this.processData(rdata, pageValue);
@@ -43,6 +62,8 @@ class CountyRankTable extends Component {
   }
 
   processData(rdata, pageValue) {
+    this.rankingCache = {};
+
     const filtered = _.filter(rdata.rankByCases, d => {
       return d.stateNameFullProper !== /*'-----'*/null && d.detailedInfo.activePercentage !== 'NaN';
     });
@@ -68,7 +89,9 @@ class CountyRankTable extends Component {
         f.detailedInfo.deathPercentage = `${f.detailedInfo.deathPercentage}%`;
       }
 
-      const activeDiff = f.detailedInfo.activeRankPast - f.detailedInfo.activeRank;
+      const activeDiff = (pageValue === 0) ?
+        f.detailedInfo.activeRankPast - f.detailedInfo.activeRank :
+        f.detailedInfo.localActiveRankPast - f.detailedInfo.localActiveRank;
       if (activeDiff !== 0) {
         f.countyDisplayName = `${f.countyName}, ${f.stateNameShortProper} (${Formatter.modifyChangeRank(activeDiff)})`;
         this.rankingCache[f.fips] = (activeDiff > 0);
@@ -77,11 +100,14 @@ class CountyRankTable extends Component {
       }
     });
 
+    const sortable = (pageValue !== 0);
+
     this.setState({
-      data: this.state.data.concat(filtered),
+      data: filtered,
       validDate: rdata.reportDate,
       timestamp: rdata.reportTimestamp,
-      loading: false
+      loading: false,
+      sortable: sortable
     });
   }
 
@@ -101,6 +127,34 @@ class CountyRankTable extends Component {
     };
   }
 
+  getHeaderSortingStyle(column, sortOrder, isLastSorting, colIndex) {
+    if (isLastSorting) {
+      return {
+        backgroundColor: '#c8e6c9'
+      };
+    }
+
+    return {};
+  }
+
+  onStateChange(objects, action) {
+    if (this.state.stateValueInput === objects.value) {
+      return;
+    }
+
+    this.setState(prevState => ({
+      ...prevState,
+      stateValueInput: objects.value,
+      loading: true
+    }));
+
+    if (objects.value === 'default') {
+      this.fetchAndProcessData('countyRanking', 0);
+    } else {
+      this.fetchAndProcessData(objects.value, 1);
+    }
+  };
+
   render() {
     const columns = [
       {
@@ -111,19 +165,27 @@ class CountyRankTable extends Component {
       {
         dataField: 'countyDisplayName',
         text: 'County',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle,
         style: this.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeCount',
-        text: 'Case Count'
+        text: 'Case Count',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle
       },
       {
         dataField: 'detailedInfo.activeChange',
-        text: 'Daily Increase'
+        text: 'Daily Increase',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle
       },
       {
         dataField: 'detailedInfo.liveActiveChange',
         text: 'Live',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle,
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -131,15 +193,20 @@ class CountyRankTable extends Component {
       },
       {
         dataField: 'detailedInfo.activePercentage',
-        text: '% Of People'
+        text: '% Of People',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle
       },
       {
         dataField: 'detailedInfo.deathCount',
-        text: 'Death Count'
+        text: 'Death Count',
+        sort: this.state.sortable
       },
       {
         dataField: 'detailedInfo.liveDeathChange',
         text: 'Live',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle,
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -148,37 +215,56 @@ class CountyRankTable extends Component {
       {
         dataField: 'detailedInfo.deathChange',
         text: 'Daily Increase',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle
       },
       {
         dataField: 'detailedInfo.deathPercentage',
-        text: '% Of People'
+        text: '% Of People',
+        sort: this.state.sortable,
+        headerSortingStyle: this.getHeaderSortingStyle
       }
     ];
 
-    if (this.state.loading) {
-      return (
-        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <Spinner animation='border' />
-        </div>
-      );
-    } else {
-      return (
-        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+    const defaultSorted = [{
+      dataField: 'detailedInfo.activeCount',
+      order: 'desc'
+    }];
+
+    return (
+      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+        <div style={{ display: 'flex' }}>
           <p align='left'>
             * New York City reflects data from all 5 counties combined. (Bronx, Kings, Manhattan, Queens, Richmond)
           </p>
-          <p align='left'>
-            * All data (except live) reflects situation accurately up till
-            <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
-            . Live reflects situation from then till now.
-            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
-            </span>
-          </p>
-          <BootstrapTable bootstrap4={ true } keyField='county-rank-table'
-            data={ this.state.data } columns={ columns }/>
         </div>
-      );
-    }
+        <p align='left'>
+          * All data (except live) reflects situation accurately up till
+          <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+          . Live reflects situation from then till now.
+          <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+          </span>
+        </p>
+        <div style={{ paddingBottom: '20px', maxWidth: '150px' }}>
+          <Select
+            options={ this.state.stateValues }
+            placeholder='Filter by state'
+            SingleValue
+            className='basic-single-select'
+            onChange= { this.onStateChange }
+          />
+        </div>
+        { this.state.loading ?
+            <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+              <Spinner animation='border' />
+            </div> :
+            <div>
+              <BootstrapTable bootstrap4={ true } keyField='county-rank-table' data={ this.state.data }
+                columns={ columns } defaultSorted={ defaultSorted }/>
+            </div>
+        }
+      </div>
+    );
   }
 }
 
