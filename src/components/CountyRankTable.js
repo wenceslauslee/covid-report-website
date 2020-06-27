@@ -240,9 +240,9 @@ class CountyRankTable extends Component {
         </div>
         <p align='left'>
           * All data (except live) reflects situation accurately up till
-          <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+          <span style={{ 'fontWeight': 'bold'}}> { this.state.loading ? '---' : `${this.state.validDate} 23:59:59 EST` }</span>
           . Live reflects situation from then till now.
-          <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+          <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { this.state.loading ? '---' : Formatter.getTimestamp(this.state.timestamp) })
           </span>
         </p>
         <div style={{ paddingBottom: '20px', maxWidth: '150px' }}>

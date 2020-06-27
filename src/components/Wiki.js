@@ -58,10 +58,6 @@ class Wiki extends Component {
             <br/>
             * Add refresh button.
             <br/>
-            * Filter county rankings by state option.
-            <br/>
-            * Add rankings total in detailed info.
-            <br/>
             * Convert to https under my own domain.
           </p>
         </div>

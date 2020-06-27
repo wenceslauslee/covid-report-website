@@ -225,7 +225,19 @@ class DetailedInfo extends Component {
   }
 
   getTableData(rdata) {
-    return [
+    var activeRank = `${rdata.detailedInfo.activeRank}/${rdata.detailedInfo.rankCount}`;
+    const countryActiveRankDiff = rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank;
+    if (countryActiveRankDiff !== 0) {
+      activeRank = `${activeRank} (${Formatter.modifyChangeRank(countryActiveRankDiff)})`;
+    }
+
+    var deathRank = `${rdata.detailedInfo.deathRank}/${rdata.detailedInfo.rankCount}`;
+    const countryDeathRankDiff = rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank;
+    if (countryDeathRankDiff !== 0) {
+      deathRank = `${deathRank} (${Formatter.modifyChangeRank(countryDeathRankDiff)})`;
+    }
+
+    const data = [
       {
         key: 'Active case count',
         value: rdata.detailedInfo.activeCount
@@ -244,11 +256,8 @@ class DetailedInfo extends Component {
       },
       {
         key: 'Rank in country',
-        value: rdata.detailedInfo.activeRank
-      },
-      {
-        key: 'Change in rank over past day',
-        value: Formatter.modifyChangeRank(rdata.detailedInfo.activeRankPast - rdata.detailedInfo.activeRank)
+        value: activeRank,
+        color: this.getRankingColor(countryActiveRankDiff)
       },
       {
         key: 'Death count',
@@ -268,13 +277,33 @@ class DetailedInfo extends Component {
       },
       {
         key: 'Rank in country',
-        value: rdata.detailedInfo.deathRank
-      },
-      {
-        key: 'Change in rank over past day',
-        value: Formatter.modifyChangeRank(rdata.detailedInfo.deathRankPast - rdata.detailedInfo.deathRank)
+        value: deathRank,
+        color: this.getRankingColor(countryDeathRankDiff)
       }
     ];
+
+    if (Object.prototype.hasOwnProperty.call(rdata.detailedInfo, 'localActiveRank')) {
+      var localActiveRank = `${rdata.detailedInfo.localActiveRank}/${rdata.detailedInfo.localRankCount}`;
+      const stateActiveRankDiff = rdata.detailedInfo.localActiveRankPast - rdata.detailedInfo.localActiveRank;
+      if (stateActiveRankDiff !== 0) {
+        localActiveRank = `${localActiveRank} (${Formatter.modifyChangeRank(stateActiveRankDiff)})`;
+      }
+
+      var localDeathRank = `${rdata.detailedInfo.localDeathRank}/${rdata.detailedInfo.localRankCount}`;
+      const stateDeathRankDiff = rdata.detailedInfo.localDeathRankPast - rdata.detailedInfo.localDeathRank;
+      if (stateDeathRankDiff !== 0) {
+        localDeathRank = `${localDeathRank} (${Formatter.modifyChangeRank(stateDeathRankDiff)})`;
+      }
+
+      data.splice(5, 0, { key: 'Rank in state', value: localActiveRank, color: this.getRankingColor(stateActiveRankDiff) });
+      data.push({ key: 'Rank in state', value: localDeathRank, color: this.getRankingColor(stateDeathRankDiff) });
+    }
+
+    return data;
+  }
+
+  getRankingColor(diff) {
+    return (diff === 0) ? 'black' : ((diff > 0) ? 'red' : 'green')
   }
 
   getCellStyle(cell, row, rowIndex, colIndex) {
@@ -282,6 +311,12 @@ class DetailedInfo extends Component {
       return {
         color: '#ff0000',
         fontWeight: 'bold'
+      };
+    }
+
+    if (Object.prototype.hasOwnProperty.call(row, 'color')) {
+      return {
+        color: row.color
       };
     }
 
