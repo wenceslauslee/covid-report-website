@@ -1,4 +1,5 @@
 import BootstrapTable from 'react-bootstrap-table-next';
+import Button from 'react-bootstrap/Button';
 import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
   from 'react-timeseries-charts';
 import { Component } from 'react';
@@ -15,22 +16,17 @@ class USOverallTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [],
-      validDate: '',
-      timestamp: '',
       loading: true,
-      caseCountDataPoints: [],
       caseCountTracker: null,
-      deathCountDataPoints: [],
       deathCountTracker: null
     };
 
     this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
     this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
 
-    const columns = ['time', 'count', 'increase', 'moving'];
-    const columnColors = ['#000000', '#0000ff', '#c4b8b7', '#ff0000'];
-    this.legendStyle = Grapher.getLegendStyle(columns, columnColors);
+    this.styles = this.initializeStyles();
+    this.series = {};
+    this.columns = this.initializeColumns();
   }
 
   componentDidMount() {
@@ -44,8 +40,8 @@ class USOverallTable extends Component {
           return [d[0], d[2], d[4], d[6]];
         });
 
-        this.setState({
-          data: [{
+        this.data = {
+          detailedInfo: [{
             country: 'USA',
             activeCount: rdata.detailedInfo.activeCount,
             activeChange: `+${rdata.detailedInfo.activeChange}`,
@@ -56,9 +52,14 @@ class USOverallTable extends Component {
           }],
           validDate: rdata.currentDate,
           timestamp: rdata.reportTimestamp,
-          loading: false,
-          caseCountDataPoints: caseCountDataPoints,
-          deathCountDataPoints: deathCountDataPoints
+        }
+        this.series = {
+          caseCount: this.initializeSeries(caseCountDataPoints),
+          deathCount: this.initializeSeries(deathCountDataPoints)
+        };
+
+        this.setState({
+          loading: false
         });
       })
       .catch(err => {
@@ -66,41 +67,19 @@ class USOverallTable extends Component {
       });
   }
 
-  getCaseCountGraph() {
-    return this.getGraph(this.state.caseCountDataPoints, 'Case', this.state.caseCountTracker,
-      this.handleTrackerChanged1);
-  }
+  initializeStyles() {
+    const columns = ['time', 'count', 'increase', 'moving'];
+    const columnColors = ['#000000', '#0000ff', '#c4b8b7', '#ff0000'];
 
-  getDeathCountGraph() {
-    return this.getGraph(this.state.deathCountDataPoints, 'Death', this.state.deathCountTracker,
-      this.handleTrackerChanged2);
-  }
-
-  getGraph(dataPoints, chartName, tracker, handleTrackerChanged) {
-    if (!this.state.loading) {
-      const series = new TimeSeries(
-        {
-          name: 'USStats',
-          columns: ['time', 'count', 'increase', 'moving'],
-          points: dataPoints
-        }
-      );
-      const timeSeries = new TimeSeries(
-        {
-          name: 'USStatsBar',
-          columns: ['index', 'increase'],
-          points: _.map(dataPoints, d => {
-            return [Index.getIndexString('1d', d[0]), d[2]];
-          })
-        }
-      );
-      const style = styler([
+    return {
+      legendStyle: Grapher.getLegendStyle(columns, columnColors),
+      lineStyle: styler([
         { key: 'time', color: '#0000ff', width: 1 },
         { key: 'count', color: '#0000ff', width: 2 },
         { key: 'increase', color: '#c4b8b7', width: 1 },
         { key: 'moving', color: '#ff0000', width: 2 },
-      ]);
-      const darkAxis = {
+      ]),
+      axisStyle: {
         label: {
             stroke: 'none',
             fill: '#000000', // Default label color
@@ -125,86 +104,36 @@ class USOverallTable extends Component {
             stroke: '#000000',
             opacity: 0.3
         }
-      };
-
-      let dateValue, countValue, increaseValue, movingValue;
-      if (tracker) {
-        const index = series.bisect(tracker);
-        const trackerEvent = series.at(index);
-        const utcDate = trackerEvent.timestamp();
-        dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
-        countValue = `${trackerEvent.get('count')}`;
-        increaseValue = `${trackerEvent.get('increase')}`;
-        movingValue = `${trackerEvent.get('moving')}`;
       }
-      const legend = [
-        {
-          key: 'time',
-          label: 'Date',
-          value: dateValue
-        },
-        {
-          key: 'count',
-          label: `${chartName} Counts`,
-          value: countValue
-        },
-        {
-          key: 'increase',
-          label: 'Daily Increase',
-          value: increaseValue
-        },
-        {
-          key: 'moving',
-          label: '7-Day Moving Average',
-          value: movingValue
-        }
-      ];
-
-      return <div>
-        <ChartContainer title={ `${chartName} Counts and Daily Increases` } timeRange={ series.range() }
-          width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
-          onTrackerChanged={ handleTrackerChanged }>
-          <TimeAxis format='day'/>
-          <ChartRow height='400'>
-            <YAxis id='y1' label='Count' min={ 0 } max={ Formatter.getMaxValue(series.max('count')) } width='60'
-              type='linear' showGrid style={ darkAxis } />
-            <Charts>
-              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
-              <LineChart axis='y1' series={ series } columns={ ['count'] } style={ style }
-                interpolation='curveBasis'/>
-              <LineChart axis='y2' series={ series } columns={ ['moving'] } style={ style }
-                interpolation='curveBasis'/>
-            </Charts>
-            <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(series.max('increase')) }
-              width='60' type='linear' showGrid={ false } style={ darkAxis } />
-          </ChartRow>
-        </ChartContainer>
-        <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type='line' style={ this.legendStyle } categories={ legend } align='right' stack={ false }/>
-        </div>
-      </div>;
     }
-
-    return null;
   }
 
-  handleTrackerChanged1(tracker) {
-    this.setState(prevState => ({
-      ...prevState,
-      caseCountTracker: tracker,
-    }));
+  initializeSeries(dataPoints) {
+    const lineSeries = new TimeSeries(
+      {
+        name: 'USStats',
+        columns: ['time', 'count', 'increase', 'moving'],
+        points: dataPoints
+      }
+    );
+    const timeSeries = new TimeSeries(
+      {
+        name: 'USStatsBar',
+        columns: ['index', 'increase'],
+        points: _.map(dataPoints, d => {
+          return [Index.getIndexString('1d', d[0]), d[2]];
+        })
+      }
+    );
+
+    return {
+      lineSeries: lineSeries,
+      timeSeries: timeSeries
+    }
   }
 
-  handleTrackerChanged2(tracker) {
-    this.setState(prevState => ({
-      ...prevState,
-      deathCountTracker: tracker,
-    }));
-  }
-
-  render() {
-    const columns = [
+  initializeColumns() {
+    return [
       {
         dataField: 'country',
         text: 'Country'
@@ -242,7 +171,101 @@ class USOverallTable extends Component {
         }
       }
     ];
+  }
 
+  getCaseCountGraph() {
+    return this.getGraph('Case', this.series.caseCount.lineSeries, this.series.caseCount.timeSeries,
+      this.state.caseCountTracker, this.handleTrackerChanged1);
+  }
+
+  getDeathCountGraph() {
+    return this.getGraph('Death', this.series.deathCount.lineSeries, this.series.deathCount.timeSeries,
+      this.state.deathCountTracker, this.handleTrackerChanged2);
+  }
+
+  getGraph(chartName, lineSeries, timeSeries, tracker, handleTrackerChanged) {
+    if (!this.state.loading) {
+      let dateValue, countValue, increaseValue, movingValue;
+      if (tracker) {
+        const index = lineSeries.bisect(tracker);
+        const trackerEvent = lineSeries.at(index);
+        const utcDate = trackerEvent.timestamp();
+        dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
+        countValue = `${trackerEvent.get('count')}`;
+        increaseValue = `${trackerEvent.get('increase')}`;
+        movingValue = `${trackerEvent.get('moving')}`;
+      }
+      const legend = [
+        {
+          key: 'time',
+          label: 'Date',
+          value: dateValue
+        },
+        {
+          key: 'count',
+          label: `${chartName} Counts`,
+          value: countValue
+        },
+        {
+          key: 'increase',
+          label: 'Daily Increase',
+          value: increaseValue
+        },
+        {
+          key: 'moving',
+          label: '7-Day Moving Average',
+          value: movingValue
+        }
+      ];
+
+      return <div>
+        <ChartContainer title={ `${chartName} Counts and Daily Increases` } timeRange={ lineSeries.range() }
+          width={ 600 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
+          timeAxisStyle={ this.styles.axisStyle } minTime={ lineSeries.range().begin() }
+          maxTime={ lineSeries.range().end() } timeAxisTickCount={ 5 } onTrackerChanged={ handleTrackerChanged }>
+          <TimeAxis format='day'/>
+          <ChartRow height='400'>
+            <YAxis id='y1' label='Count' min={ 0 } max={ Formatter.getMaxValue(lineSeries.max('count')) } width='60'
+              type='linear' style={ this.styles.axisStyle } showGrid/>
+            <Charts>
+              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ this.styles.lineStyle } />
+              <LineChart axis='y1' series={ lineSeries } columns={ ['count'] } style={ this.styles.lineStyle }
+                interpolation='curveBasis'/>
+              <LineChart axis='y2' series={ lineSeries } columns={ ['moving'] } style={ this.styles.lineStyle }
+                interpolation='curveBasis'/>
+            </Charts>
+            <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(lineSeries.max('increase')) }
+              width='60' type='linear' showGrid={ false } style={ this.styles.axisStyle } />
+          </ChartRow>
+        </ChartContainer>
+        <div style={{ justifyContent: 'flex-end' }}>
+          <Legend type='line' style={ this.styles.legendStyle } categories={ legend } align='right' stack={ false }/>
+        </div>
+      </div>;
+    }
+
+    return null;
+  }
+
+  handleTrackerChanged1(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      caseCountTracker: tracker,
+    }));
+  }
+
+  handleTrackerChanged2(tracker) {
+    this.setState(prevState => ({
+      ...prevState,
+      deathCountTracker: tracker,
+    }));
+  }
+
+  refresh() {
+
+  }
+
+  render() {
     if (this.state.loading) {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
@@ -254,13 +277,14 @@ class USOverallTable extends Component {
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
           <p align='left'>
             * All data (except live) reflects situation accurately up till
-            <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+            <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
             . Live reflects situation from then till now.
-            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
             </span>
           </p>
+          <Button variant='secondary' onClick={ this.refresh }>Refresh</Button>
           <BootstrapTable bootstrap4={ true } keyField='us-overall-table'
-            data={ this.state.data } columns={ columns }>
+            data={ this.data.detailedInfo } columns={ this.columns }>
           </BootstrapTable>
           <div style={{ display: 'flex', minWidth: '1200px' }}>
             <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
@@ -269,7 +293,7 @@ class USOverallTable extends Component {
             <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
               { this.getDeathCountGraph() }
             </div>
-        </div>
+          </div>
         </div>
       );
     }
