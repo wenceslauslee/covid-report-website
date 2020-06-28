@@ -1,4 +1,5 @@
 import BootstrapTable from 'react-bootstrap-table-next';
+import Button from 'react-bootstrap/Button';
 import { Component } from 'react';
 import data from '../data/data.json';
 import Formatter from '../utils/Formatter';
@@ -15,23 +16,19 @@ class CountyRankTable extends Component {
 
     this.getCellStyle = this.getCellStyle.bind(this);
     this.onStateChange = this.onStateChange.bind(this);
+    this.refresh = this.refresh.bind(this);
 
     this.state = {
-      data: [],
-      validDate: '',
-      timestamp: '',
-      stateValues: [],
-      stateValueInput: 'default',
+      initialLoading: true,
       loading: true,
       sortable: false
     };
 
     this.rankingCache = {};
+    this.data = {};
   }
 
-  async componentDidMount() {
-    await this.fetchAndProcessData('countyRanking', 0);
-
+  componentDidMount() {
     const defaultValues = [{
       label: '-----',
       value: 'default'
@@ -42,12 +39,10 @@ class CountyRankTable extends Component {
         value: s.toLowerCase()
       };
     });
-    const stateValues = defaultValues.concat(dataValues);
+    this.data.stateValues = defaultValues.concat(dataValues);
+    this.data.stateValueInput = 'default';
 
-    this.setState(prevState => ({
-      ...prevState,
-      stateValues: stateValues
-    }));
+    this.fetchAndProcessData('countyRanking', 0);
   }
 
   fetchAndProcessData(infoKey, pageValue) {
@@ -102,10 +97,12 @@ class CountyRankTable extends Component {
 
     const sortable = (pageValue !== 0);
 
+    this.data.detailedInfo = filtered;
+    this.data.validDate = rdata.reportDate;
+    this.data.timestamp = rdata.reportTimestamp;
+
     this.setState({
-      data: filtered,
-      validDate: rdata.reportDate,
-      timestamp: rdata.reportTimestamp,
+      initialLoading: false,
       loading: false,
       sortable: sortable
     });
@@ -127,35 +124,31 @@ class CountyRankTable extends Component {
     };
   }
 
-  getHeaderSortingStyle(column, sortOrder, isLastSorting, colIndex) {
-    if (isLastSorting) {
-      return {
-        backgroundColor: '#c8e6c9'
-      };
-    }
-
-    return {};
-  }
-
   onStateChange(objects, action) {
-    if (this.state.stateValueInput === objects.value) {
+    if (this.data.stateValueInput === objects.value) {
       return;
     }
 
+    this.data.stateValueInput = objects.value;
+
+    this.refresh();
+  };
+
+  refresh(stateValueInput) {
     this.setState(prevState => ({
       ...prevState,
-      stateValueInput: objects.value,
       loading: true
     }));
 
-    if (objects.value === 'default') {
+    if (this.data.stateValueInput === 'default') {
       this.fetchAndProcessData('countyRanking', 0);
     } else {
-      this.fetchAndProcessData(objects.value, 1);
+      this.fetchAndProcessData(this.data.stateValueInput, 1);
     }
-  };
+  }
 
   render() {
+    const backgroundColor = { backgroundColor: '#c8e6c9' };
     const columns = [
       {
         dataField: 'any',
@@ -166,28 +159,28 @@ class CountyRankTable extends Component {
         dataField: 'countyDisplayName',
         text: 'County',
         sort: this.state.sortable,
-        headerSortingStyle: this.getHeaderSortingStyle,
+        headerSortingStyle: backgroundColor,
         style: this.getCellStyle
       },
       {
         dataField: 'detailedInfo.activeCount',
         text: 'Case Count',
         sort: this.state.sortable,
-        headerSortingStyle: this.getHeaderSortingStyle
+        headerSortingStyle: backgroundColor
       },
       {
         dataField: 'detailedInfo.activeChange',
         text: 'Daily Increase',
         sort: this.state.sortable,
         sortFunc: Formatter.sortFunc,
-        headerSortingStyle: this.getHeaderSortingStyle
+        headerSortingStyle: backgroundColor
       },
       {
         dataField: 'detailedInfo.liveActiveChange',
         text: 'Live',
         sort: this.state.sortable,
         sortFunc: Formatter.sortFunc,
-        headerSortingStyle: this.getHeaderSortingStyle,
+        headerSortingStyle: backgroundColor,
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -197,7 +190,7 @@ class CountyRankTable extends Component {
         dataField: 'detailedInfo.activePercentage',
         text: '% Of People',
         sort: this.state.sortable,
-        headerSortingStyle: this.getHeaderSortingStyle
+        headerSortingStyle: backgroundColor
       },
       {
         dataField: 'detailedInfo.deathCount',
@@ -209,14 +202,14 @@ class CountyRankTable extends Component {
         text: 'Daily Increase',
         sort: this.state.sortable,
         sortFunc: Formatter.sortFunc,
-        headerSortingStyle: this.getHeaderSortingStyle
+        headerSortingStyle: backgroundColor
       },
       {
         dataField: 'detailedInfo.liveDeathChange',
         text: 'Live',
         sort: this.state.sortable,
         sortFunc: Formatter.sortFunc,
-        headerSortingStyle: this.getHeaderSortingStyle,
+        headerSortingStyle: backgroundColor,
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -226,7 +219,7 @@ class CountyRankTable extends Component {
         dataField: 'detailedInfo.deathPercentage',
         text: '% Of People',
         sort: this.state.sortable,
-        headerSortingStyle: this.getHeaderSortingStyle
+        headerSortingStyle: backgroundColor
       }
     ];
 
@@ -234,6 +227,14 @@ class CountyRankTable extends Component {
       dataField: 'detailedInfo.activeCount',
       order: 'desc'
     }];
+
+    if (this.state.initialLoading) {
+      return (
+        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+          <Spinner animation='border' />
+        </div>
+      );
+    }
 
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
@@ -244,29 +245,32 @@ class CountyRankTable extends Component {
         </div>
         <p align='left'>
           * All data (except live) reflects situation accurately up till
-          <span style={{ 'fontWeight': 'bold'}}> { this.state.loading ? '---' : `${this.state.validDate} 23:59:59 EST` }</span>
+          <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
           . Live reflects situation from then till now.
-          <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { this.state.loading ? '---' : Formatter.getTimestamp(this.state.timestamp) })
+          <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
           </span>
         </p>
-        <div style={{ paddingBottom: '20px', maxWidth: '150px' }}>
+        <div style={{ paddingBottom: '20px', maxWidth: '150px', display: 'flex' }}>
           <Select
-            options={ this.state.stateValues }
+            options={ this.data.stateValues }
             placeholder='Filter by state'
             SingleValue
             className='basic-single-select'
-            onChange= { this.onStateChange }
+            onChange={ this.onStateChange }
+            isDisabled={ this.state.loading }
           />
+          <Button style={{ marginLeft: '10px' }} variant='secondary' onClick={ this.refresh }>Refresh</Button>
+          { this.state.loading ?
+              <div style={{ marginLeft: '20px' }}>
+                <Spinner animation='border' />
+              </div> :
+              ''
+          }
         </div>
-        { this.state.loading ?
-            <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-              <Spinner animation='border' />
-            </div> :
-            <div>
-              <BootstrapTable bootstrap4={ true } keyField='county-rank-table' data={ this.state.data }
-                columns={ columns } defaultSorted={ defaultSorted }/>
-            </div>
-        }
+        <div>
+          <BootstrapTable bootstrap4={ true } keyField='county-rank-table' data={ this.data.detailedInfo }
+            columns={ columns } defaultSorted={ defaultSorted }/>
+        </div>
       </div>
     );
   }

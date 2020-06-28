@@ -11,6 +11,8 @@ class ChangeLog extends Component {
     return (
       <div style={{ display: 'inline-block', textAlign: 'left', minWidth: '750px' }}>
         For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
+        <div style={ dateStyle }>-- June 28, 2020 --</div>
+        * Add refresh button on US county table.<br/>
         <div style={ dateStyle }>-- June 27, 2020 --</div>
         * Add refresh button on US overall table.<br/>
         * Add rankings total in detailed info.<br/>

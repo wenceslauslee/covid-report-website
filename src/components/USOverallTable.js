@@ -26,6 +26,7 @@ class USOverallTable extends Component {
     this.refresh = this.refresh.bind(this);
 
     this.styles = this.initializeStyles();
+    this.data = {};
     this.series = {};
     this.columns = this.initializeColumns();
   }
