@@ -15,16 +15,17 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 class USOverallTable extends Component {
   constructor(props) {
     super(props);
+
+    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
+    this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
+    this.refresh = this.refresh.bind(this);
+
     this.state = {
       initialLoading: true,
       loading: true,
       caseCountTracker: null,
       deathCountTracker: null
     };
-
-    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
-    this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
-    this.refresh = this.refresh.bind(this);
 
     this.styles = this.initializeStyles();
     this.data = {};

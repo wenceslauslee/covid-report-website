@@ -1,4 +1,5 @@
 import BootstrapTable from 'react-bootstrap-table-next';
+import Button from 'react-bootstrap/Button';
 import { Component } from 'react';
 import Formatter from '../utils/Formatter';
 import React from 'react';
@@ -12,18 +13,25 @@ class StateRankTable extends Component {
     super(props);
 
     this.getCellStyle = this.getCellStyle.bind(this);
+    this.refresh = this.refresh.bind(this);
 
     this.state = {
-      data: [],
-      validDate: '',
-      timestamp: '',
+      initialLoading: true,
       loading: true
     };
 
     this.rankingCache = {};
+    this.data = {};
+    this.columns = this.initializeColumns();
   }
 
   componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData() {
+    this.rankingCache = {};
+
     fetch('https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=stateRanking')
       .then(res => res.json())
       .then(rdata => {
@@ -59,10 +67,12 @@ class StateRankTable extends Component {
           }
         });
 
+        this.data.detailedInfo = filtered;
+        this.data.validDate = rdata.reportDate;
+        this.data.timestamp = rdata.reportTimestamp;
+
         this.setState({
-          data: filtered,
-          validDate: rdata.reportDate,
-          timestamp: rdata.reportTimestamp,
+          initialLoading: false,
           loading: false
         });
       })
@@ -71,25 +81,10 @@ class StateRankTable extends Component {
       });
   }
 
-  indexN(cell, row, rowIndex) {
-    return (<div>{ rowIndex + 1 }</div>);
-  }
-
-  getCellStyle(cell, row, rowIndex, colIndex) {
-    var color = 'black';
-
-    if (Object.prototype.hasOwnProperty.call(this.rankingCache, row.fips)) {
-      color = this.rankingCache[row.fips] ? 'red' : 'green';
-    }
-
-    return {
-      color: color
-    };
-  }
-
-  render() {
+  initializeColumns() {
     const headerSortingStyle = { backgroundColor: '#c8e6c9' };
-    const columns = [
+
+    return [
       {
         dataField: 'any',
         text: '#',
@@ -163,34 +158,74 @@ class StateRankTable extends Component {
         headerSortingStyle
       }
     ];
+  }
 
+  indexN(cell, row, rowIndex) {
+    return (<div>{ rowIndex + 1 }</div>);
+  }
+
+  getCellStyle(cell, row, rowIndex, colIndex) {
+    var color = 'black';
+
+    if (Object.prototype.hasOwnProperty.call(this.rankingCache, row.fips)) {
+      color = this.rankingCache[row.fips] ? 'red' : 'green';
+    }
+
+    return {
+      color: color
+    };
+  }
+
+  refresh() {
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
+
+    this.fetchData();
+  }
+
+  render() {
     const defaultSorted = [{
       dataField: 'detailedInfo.activeCount',
       order: 'desc'
     }];
 
-    if (this.state.loading) {
+    if (this.state.initialLoading) {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
           <Spinner animation='border' />
         </div>
       );
-    } else {
-      return (
-        <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+    }
+
+    return (
+      <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
+        <div>
           <p align='left'>
             * All data (except live) reflects situation accurately up till
-            <span style={{ 'fontWeight': 'bold'}}> { this.state.validDate } 23:59:59 EST</span>
+            <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
             . Live reflects situation from then till now.
-            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
             </span>
           </p>
+        </div>
+        <div style={{ display: 'flex' }}>
+          <Button variant='secondary' onClick={ this.refresh }>Refresh</Button>
+          { this.state.loading ?
+              <div style={{ marginLeft: '20px' }}>
+                <Spinner animation='border' />
+              </div> :
+              ''
+          }
+        </div>
+        <div style={{ marginTop: '20px' }}>
           <BootstrapTable bootstrap4={ true } keyField='state-rank-table'
-            data={ this.state.data } columns={ columns } defaultSorted={ defaultSorted }>
+            data={ this.data.detailedInfo } columns={ this.columns } defaultSorted={ defaultSorted }>
           </BootstrapTable>
         </div>
-      );
-    }
+      </div>
+    );
   }
 }
 
