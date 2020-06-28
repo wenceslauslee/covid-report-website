@@ -23,6 +23,7 @@ class USOverallTable extends Component {
 
     this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
     this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
+    this.refresh = this.refresh.bind(this);
 
     this.styles = this.initializeStyles();
     this.series = {};
@@ -30,7 +31,16 @@ class USOverallTable extends Component {
   }
 
   componentDidMount() {
-    fetch('https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=usa')
+    this.fetchData();
+  }
+
+  fetchData() {
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
+
+    return fetch('https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=usa')
       .then(res => res.json())
       .then(rdata => {
         const caseCountDataPoints = _.map(rdata.dataPoints, d => {
@@ -262,7 +272,7 @@ class USOverallTable extends Component {
   }
 
   refresh() {
-
+    this.fetchData();
   }
 
   render() {
@@ -275,22 +285,28 @@ class USOverallTable extends Component {
     } else {
       return (
         <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
-          <p align='left'>
-            * All data (except live) reflects situation accurately up till
-            <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
-            . Live reflects situation from then till now.
-            <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
-            </span>
-          </p>
-          <Button variant='secondary' onClick={ this.refresh }>Refresh</Button>
-          <BootstrapTable bootstrap4={ true } keyField='us-overall-table'
-            data={ this.data.detailedInfo } columns={ this.columns }>
-          </BootstrapTable>
+          <div>
+            <p align='left'>
+              * All data (except live) reflects situation accurately up till
+              <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
+              . Live reflects situation from then till now.
+              <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}> (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
+              </span>
+            </p>
+          </div>
+          <div style={{ display: 'flex' }}>
+            <Button variant='secondary' onClick={ this.refresh }>Refresh</Button>
+          </div>
+          <div style={{ marginTop: '20px' }}>
+            <BootstrapTable bootstrap4={ true } keyField='us-overall-table'
+              data={ this.data.detailedInfo } columns={ this.columns }>
+            </BootstrapTable>
+          </div>
           <div style={{ display: 'flex', minWidth: '1200px' }}>
-            <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
+            <div style={{ 'marginTop': '20px', 'marginBottom': '10px' }}>
               { this.getCaseCountGraph() }
             </div>
-            <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
+            <div style={{ marginLeft: '30px', marginTop: '20px', marginBottom: '10px' }}>
               { this.getDeathCountGraph() }
             </div>
           </div>
