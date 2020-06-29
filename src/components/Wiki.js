@@ -56,8 +56,6 @@ class Wiki extends Component {
             <br/>
             * Add double trend.
             <br/>
-            * Add refresh button.
-            <br/>
             * Convert to https under my own domain.
           </p>
         </div>

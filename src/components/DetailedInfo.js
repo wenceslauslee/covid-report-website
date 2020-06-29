@@ -29,33 +29,16 @@ class DetailedInfo extends Component {
     this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
 
     this.state = {
-      showTable: false,
-      tableInfo: {},
+      loading: false,
       postalCodeValueInput: '',
-      postalCodeErrorMessage: '',
-      countyStateName: '',
-      stateValues: [],
-      stateValueInput1: '',
-      stateValueInput2: '',
-      countyValues: [],
-      countyValueMap: {},
-      countyValueInput: '',
-      countyValueFips: '',
-      date: '',
-      timestamp: '',
-      dataPoints: [],
-      tracker: null,
-      x: null,
-      y: null,
-      loading: false
+      countyValueInput: null,
+      tracker: null
     };
 
-    const columns = ['time', 'cases', 'deaths', 'increase'];
-    const columnColors = ['#000000', '#0000ff', '#ff0000', '#c4b8b7'];
-    this.legendStyle = Grapher.getLegendStyle(columns, columnColors);
-  }
+    this.styles = this.initializeStyles();
+    this.data = {};
+    this.series = {};
 
-  componentDidMount() {
     const stateValues = _.map(data.states, s => {
       return {
         label: s,
@@ -63,69 +46,165 @@ class DetailedInfo extends Component {
       };
     });
 
-    this.setState(prevState => ({
-      ...prevState,
-      stateValues: stateValues
-    }));
+    this.data.stateValues = stateValues;
+  }
+
+  componentDidMount() {
+  }
+
+  initializeStyles() {
+    const columns = ['time', 'cases', 'deaths', 'increase'];
+    const columnColors = ['#000000', '#0000ff', '#ff0000', '#c4b8b7'];
+
+    return {
+      legendStyle: Grapher.getLegendStyle(columns, columnColors),
+      lineStyle: styler([
+        { key: 'time', color: '#0000ff', width: 1 },
+        { key: 'cases', color: '#0000ff', width: 2 },
+        { key: 'deaths', color: '#ff0000', width: 2 },
+        { key: 'increase', color: '#c4b8b7', width: 2 },
+      ]),
+      axisStyle: {
+        label: {
+            stroke: 'none',
+            fill: '#000000',
+            fontWeight: 200,
+            fontSize: 14,
+            font: 'Goudy Bookletter 1911\', sans-serif'
+        },
+        values: {
+            stroke: 'none',
+            fill: '#000000',
+            fontWeight: 100,
+            fontSize: 11,
+            font: 'Goudy Bookletter 1911\', sans-serif'
+        },
+        ticks: {
+            fill: 'none',
+            stroke: '#000000',
+            opacity: 0.2
+        },
+        axis: {
+            fill: 'none',
+            stroke: '#000000',
+            opacity: 0.25
+        }
+      }
+    }
+  }
+
+  initializeSeries(dataPoints) {
+    const lineSeries = new TimeSeries(
+      {
+        name: 'CovidStats',
+        columns: ['time', 'cases', 'deaths', 'increase'],
+        points: dataPoints
+      }
+    );
+    const timeSeries = new TimeSeries(
+      {
+        name: 'CovidStatsBar',
+        columns: ['index', 'increase'],
+        points: _.map(dataPoints, d => {
+          return [Index.getIndexString('1d', d[0]), d[3]];
+        })
+      }
+    );
+
+    return {
+      lineSeries: lineSeries,
+      timeSeries: timeSeries
+    }
   }
 
   onChangePostalCode(event) {
-    const value = event.target.value;
+    const input = event.target.value;
     this.setState(prevState => ({
       ...prevState,
-      postalCodeValueInput: value
+      postalCodeValueInput: input
     }));
   }
-
-  onStateChange1(objects, action) {
-    this.setState(prevState => ({
-      ...prevState,
-      stateValueInput1: objects.value
-    }));
-  };
 
   async submitPostalCode(event) {
     event.preventDefault();
 
-    const postalCode = this.state.postalCodeValueInput;
     this.setState(prevState => ({
       ...prevState,
       loading: true
     }));
+
+    const postalCode = this.state.postalCodeValueInput;
+
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=postal&key=${postalCode}`)
       .then(res => res.json())
       .then(rdata => {
         if (rdata.fips === null || rdata.fips === undefined) {
-          this.setState(prevState => ({
-            ...prevState,
-            postalCodeErrorMessage: `'${postalCode}' is not a valid postal code.`,
-            showTable: false,
-            loading: false
-          }));
+          this.data.postalCodeErrorMessage = `'${postalCode}' is not a valid postal code.`;
+        } else {
+          this.data.tableData = this.getTableData(rdata);
+          this.data.postalCodeErrorMessage = '';
+          this.data.asOfDate = `As of: ${rdata.currentDate} 23:59:59 EST`;
+          this.data.countyStateName = `${rdata.countyName}, ${rdata.stateNameFull}`;
+          this.data.timestamp = rdata.reportTimestamp;
+          this.data.dataPoints = rdata.dataPoints;
 
-          return;
+          this.series = this.initializeSeries(rdata.dataPoints);
         }
-
-        const tableData = this.getTableData(rdata);
-
-        this.setState(prevState => ({
-          ...prevState,
-          postalCodeErrorMessage: '',
-          showTable: true,
-          tableInfo: tableData,
-          countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 EST`,
-          timestamp: rdata.reportTimestamp,
-          dataPoints: rdata.dataPoints,
-          loading: false
-        }));
       })
       .catch(err => {
         console.log(err);
+      })
+      .then(() => {
+        this.setState(prevState => ({
+          ...prevState,
+          loading: false
+        }));
+      });
+  }
+
+  onStateChange1(objects, action) {
+    this.data.stateValueInput1 = objects.value;
+  };
+
+  submitState(event) {
+    event.preventDefault();
+
+    this.setState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
+
+    const state = encodeURIComponent(this.data.stateValueInput1);
+
+    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
+      .then(res => res.json())
+      .then(rdata => {
+        this.data.tableData = this.getTableData(rdata);
+        this.data.postalCodeErrorMessage = '';
+        this.data.asOfDate = `As of: ${rdata.currentDate} 23:59:59 EST`;
+        this.data.countyStateName = `${rdata.stateNameFullProper}`;
+        this.data.timestamp = rdata.reportTimestamp;
+        this.data.dataPoints = rdata.dataPoints;
+
+        this.series = this.initializeSeries(rdata.dataPoints);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+      .then(() => {
+        this.setState(prevState => ({
+          ...prevState,
+          loading: false
+        }));
       });
   }
 
   onStateChange2(objects, action) {
+    this.setState(prevState => ({
+      ...prevState,
+      countyValueInput: null
+    }));
+
     const stateName = encodeURIComponent(objects.value);
 
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/rank?infoKey=${stateName}`)
@@ -142,13 +221,13 @@ class DetailedInfo extends Component {
           });
         });
 
+        this.data.stateValueInput2 = objects.value;
+        this.data.countyValues = countyValues;
+        this.data.countyValueMap = countyValueMap;
+
         this.setState(prevState => ({
           ...prevState,
-          stateValueInput2: objects.value,
-          countyValues: countyValues,
-          countyValueMap: countyValueMap,
-          countyValueInput: null,
-          countyValueFips: ''
+          countyValueInput: (countyValues.length > 0 ? countyValues[0] : null),
         }));
       })
       .catch(err => {
@@ -159,68 +238,40 @@ class DetailedInfo extends Component {
   onCountyChange(objects, action) {
     this.setState(prevState => ({
       ...prevState,
-      countyValueFips: this.state.countyValueMap[objects.value.toLowerCase()],
       countyValueInput: objects
     }));
   };
 
-  async submitState(event) {
+  submitStateCounty(event) {
     event.preventDefault();
 
-    const state = encodeURIComponent(this.state.stateValueInput1);
     this.setState(prevState => ({
       ...prevState,
       loading: true
     }));
-    return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
-      .then(res => res.json())
-      .then(rdata => {
-        const tableData = this.getTableData(rdata);
 
-        this.setState(prevState => ({
-          ...prevState,
-          postalCodeErrorMessage: '',
-          showTable: true,
-          tableInfo: tableData,
-          countyStateName: `${rdata.stateNameFullProper}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 EST`,
-          timestamp: rdata.reportTimestamp,
-          dataPoints: rdata.dataPoints,
-          loading: false
-        }));
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  }
+    const fips = this.data.countyValueMap[this.state.countyValueInput.value];
 
-  async submitStateCounty(event) {
-    event.preventDefault();
-
-    const fips = this.state.countyValueFips;
-    this.setState(prevState => ({
-      ...prevState,
-      loading: true
-    }));
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=county&key=${fips}`)
       .then(res => res.json())
       .then(rdata => {
-        const tableData = this.getTableData(rdata);
+        this.data.tableData = this.getTableData(rdata);
+        this.data.postalCodeErrorMessage = '';
+        this.data.asOfDate = `As of: ${rdata.currentDate} 23:59:59 EST`;
+        this.data.countyStateName = `${rdata.countyName}, ${rdata.stateNameFull}`;
+        this.data.timestamp = rdata.reportTimestamp;
+        this.data.dataPoints = rdata.dataPoints;
 
-        this.setState(prevState => ({
-          ...prevState,
-          postalCodeErrorMessage: '',
-          showTable: true,
-          tableInfo: tableData,
-          countyStateName: `${rdata.countyName}, ${rdata.stateNameFull}`,
-          date: `As of: ${rdata.currentDate} 23:59:59 EST`,
-          timestamp: rdata.reportTimestamp,
-          dataPoints: rdata.dataPoints,
-          loading: false
-        }));
+        this.series = this.initializeSeries(rdata.dataPoints);
       })
       .catch(err => {
         console.log(err);
+      })
+      .then(() => {
+        this.setState(prevState => ({
+          ...prevState,
+          loading: false
+        }));
       });
   }
 
@@ -248,7 +299,11 @@ class DetailedInfo extends Component {
       },
       {
         key: 'Live increase since then',
-        value: (rdata.detailedInfo.liveActiveChange >= 0) ? `+${rdata.detailedInfo.liveActiveChange}` : rdata.detailedInfo.liveActiveChange
+        value: (rdata.detailedInfo.liveActiveChange >= 0) ? `+${rdata.detailedInfo.liveActiveChange}` : rdata.detailedInfo.liveActiveChange,
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
       },
       {
         key: '% of population',
@@ -257,7 +312,9 @@ class DetailedInfo extends Component {
       {
         key: 'Rank in country',
         value: activeRank,
-        color: this.getRankingColor(countryActiveRankDiff)
+        style: {
+          color: this.getRankingColor(countryActiveRankDiff)
+        }
       },
       {
         key: 'Death count',
@@ -269,7 +326,11 @@ class DetailedInfo extends Component {
       },
       {
         key: 'Live increase since then',
-        value: (rdata.detailedInfo.liveDeathChange >= 0) ? `+${rdata.detailedInfo.liveDeathChange}` : rdata.detailedInfo.liveDeathChange
+        value: (rdata.detailedInfo.liveDeathChange >= 0) ? `+${rdata.detailedInfo.liveDeathChange}` : rdata.detailedInfo.liveDeathChange,
+        style: {
+          color: '#ff0000',
+          fontWeight: 'bold'
+        }
       },
       {
         key: '% of population',
@@ -278,7 +339,9 @@ class DetailedInfo extends Component {
       {
         key: 'Rank in country',
         value: deathRank,
-        color: this.getRankingColor(countryDeathRankDiff)
+        style: {
+          color: this.getRankingColor(countryActiveRankDiff)
+        }
       }
     ];
 
@@ -307,32 +370,23 @@ class DetailedInfo extends Component {
   }
 
   getCellStyle(cell, row, rowIndex, colIndex) {
-    if (row.key === 'Live increase since then') {
-      return {
-        color: '#ff0000',
-        fontWeight: 'bold'
-      };
-    }
-
-    if (Object.prototype.hasOwnProperty.call(row, 'color')) {
-      return {
-        color: row.color
-      };
+    if (Object.prototype.hasOwnProperty.call(row, 'style')) {
+      return row.style;
     }
 
     return Formatter.getCellStyle(cell, row, rowIndex, colIndex);
   }
 
   getDetailedTable() {
-    if (this.state.showTable && !this.state.loading) {
+    if (!this.state.loading && this.data.tableData !== undefined) {
       const columns = [
         {
           dataField: 'key',
-          text: this.state.date
+          text: this.data.asOfDate
         },
         {
           dataField: 'value',
-          text: this.state.countyStateName,
+          text: this.data.countyStateName,
           style: this.getCellStyle
         }
       ];
@@ -340,10 +394,10 @@ class DetailedInfo extends Component {
       return <div>
         <p align='left'>
           <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}>
-            (Last updated: { Formatter.getTimestamp(this.state.timestamp) })
+            (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
           </span>
         </p>
-        <BootstrapTable bootstrap4={ true } keyField='detailed-table' data={ this.state.tableInfo } columns={ columns }>
+        <BootstrapTable bootstrap4={ true } keyField='detailed-table' data={ this.data.tableData } columns={ columns }>
         </BootstrapTable>
       </div>
     }
@@ -352,60 +406,11 @@ class DetailedInfo extends Component {
   }
 
   getDetailedGraph() {
-    if (this.state.showTable && !this.state.loading) {
-      const series = new TimeSeries(
-        {
-          name: 'CovidStats',
-          columns: ['time', 'cases', 'deaths', 'increase'],
-          points: this.state.dataPoints
-        }
-      );
-      const timeSeries = new TimeSeries(
-        {
-          name: 'CovidStatsBar',
-          columns: ['index', 'increase'],
-          points: _.map(this.state.dataPoints, d => {
-            return [Index.getIndexString('1d', d[0]), d[3]];
-          })
-        }
-      );
-      const style = styler([
-        { key: 'time', color: '#0000ff', width: 1 },
-        { key: 'cases', color: '#0000ff', width: 2 },
-        { key: 'deaths', color: '#ff0000', width: 2 },
-        { key: 'increase', color: '#c4b8b7', width: 2 },
-      ]);
-      const darkAxis = {
-        label: {
-            stroke: 'none',
-            fill: '#000000', // Default label color
-            fontWeight: 200,
-            fontSize: 14,
-            font: 'Goudy Bookletter 1911\', sans-serif'
-        },
-        values: {
-            stroke: 'none',
-            fill: '#000000',
-            fontWeight: 100,
-            fontSize: 11,
-            font: 'Goudy Bookletter 1911\', sans-serif'
-        },
-        ticks: {
-            fill: 'none',
-            stroke: '#000000',
-            opacity: 0.2
-        },
-        axis: {
-            fill: 'none',
-            stroke: '#000000',
-            opacity: 0.25
-        }
-      };
-
+    if (!this.state.loading && this.data.dataPoints !== undefined) {
       let dateValue, caseValue, deathValue, increaseValue;
       if (this.state.tracker) {
-        const index = series.bisect(this.state.tracker);
-        const trackerEvent = series.at(index);
+        const index = this.series.lineSeries.bisect(this.state.tracker);
+        const trackerEvent = this.series.lineSeries.at(index);
         const utcDate = trackerEvent.timestamp();
         dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
         caseValue = `${trackerEvent.get('cases')}`;
@@ -436,33 +441,38 @@ class DetailedInfo extends Component {
       ];
 
       return <div>
-        <ChartContainer title='Case/Death Counts and Daily Increases' timeRange={ series.range() }
-          width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }} timeAxisStyle={ darkAxis }
-          minTime={ series.range().begin() } maxTime={ series.range().end() } timeAxisTickCount={ 5 }
+        <ChartContainer title='Case/Death Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
+          width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
+          timeAxisStyle={ this.styles.axisStyle } minTime={ this.series.lineSeries.range().begin() }
+          maxTime={ this.series.lineSeries.range().end() } timeAxisTickCount={ 5 }
           onTrackerChanged={ this.handleTrackerChanged }>
           <TimeAxis format='day'/>
           <ChartRow height='400'>
-            <YAxis id='y1' label='Case Count' min={ 0 } max={ Formatter.getMaxValue(series.max('cases')) } width='60'
-              type='linear' showGrid style={ darkAxis } />
+            <YAxis id='y1' label='Case Count' min={ 0 }
+              max={ Formatter.getMaxValue(this.series.lineSeries.max('cases')) } width='60' type='linear'
+              showGrid style={ this.styles.axisStyle } />
             <Charts>
-              <BarChart axis='y2' series={ timeSeries } columns={ ['increase'] } style={ style } />
-              <LineChart axis='y1' series={ series } columns={ ['cases'] } style={ style }
-                interpolation='curveBasis'/>
+              <BarChart axis='y2' series={ this.series.timeSeries } columns={ ['increase'] }
+                style={ this.styles.lineStyle } />
+              <LineChart axis='y1' series={ this.series.lineSeries } columns={ ['cases'] }
+                style={ this.styles.lineStyle } interpolation='curveBasis'/>
             </Charts>
-            <YAxis id='y2' label='Daily Increase' min={ 0 } max={ Formatter.getMaxValue(timeSeries.max('increase')) }
-              width='60' type='linear' showGrid={ false } style={ darkAxis } />
+            <YAxis id='y2' label='Daily Increase' min={ 0 }
+              max={ Formatter.getMaxValue(this.series.timeSeries.max('increase')) } width='60' type='linear'
+              showGrid={ false } style={ this.styles.axisStyle } />
           </ChartRow>
-          <ChartRow height='200'>
-            <YAxis id='y1' label='Death Count' min={ 0 } max={ Formatter.getMaxValue(series.max('deaths')) } width='60'
-              type='linear' showGrid style={ darkAxis } />
+          <ChartRow height='250'>
+            <YAxis id='y1' label='Death Count' min={ 0 }
+              max={ Formatter.getMaxValue(this.series.lineSeries.max('deaths')) } width='60' type='linear' showGrid
+              style={ this.styles.axisStyle } />
             <Charts>
-              <LineChart axis='y1' series={ series } columns={ ['deaths'] } style={ style }
-                interpolation='curveBasis'/>
+              <LineChart axis='y1' series={ this.series.lineSeries } columns={ ['deaths'] }
+                style={ this.styles.lineStyle } interpolation='curveBasis'/>
             </Charts>
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type='line' style={ this.legendStyle } categories={ legend } align='right' stack={ false }/>
+          <Legend type='line' style={ this.styles.legendStyle } categories={ legend } align='right' stack={ false }/>
         </div>
       </div>;
     }
@@ -471,19 +481,10 @@ class DetailedInfo extends Component {
   }
 
   handleTrackerChanged(tracker) {
-    if (!tracker) {
-      this.setState(prevState => ({
-        ...prevState,
-        tracker: tracker,
-        x: null,
-        y: null
-      }));
-    } else {
-      this.setState(prevState => ({
-        ...prevState,
-        tracker: tracker
-      }));
-    }
+    this.setState(prevState => ({
+      ...prevState,
+      tracker: tracker
+    }));
   }
 
   render() {
@@ -491,17 +492,18 @@ class DetailedInfo extends Component {
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
         <div style={{ display: 'flex' }}>
           <Form style={{ display: 'flex' }}>
-            <Form.Control type='postal' placeholder='Enter postal code...' onChange={ this.onChangePostalCode } value={ this.state.postalCodeValueInput }/>
+            <Form.Control type='postal' placeholder='Enter postal code...' onChange={ this.onChangePostalCode }
+              value={ this.state.postalCodeValueInput }/>
             <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick={ this.submitPostalCode }>
               Submit
             </Button>
           </Form>
-          <p style={{ 'marginLeft': '25px' }}> { this.state.postalCodeErrorMessage }</p>
+          <p style={{ 'marginLeft': '25px' }}> { this.data.postalCodeErrorMessage }</p>
         </div>
         <div style={{ display: 'flex', marginTop: '25px' }}>
           <Form style={{ display: 'flex' }}>
             <Select
-              options={ this.state.stateValues }
+              options={ this.data.stateValues }
               placeholder='Select a state...'
               SingleValue
               className='basic-single-select'
@@ -515,7 +517,7 @@ class DetailedInfo extends Component {
         <div style={{ display: 'flex', marginTop: '25px' }}>
           <Form style={{ display: 'flex' }}>
             <Select
-              options={ this.state.stateValues }
+              options={ this.data.stateValues }
               placeholder='Select a state...'
               SingleValue
               className='basic-single-select'
@@ -523,12 +525,13 @@ class DetailedInfo extends Component {
             />
             <div style={{ marginLeft: '10px' }}>
               <Select
-                options={ this.state.countyValues }
+                options={ this.data.countyValues }
                 placeholder='Select a county...'
                 SingleValue
                 className='basic-single-select'
                 onChange= { this.onCountyChange }
-                value={ this.state.countyValueInput }
+                value= { this.state.countyValueInput }
+                isDisabled= { this.state.countyValueInput === null }
               />
             </div>
             <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
