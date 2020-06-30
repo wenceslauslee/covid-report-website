@@ -53,16 +53,19 @@ class DetailedInfo extends Component {
   }
 
   initializeStyles() {
-    const columns = ['time', 'cases', 'deaths', 'increase'];
-    const columnColors = ['#000000', '#0000ff', '#ff0000', '#c4b8b7'];
+    const columns = ['time', 'cases', 'deaths', 'caseIncrease', 'deathIncrease', 'caseAverage', 'deathAverage'];
+    const columnColors = ['#000000', '#0000ff', '#0000ff', '#c4b8b7', '#c4b8b7', '#ff0000', '#ff0000'];
 
     return {
       legendStyle: Grapher.getLegendStyle(columns, columnColors),
       lineStyle: styler([
         { key: 'time', color: '#0000ff', width: 1 },
         { key: 'cases', color: '#0000ff', width: 2 },
-        { key: 'deaths', color: '#ff0000', width: 2 },
-        { key: 'increase', color: '#c4b8b7', width: 2 },
+        { key: 'deaths', color: '#0000ff', width: 2 },
+        { key: 'caseIncrease', color: '#c4b8b7', width: 2 },
+        { key: 'deathIncrease', color: '#c4b8b7', width: 2 },
+        { key: 'caseAverage', color: '#ff0000', width: 2 },
+        { key: 'deathAverage', color: '#ff0000', width: 2 },
       ]),
       axisStyle: {
         label: {
@@ -97,16 +100,16 @@ class DetailedInfo extends Component {
     const lineSeries = new TimeSeries(
       {
         name: 'CovidStats',
-        columns: ['time', 'cases', 'deaths', 'increase'],
+        columns: ['time', 'cases', 'deaths', 'caseIncrease', 'deathIncrease', 'caseAverage', 'deathAverage'],
         points: dataPoints
       }
     );
     const timeSeries = new TimeSeries(
       {
         name: 'CovidStatsBar',
-        columns: ['index', 'increase'],
+        columns: ['index', 'caseIncrease', 'deathIncrease'],
         points: _.map(dataPoints, d => {
-          return [Index.getIndexString('1d', d[0]), d[3]];
+          return [Index.getIndexString('1d', d[0]), d[3], d[4]];
         })
       }
     );
@@ -407,7 +410,7 @@ class DetailedInfo extends Component {
 
   getDetailedGraph() {
     if (!this.state.loading && this.data.dataPoints !== undefined) {
-      let dateValue, caseValue, deathValue, increaseValue;
+      let dateValue, caseValue, deathValue, caseAverageValue, deathAverageValue;
       if (this.state.tracker) {
         const index = this.series.lineSeries.bisect(this.state.tracker);
         const trackerEvent = this.series.lineSeries.at(index);
@@ -415,7 +418,8 @@ class DetailedInfo extends Component {
         dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
         caseValue = `${trackerEvent.get('cases')}`;
         deathValue = `${trackerEvent.get('deaths')}`;
-        increaseValue = `${trackerEvent.get('increase')}`;
+        caseAverageValue = `${trackerEvent.get('caseAverage')}`;
+        deathAverageValue = `${trackerEvent.get('deathAverage')}`;
       }
       const legend = [
         {
@@ -434,9 +438,14 @@ class DetailedInfo extends Component {
           value: deathValue
         },
         {
-          key: 'increase',
-          label: 'Daily Increase',
-          value: increaseValue
+          key: 'caseAverage',
+          label: 'Case Moving Average',
+          value: caseAverageValue
+        },
+        {
+          key: 'deathAverage',
+          label: 'Death Moving Average',
+          value: deathAverageValue
         }
       ];
 
@@ -452,13 +461,15 @@ class DetailedInfo extends Component {
               max={ Formatter.getMaxValue(this.series.lineSeries.max('cases')) } width='60' type='linear'
               showGrid style={ this.styles.axisStyle } />
             <Charts>
-              <BarChart axis='y2' series={ this.series.timeSeries } columns={ ['increase'] }
+              <BarChart axis='y2' series={ this.series.timeSeries } columns={ ['caseIncrease'] }
                 style={ this.styles.lineStyle } />
               <LineChart axis='y1' series={ this.series.lineSeries } columns={ ['cases'] }
                 style={ this.styles.lineStyle } interpolation='curveBasis'/>
+              <LineChart axis='y2' series={ this.series.lineSeries } columns={ ['caseAverage'] }
+                style={ this.styles.lineStyle } interpolation='curveBasis'/>
             </Charts>
             <YAxis id='y2' label='Daily Increase' min={ 0 }
-              max={ Formatter.getMaxValue(this.series.timeSeries.max('increase')) } width='60' type='linear'
+              max={ Formatter.getMaxValue(this.series.timeSeries.max('caseIncrease')) } width='60' type='linear'
               showGrid={ false } style={ this.styles.axisStyle } />
           </ChartRow>
           <ChartRow height='250'>
@@ -466,9 +477,16 @@ class DetailedInfo extends Component {
               max={ Formatter.getMaxValue(this.series.lineSeries.max('deaths')) } width='60' type='linear' showGrid
               style={ this.styles.axisStyle } />
             <Charts>
+              <BarChart axis='y2' series={ this.series.timeSeries } columns={ ['deathIncrease'] }
+                style={ this.styles.lineStyle } />
               <LineChart axis='y1' series={ this.series.lineSeries } columns={ ['deaths'] }
                 style={ this.styles.lineStyle } interpolation='curveBasis'/>
+              <LineChart axis='y2' series={ this.series.lineSeries } columns={ ['deathAverage'] }
+                style={ this.styles.lineStyle } interpolation='curveBasis'/>
             </Charts>
+            <YAxis id='y2' label='Daily Increase' min={ 0 }
+              max={ Formatter.getMaxValue(this.series.timeSeries.max('deathIncrease')) } width='60' type='linear'
+              showGrid={ false } style={ this.styles.axisStyle } />
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
@@ -534,7 +552,7 @@ class DetailedInfo extends Component {
                 isDisabled= { this.state.countyValueInput === null }
               />
             </div>
-            <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick= {this.submitStateCounty }>
+            <Button variant='primary' type='submit' style={{ 'marginLeft': '10px' }} onClick= { this.submitStateCounty }>
               Submit
             </Button>
           </Form>
