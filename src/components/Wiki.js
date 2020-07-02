@@ -48,7 +48,7 @@ class Wiki extends Component {
             <br/>
             <b>Work In Progress...</b>
             <br/>
-            * Add seven day moving average to states/counties.
+            * Add seven day moving average to counties.
             <br/>
             * Add option for graphing in logarithmic axis.
             <br/>
