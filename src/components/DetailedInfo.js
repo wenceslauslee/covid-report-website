@@ -27,6 +27,7 @@ class DetailedInfo extends Component {
     this.onCountyChange = this.onCountyChange.bind(this);
     this.submitStateCounty = this.submitStateCounty.bind(this);
     this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
+    this.getHeaderStyle = this.getHeaderStyle.bind(this);
 
     this.state = {
       loading: false,
@@ -150,6 +151,8 @@ class DetailedInfo extends Component {
           this.data.countyStateName = `${rdata.countyName}, ${rdata.stateNameFull}`;
           this.data.timestamp = rdata.reportTimestamp;
           this.data.dataPoints = rdata.dataPoints;
+          this.data.dangerColor = Formatter.getDangerColorRanking(
+            rdata.detailedInfo.activeChange, rdata.detailedInfo.population);
 
           this.series = this.initializeSeries(rdata.dataPoints);
         }
@@ -188,6 +191,8 @@ class DetailedInfo extends Component {
         this.data.countyStateName = `${rdata.stateNameFullProper}`;
         this.data.timestamp = rdata.reportTimestamp;
         this.data.dataPoints = rdata.dataPoints;
+        this.data.dangerColor = Formatter.getDangerColorRanking(
+            rdata.detailedInfo.activeChange, rdata.detailedInfo.population);
 
         this.series = this.initializeSeries(rdata.dataPoints);
       })
@@ -264,6 +269,8 @@ class DetailedInfo extends Component {
         this.data.countyStateName = `${rdata.countyName}, ${rdata.stateNameFull}`;
         this.data.timestamp = rdata.reportTimestamp;
         this.data.dataPoints = rdata.dataPoints;
+        this.data.dangerColor = Formatter.getDangerColorRanking(
+            rdata.detailedInfo.activeChange, rdata.detailedInfo.population);
 
         this.series = this.initializeSeries(rdata.dataPoints);
       })
@@ -372,6 +379,10 @@ class DetailedInfo extends Component {
     return (diff === 0) ? 'black' : ((diff > 0) ? 'red' : 'green')
   }
 
+  getHeaderStyle(column, columnIndex) {
+    return { backgroundColor: this.data.dangerColor };
+  }
+
   getCellStyle(cell, row, rowIndex, colIndex) {
     if (Object.prototype.hasOwnProperty.call(row, 'style')) {
       return row.style;
@@ -385,17 +396,20 @@ class DetailedInfo extends Component {
       const columns = [
         {
           dataField: 'key',
-          text: this.data.asOfDate
+          text: this.data.asOfDate,
+          headerStyle: this.getHeaderStyle
         },
         {
           dataField: 'value',
           text: this.data.countyStateName,
+          headerStyle: this.getHeaderStyle,
           style: this.getCellStyle
         }
       ];
 
       return <div>
         <p align='left'>
+          * Header color indicates COVID-19 risks as defined <a href='https://www.npr.org/sections/health-shots/2020/07/01/885263658/green-yellow-orange-or-red-this-new-tool-shows-covid-19-risk-in-your-county'>here</a>.<br/>
           <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}>
             (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
           </span>

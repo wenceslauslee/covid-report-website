@@ -55,8 +55,6 @@ class Wiki extends Component {
             <br/>
             * Add option to display different graphs such as per 100K
             <br/>
-            * Add safety index based on NPR scale
-            <br/>
             * Add double trend.
             <br/>
             * Convert to https under my own domain.

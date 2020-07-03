@@ -70,6 +70,21 @@ const Formatter = {
     }
 
     return `${timeDiff} ago`;
+  },
+
+  getDangerColorRanking: (increase, population) => {
+    const rate = ((increase * 100000) / population).toFixed(2);
+
+    var color = '#ff4d0d';
+    if (rate < 1) {
+      color = '#81f772';
+    } else if (rate < 10) {
+      color = '#fffd70';
+    } else if (rate < 25) {
+      color = '#faba4b';
+    }
+
+    return color;
   }
 }
 

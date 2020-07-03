@@ -41,6 +41,7 @@ class StateRankTable extends Component {
 
         _.each(filtered, f => {
           if (f.detailedInfo.activeChange >= 0) {
+            f.dangerColor = Formatter.getDangerColorRanking(f.detailedInfo.activeChange, f.detailedInfo.population);
             f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
           }
           if (f.detailedInfo.liveActiveChange >= 0) {
@@ -88,7 +89,8 @@ class StateRankTable extends Component {
       {
         dataField: 'any',
         text: '#',
-        formatter: this.indexN
+        formatter: this.indexN,
+        style: this.getIndexStyle
       },
       {
         dataField: 'stateNameFullProper',
@@ -164,6 +166,10 @@ class StateRankTable extends Component {
     return (<div>{ rowIndex + 1 }</div>);
   }
 
+  getIndexStyle(cell, row, rowIndex, colIndex) {
+    return { backgroundColor: row.dangerColor };
+  }
+
   getCellStyle(cell, row, rowIndex, colIndex) {
     var color = 'black';
 
@@ -202,6 +208,11 @@ class StateRankTable extends Component {
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
         <div>
+          <div style={{ display: 'flex' }}>
+            <p align='left'>
+              * First column index coloring indicates COVID-19 risks as defined <a href='https://www.npr.org/sections/health-shots/2020/07/01/885263658/green-yellow-orange-or-red-this-new-tool-shows-covid-19-risk-in-your-county'>here</a>.
+            </p>
+          </div>
           <p align='left'>
             * All data (except live) reflects situation accurately up till
             <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
