@@ -43,7 +43,7 @@ const Grapher = {
     };
   },
 
-  getLineStyle(columns, colors, keys) {
+  getLineStyle(colors, keys) {
     var style = [];
 
     style.push({
@@ -52,7 +52,7 @@ const Grapher = {
       width: 2
     });
 
-    for (var j = 1; j < columns.length; j++) {
+    for (var j = 1; j < keys.length; j++) {
       style.push({
         key: keys[j],
         color: colors[j],
@@ -73,9 +73,7 @@ const Grapher = {
     );
   },
 
-  getGraph(columns, titleName, dataSeries, dataMax, tracker, handleTrackerChanged, styles) {
-    const lowerCaseColumns = columns.map(state => state.toLowerCase());
-
+  getGraph(keyColumns, labelColumns, titleName, dataSeries, dataMax, tracker, handleTrackerChanged, styles) {
     let dateValue;
     const stateLegendValues = [];
     if (tracker) {
@@ -85,8 +83,8 @@ const Grapher = {
       dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' +
         utcDate.getDate()).slice(-2)}`;
 
-      for (var i = 1; i < lowerCaseColumns.length; i++) {
-        stateLegendValues.push(`${trackerEvent.get(lowerCaseColumns[i])}`);
+      for (var i = 1; i < keyColumns.length; i++) {
+        stateLegendValues.push(`${trackerEvent.get(keyColumns[i])}`);
       }
     }
 
@@ -99,14 +97,14 @@ const Grapher = {
       value: dateValue
     });
 
-    for (var j = 1; j < columns.length; j++) {
+    for (var j = 1; j < labelColumns.length; j++) {
       const lvalue = (stateLegendValues.length === 0) ? undefined : stateLegendValues[j - 1];
       legend.push({
-        key: lowerCaseColumns[j],
-        label: columns[j],
+        key: keyColumns[j],
+        label: labelColumns[j],
         value: lvalue
       });
-      yColumns.push(lowerCaseColumns[j]);
+      yColumns.push(keyColumns[j]);
     }
 
     return (
@@ -132,11 +130,11 @@ const Grapher = {
     );
   },
 
-  getLegendStyle(columns, color) {
+  getLegendStyle(keys, color) {
     const legendStyle = {};
 
-    for (var i = 0; i < columns.length; i++) {
-      legendStyle[columns[i]] = {
+    for (var i = 0; i < keys.length; i++) {
+      legendStyle[keys[i]] = {
         symbol: this.getSymbolStyle(color[i]),
         label: this.getLabelStyle(),
         value: this.getValueStyle()

@@ -57,6 +57,11 @@ function App() {
               <SearchByState/>
             </TabContent>
           </Tab>
+          <Tab eventKey='countysearch' title='Plot By County'>
+            <TabContent>
+              <SearchByCounty/>
+            </TabContent>
+          </Tab>
           <Tab eventKey='changelog' title='Change Log'>
             <TabContent>
               <ChangeLog/>

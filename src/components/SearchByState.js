@@ -77,6 +77,7 @@ class SearchByState extends Component {
     }
     const keys = stateColumns.map(state => state.toLowerCase());
 
+    this.data.keys = keys;
     this.data.columns = stateColumns;
     this.data.validDate = results.currentDate;
     this.data.timestamp = results.reportTimestamp;
@@ -93,7 +94,7 @@ class SearchByState extends Component {
 
     this.styles = {
       legendStyle: Grapher.getLegendStyle(legendColumns, colorColumns),
-      lineStyle: Grapher.getLineStyle(stateColumns, colorColumns, keys),
+      lineStyle: Grapher.getLineStyle(colorColumns, keys),
       axisStyle: Grapher.getAxisStyle()
     };
 
@@ -130,28 +131,28 @@ class SearchByState extends Component {
 
   getCaseCountGraph() {
     return Grapher.getGraph(
-      this.data.columns, 'Case Count', this.data.detailedInfo.caseCountSeries, this.data.detailedInfo.caseCountMax,
-      this.state.caseCountTracker, this.handleTrackerChanged1, this.styles);
+      this.data.keys, this.data.columns, 'Case Count', this.data.detailedInfo.caseCountSeries,
+      this.data.detailedInfo.caseCountMax, this.state.caseCountTracker, this.handleTrackerChanged1, this.styles);
   }
 
   getCaseCountIncreaseGraph() {
     return Grapher.getGraph(
-      this.data.columns, 'Case Count Daily Increase 7-Day Average', this.data.detailedInfo.caseCountIncreaseSeries,
-      this.data.detailedInfo.caseCountIncreaseMax, this.state.caseCountIncreaseTracker, this.handleTrackerChanged2,
-      this.styles);
+      this.data.keys, this.data.columns, 'Case Count Daily Increase 7-Day Average',
+      this.data.detailedInfo.caseCountIncreaseSeries, this.data.detailedInfo.caseCountIncreaseMax,
+      this.state.caseCountIncreaseTracker, this.handleTrackerChanged2, this.styles);
   }
 
   getDeathCountGraph() {
     return Grapher.getGraph(
-      this.data.columns, 'Death Count', this.data.detailedInfo.deathCountSeries, this.data.detailedInfo.deathCountMax,
-      this.state.deathCountTracker, this.handleTrackerChanged3, this.styles);
+      this.data.keys, this.data.columns, 'Death Count', this.data.detailedInfo.deathCountSeries,
+      this.data.detailedInfo.deathCountMax, this.state.deathCountTracker, this.handleTrackerChanged3, this.styles);
   }
 
   getDeathCountIncreaseGraph() {
     return Grapher.getGraph(
-      this.data.columns, 'Death Count Daily Increase 7-Day Average', this.data.detailedInfo.deathCountIncreaseSeries,
-      this.data.detailedInfo.deathCountIncreaseMax, this.state.deathCountIncreaseTracker, this.handleTrackerChanged4,
-      this.styles);
+      this.data.keys, this.data.columns, 'Death Count Daily Increase 7-Day Average',
+      this.data.detailedInfo.deathCountIncreaseSeries, this.data.detailedInfo.deathCountIncreaseMax,
+      this.state.deathCountIncreaseTracker, this.handleTrackerChanged4, this.styles);
   }
 
   handleTrackerChanged1(tracker) {

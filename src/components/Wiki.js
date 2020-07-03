@@ -38,6 +38,7 @@ class Wiki extends Component {
             <br/>* <a href='https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html'>Coronavirus in the U.S. NY Times</a>
             <br/>* <a href='https://github.com/nytimes/covid-19-data'>NY Times COVID-19 Data</a>
             <br/>* <a href='http://91-divoc.com/pages/covid-visualization/'>91-DIVOC</a>
+            <br/>* <a href='https://www.npr.org/sections/health-shots/2020/07/01/885263658/green-yellow-orange-or-red-this-new-tool-shows-covid-19-risk-in-your-county'>NPR COVID-19 Risk Map</a>
             <br/>
             <br/>
           </p>
@@ -48,11 +49,13 @@ class Wiki extends Component {
             <br/>
             <b>Work In Progress...</b>
             <br/>
-            * Add seven day moving average to counties.
-            <br/>
             * Add option for graphing in logarithmic axis.
             <br/>
             * Add option to display number of days to show.
+            <br/>
+            * Add option to display different graphs such as per 100K
+            <br/>
+            * Add safety index based on NPR scale
             <br/>
             * Add double trend.
             <br/>
