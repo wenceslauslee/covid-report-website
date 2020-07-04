@@ -36,7 +36,7 @@ class StateRankTable extends Component {
       .then(res => res.json())
       .then(rdata => {
         const filtered = _.filter(rdata.rankByCases, d => {
-          return d.stateNameFullProper !== /*'-----'*/null && d.detailedInfo.activePercentage !== 'NaN';
+          return d.stateNameFullProper !== '-----' && d.detailedInfo.activePercentage !== 'NaN';
         });
 
         _.each(filtered, f => {
