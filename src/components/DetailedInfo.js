@@ -27,13 +27,15 @@ class DetailedInfo extends Component {
     this.onCountyChange = this.onCountyChange.bind(this);
     this.submitStateCounty = this.submitStateCounty.bind(this);
     this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
+    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
+    this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
     this.getHeaderStyle = this.getHeaderStyle.bind(this);
 
     this.state = {
       loading: false,
       postalCodeValueInput: '',
       countyValueInput: null,
-      tracker: null
+      trackers: [null, null]
     };
 
     this.styles = this.initializeStyles();
@@ -300,6 +302,10 @@ class DetailedInfo extends Component {
 
     const data = [
       {
+        key: 'Total population',
+        value: rdata.detailedInfo.population
+      },
+      {
         key: 'Active case count',
         value: rdata.detailedInfo.activeCount
       },
@@ -369,7 +375,7 @@ class DetailedInfo extends Component {
       }
 
       data.splice(5, 0, { key: 'Rank in state', value: localActiveRank, color: this.getRankingColor(stateActiveRankDiff) });
-      data.push({ key: 'Rank in state', value: localDeathRank, color: this.getRankingColor(stateDeathRankDiff) });
+      data.splice(11, 0, { key: 'Rank in state', value: localDeathRank, color: this.getRankingColor(stateDeathRankDiff) });
     }
 
     return data;
@@ -424,51 +430,76 @@ class DetailedInfo extends Component {
 
   getDetailedGraph() {
     if (!this.state.loading && this.data.dataPoints !== undefined) {
-      let dateValue, caseValue, deathValue, caseAverageValue, deathAverageValue;
-      if (this.state.tracker) {
-        const index = this.series.lineSeries.bisect(this.state.tracker);
+      let dateValue1, dateValue2, caseValue, deathValue, caseIncreaseValue, deathIncreaseValue, caseAverageValue, deathAverageValue;
+      console.log(this.state.trackers);
+      if (this.state.trackers[0] !== null) {
+        const index = this.series.lineSeries.bisect(this.state.trackers[0]);
         const trackerEvent = this.series.lineSeries.at(index);
         const utcDate = trackerEvent.timestamp();
-        dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
+        dateValue1 = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
         caseValue = `${trackerEvent.get('cases')}`;
-        deathValue = `${trackerEvent.get('deaths')}`;
+        caseIncreaseValue = `${trackerEvent.get('caseIncrease')}`;
         caseAverageValue = `${trackerEvent.get('caseAverage')}`;
+      } else if (this.state.trackers[1] !== null) {
+        const index = this.series.lineSeries.bisect(this.state.trackers[1]);
+        const trackerEvent = this.series.lineSeries.at(index);
+        const utcDate = trackerEvent.timestamp();
+        dateValue2 = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
+        deathValue = `${trackerEvent.get('deaths')}`;
+        deathIncreaseValue = `${trackerEvent.get('deathIncrease')}`;
         deathAverageValue = `${trackerEvent.get('deathAverage')}`;
       }
-      const legend = [
+      const legend1 = [
         {
           key: 'time',
           label: 'Date',
-          value: dateValue
+          value: dateValue1
         },
         {
           key: 'cases',
-          label: 'Case Counts',
+          label: 'Counts',
           value: caseValue
         },
         {
-          key: 'deaths',
-          label: 'Death Counts',
-          value: deathValue
+          key: 'caseIncrease',
+          label: 'Daily Increase',
+          value: caseIncreaseValue,
         },
         {
           key: 'caseAverage',
-          label: 'Case Moving Average',
+          label: 'Moving Average',
           value: caseAverageValue
+        }
+      ];
+      const legend2 = [
+        {
+          key: 'time',
+          label: 'Date',
+          value: dateValue2
+        },
+        {
+          key: 'deaths',
+          label: 'Counts',
+          value: deathValue
+        },
+        {
+          key: 'deathIncrease',
+          label: 'Daily Increase',
+          value: deathIncreaseValue,
         },
         {
           key: 'deathAverage',
-          label: 'Death Moving Average',
+          label: 'Moving Average',
           value: deathAverageValue
         }
       ];
 
       return <div>
-        <ChartContainer title='Case/Death Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
+        <ChartContainer title='Case Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
           width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
           timeAxisStyle={ this.styles.axisStyle } minTime={ this.series.lineSeries.range().begin() }
           maxTime={ this.series.lineSeries.range().end() } timeAxisTickCount={ 5 }
-          onTrackerChanged={ this.handleTrackerChanged }>
+          onTrackerChanged={ this.handleTrackerChanged1 }>
           <TimeAxis format='day'/>
           <ChartRow height='400'>
             <YAxis id='y1' label='Case Count' min={ 0 }
@@ -486,6 +517,16 @@ class DetailedInfo extends Component {
               max={ Formatter.getMaxValue(this.series.timeSeries.max('caseIncrease')) } width='60' type='linear'
               showGrid={ false } style={ this.styles.axisStyle } />
           </ChartRow>
+        </ChartContainer>
+        <div style={{ justifyContent: 'flex-end' }}>
+          <Legend type='line' style={ this.styles.legendStyle } categories={ legend1 } align='right' stack={ false }/>
+        </div>
+        <ChartContainer title='Death Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
+          width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
+          timeAxisStyle={ this.styles.axisStyle } minTime={ this.series.lineSeries.range().begin() }
+          maxTime={ this.series.lineSeries.range().end() } timeAxisTickCount={ 5 }
+          onTrackerChanged={ this.handleTrackerChanged2 }>
+          <TimeAxis format='day'/>
           <ChartRow height='250'>
             <YAxis id='y1' label='Death Count' min={ 0 }
               max={ Formatter.getMaxValue(this.series.lineSeries.max('deaths')) } width='60' type='linear' showGrid
@@ -504,7 +545,7 @@ class DetailedInfo extends Component {
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type='line' style={ this.styles.legendStyle } categories={ legend } align='right' stack={ false }/>
+          <Legend type='line' style={ this.styles.legendStyle } categories={ legend2 } align='right' stack={ false }/>
         </div>
       </div>;
     }
@@ -512,11 +553,22 @@ class DetailedInfo extends Component {
     return null;
   }
 
-  handleTrackerChanged(tracker) {
+  handleTrackerChanged(tracker, index) {
+    const trackers = this.state.trackers;
+    trackers[index] = tracker;
+
     this.setState(prevState => ({
       ...prevState,
-      tracker: tracker
+      trackers: trackers
     }));
+  }
+
+  handleTrackerChanged1(tracker) {
+    this.handleTrackerChanged(tracker, 0);
+  }
+
+  handleTrackerChanged2(tracker) {
+    this.handleTrackerChanged(tracker, 1);
   }
 
   render() {
