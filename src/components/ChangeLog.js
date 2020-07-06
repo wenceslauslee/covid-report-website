@@ -13,7 +13,7 @@ class ChangeLog extends Component {
         <div style={ dateStyle }>Special thanks to all who gave me ideas on how to improve this page!</div>
         For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
         <div style={ dateStyle }>-- July 5, 2020 --</div>
-        * Add population info to detailed info. Split graph into two parts to include all legends.<br/><br/>
+        * Add population info to detailed info. Split legends into two rows for better viewability.<br/><br/>
         <div style={ dateStyle }>-- July 3, 2020 --</div>
         * Add danger risk coloring to state/county ranking and detailed pages.<br/>
         * Add seven day moving average to county plot.<br/><br/>

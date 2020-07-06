@@ -27,15 +27,13 @@ class DetailedInfo extends Component {
     this.onCountyChange = this.onCountyChange.bind(this);
     this.submitStateCounty = this.submitStateCounty.bind(this);
     this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
-    this.handleTrackerChanged1 = this.handleTrackerChanged1.bind(this);
-    this.handleTrackerChanged2 = this.handleTrackerChanged2.bind(this);
     this.getHeaderStyle = this.getHeaderStyle.bind(this);
 
     this.state = {
       loading: false,
       postalCodeValueInput: '',
       countyValueInput: null,
-      trackers: [null, null]
+      trackers: [null]
     };
 
     this.styles = this.initializeStyles();
@@ -430,21 +428,15 @@ class DetailedInfo extends Component {
 
   getDetailedGraph() {
     if (!this.state.loading && this.data.dataPoints !== undefined) {
-      let dateValue1, dateValue2, caseValue, deathValue, caseIncreaseValue, deathIncreaseValue, caseAverageValue, deathAverageValue;
-      console.log(this.state.trackers);
+      let dateValue, caseValue, deathValue, caseIncreaseValue, deathIncreaseValue, caseAverageValue, deathAverageValue;
       if (this.state.trackers[0] !== null) {
         const index = this.series.lineSeries.bisect(this.state.trackers[0]);
         const trackerEvent = this.series.lineSeries.at(index);
         const utcDate = trackerEvent.timestamp();
-        dateValue1 = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
+        dateValue = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
         caseValue = `${trackerEvent.get('cases')}`;
         caseIncreaseValue = `${trackerEvent.get('caseIncrease')}`;
         caseAverageValue = `${trackerEvent.get('caseAverage')}`;
-      } else if (this.state.trackers[1] !== null) {
-        const index = this.series.lineSeries.bisect(this.state.trackers[1]);
-        const trackerEvent = this.series.lineSeries.at(index);
-        const utcDate = trackerEvent.timestamp();
-        dateValue2 = `${utcDate.getFullYear()}-${('0' + (utcDate.getMonth() + 1)).slice(-2)}-${('0' + utcDate.getDate()).slice(-2)}`;
         deathValue = `${trackerEvent.get('deaths')}`;
         deathIncreaseValue = `${trackerEvent.get('deathIncrease')}`;
         deathAverageValue = `${trackerEvent.get('deathAverage')}`;
@@ -453,53 +445,48 @@ class DetailedInfo extends Component {
         {
           key: 'time',
           label: 'Date',
-          value: dateValue1
+          value: dateValue
         },
         {
           key: 'cases',
-          label: 'Counts',
+          label: 'Case Counts',
           value: caseValue
         },
         {
           key: 'caseIncrease',
-          label: 'Daily Increase',
+          label: 'Case Daily Increase',
           value: caseIncreaseValue,
         },
         {
           key: 'caseAverage',
-          label: 'Moving Average',
+          label: 'Case Moving Average',
           value: caseAverageValue
         }
       ];
       const legend2 = [
         {
-          key: 'time',
-          label: 'Date',
-          value: dateValue2
-        },
-        {
           key: 'deaths',
-          label: 'Counts',
+          label: 'Death Counts',
           value: deathValue
         },
         {
           key: 'deathIncrease',
-          label: 'Daily Increase',
+          label: 'Death Daily Increase',
           value: deathIncreaseValue,
         },
         {
           key: 'deathAverage',
-          label: 'Moving Average',
+          label: 'Death Moving Average',
           value: deathAverageValue
         }
       ];
 
       return <div>
-        <ChartContainer title='Case Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
+        <ChartContainer title='Case/Death Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
           width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
           timeAxisStyle={ this.styles.axisStyle } minTime={ this.series.lineSeries.range().begin() }
           maxTime={ this.series.lineSeries.range().end() } timeAxisTickCount={ 5 }
-          onTrackerChanged={ this.handleTrackerChanged1 }>
+          onTrackerChanged={ tracker => this.handleTrackerChanged(tracker, 0) }>
           <TimeAxis format='day'/>
           <ChartRow height='400'>
             <YAxis id='y1' label='Case Count' min={ 0 }
@@ -517,16 +504,6 @@ class DetailedInfo extends Component {
               max={ Formatter.getMaxValue(this.series.timeSeries.max('caseIncrease')) } width='60' type='linear'
               showGrid={ false } style={ this.styles.axisStyle } />
           </ChartRow>
-        </ChartContainer>
-        <div style={{ justifyContent: 'flex-end' }}>
-          <Legend type='line' style={ this.styles.legendStyle } categories={ legend1 } align='right' stack={ false }/>
-        </div>
-        <ChartContainer title='Death Counts and Daily Increases' timeRange={ this.series.lineSeries.range() }
-          width={ 800 } showGrid={ true } titleStyle={{ fill: '#000000', fontWeight: 500 }}
-          timeAxisStyle={ this.styles.axisStyle } minTime={ this.series.lineSeries.range().begin() }
-          maxTime={ this.series.lineSeries.range().end() } timeAxisTickCount={ 5 }
-          onTrackerChanged={ this.handleTrackerChanged2 }>
-          <TimeAxis format='day'/>
           <ChartRow height='250'>
             <YAxis id='y1' label='Death Count' min={ 0 }
               max={ Formatter.getMaxValue(this.series.lineSeries.max('deaths')) } width='60' type='linear' showGrid
@@ -545,6 +522,9 @@ class DetailedInfo extends Component {
           </ChartRow>
         </ChartContainer>
         <div style={{ justifyContent: 'flex-end' }}>
+          <Legend type='line' style={ this.styles.legendStyle } categories={ legend1 } align='right' stack={ false }/>
+        </div>
+        <div style={{ justifyContent: 'flex-end' }}>
           <Legend type='line' style={ this.styles.legendStyle } categories={ legend2 } align='right' stack={ false }/>
         </div>
       </div>;
@@ -561,14 +541,6 @@ class DetailedInfo extends Component {
       ...prevState,
       trackers: trackers
     }));
-  }
-
-  handleTrackerChanged1(tracker) {
-    this.handleTrackerChanged(tracker, 0);
-  }
-
-  handleTrackerChanged2(tracker) {
-    this.handleTrackerChanged(tracker, 1);
   }
 
   render() {
