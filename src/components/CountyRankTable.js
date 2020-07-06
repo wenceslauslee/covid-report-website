@@ -65,7 +65,7 @@ class CountyRankTable extends Component {
 
     _.each(filtered, f => {
       if (f.detailedInfo.activeChange >= 0) {
-        f.dangerColor = Formatter.getDangerColorRanking(f.detailedInfo.activeChange, f.detailedInfo.population);
+        f.dangerColor = Formatter.getDangerColorRanking(f.detailedInfo.averageActiveChange, f.detailedInfo.population);
         f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
       }
       if (f.detailedInfo.liveActiveChange >= 0) {

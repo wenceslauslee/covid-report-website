@@ -270,7 +270,7 @@ class DetailedInfo extends Component {
         this.data.timestamp = rdata.reportTimestamp;
         this.data.dataPoints = rdata.dataPoints;
         this.data.dangerColor = Formatter.getDangerColorRanking(
-            rdata.detailedInfo.activeChange, rdata.detailedInfo.population);
+            rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population);
 
         this.series = this.initializeSeries(rdata.dataPoints);
       })
