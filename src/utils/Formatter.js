@@ -17,6 +17,35 @@ const Formatter = {
     return parseInt(b) - parseInt(a);
   },
 
+  sortPercentage: (a, b, order, dataField) => {
+    if (a.charAt(0) === '<' && b.charAt(0) === '<') {
+      return 0;
+    }
+    if (order === 'asc') {
+      if (a.charAt(0) === '<') {
+        return -1;
+      }
+      if (b.charAt(0) === '<') {
+        return 1;
+      }
+    } else {
+      if (a.charAt(0) === '<') {
+        return 1;
+      }
+      if (b.charAt(0) === '<') {
+        return -1;
+      }
+    }
+
+    const a1 = a.slice(0, -1);
+    const b1 = b.slice(0, -1);
+
+    if (order === 'asc') {
+      return parseFloat(a1) - parseFloat(b1);
+    }
+    return parseFloat(b1) - parseFloat(a1);
+  },
+
   getCellStyle: (cell, row, rowIndex, colIndex) => {
     if (typeof cell !== 'string') {
       return {

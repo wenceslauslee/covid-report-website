@@ -127,6 +127,7 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.activePercentage',
         text: '% Of People',
         sort: true,
+        sortFunc: Formatter.sortPercentage,
         headerSortingStyle
       },
       {
@@ -157,6 +158,7 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.deathPercentage',
         text: '% Of People',
         sort: true,
+        sortFunc: Formatter.sortPercentage,
         headerSortingStyle
       }
     ];

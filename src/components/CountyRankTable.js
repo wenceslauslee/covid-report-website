@@ -196,6 +196,7 @@ class CountyRankTable extends Component {
         dataField: 'detailedInfo.activePercentage',
         text: '% Of People',
         sort: this.state.sortable,
+        sortFunc: Formatter.sortPercentage,
         headerSortingStyle: backgroundColor
       },
       {
@@ -225,6 +226,7 @@ class CountyRankTable extends Component {
         dataField: 'detailedInfo.deathPercentage',
         text: '% Of People',
         sort: this.state.sortable,
+        sortFunc: Formatter.sortPercentage,
         headerSortingStyle: backgroundColor
       }
     ];
