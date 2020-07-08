@@ -13,6 +13,8 @@ class ChangeLog extends Component {
         <div style={ dateStyle }>Special thanks to all who gave me ideas on how to improve this page!</div>
         For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
         <div style={ dateStyle }>-- WIP --</div>
+        <br/><br/>
+        <div style={ dateStyle }>-- July 7, 2020 --</div>
         * Add more graphs into state/county plots in preparation for user selection feature.<br/><br/>
         <div style={ dateStyle }>-- July 5, 2020 --</div>
         * Add population info to detailed info. Split legends into two rows for better viewability.<br/><br/>

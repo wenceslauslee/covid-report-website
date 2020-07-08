@@ -191,7 +191,7 @@ class SearchByState extends Component {
             </div> :
             ''
         }
-        { (this.data.series && !this.state.loading) ?
+        { (this.data.series !== undefined && !this.state.loading) ?
           <div>
             <div style={{ marginTop: '30px' }}>
               <p align='left'>
