@@ -11,10 +11,13 @@ const Formatter = {
   },
 
   sortFunc: (a, b, order, dataField) => {
+    const a1 = a.replace(/\+|,/ig, '');
+    const b1 = b.replace(/\+|,/ig, '');
+
     if (order === 'asc') {
-      return parseInt(a) - parseInt(b);
+      return parseInt(a1) - parseInt(b1);
     }
-    return parseInt(b) - parseInt(a);
+    return parseInt(b1) - parseInt(a1);
   },
 
   sortPercentage: (a, b, order, dataField) => {
@@ -114,7 +117,7 @@ const Formatter = {
     }
 
     return color;
-  }
+  },
 }
 
 export default Formatter

@@ -2,6 +2,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
 import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
   from 'react-timeseries-charts';
+import commaNumber from 'comma-number';
 import { Component } from 'react';
 import Formatter from '../utils/Formatter';
 import Grapher from '../utils/Grapher';
@@ -51,12 +52,12 @@ class USOverallTable extends Component {
         this.data = {
           detailedInfo: [{
             country: 'USA',
-            activeCount: rdata.detailedInfo.activeCount,
-            activeChange: `+${rdata.detailedInfo.activeChange}`,
-            liveActiveChange: `+${rdata.detailedInfo.liveActiveChange}`,
-            deathCount: rdata.detailedInfo.deathCount,
-            deathChange: `+${rdata.detailedInfo.deathChange}`,
-            liveDeathChange: `+${rdata.detailedInfo.liveDeathChange}`,
+            activeCount: commaNumber(rdata.detailedInfo.activeCount, ','),
+            activeChange: `+${commaNumber(rdata.detailedInfo.activeChange, ',')}`,
+            liveActiveChange: `+${commaNumber(rdata.detailedInfo.liveActiveChange, ',')}`,
+            deathCount: commaNumber(rdata.detailedInfo.deathCount, ','),
+            deathChange: `+${commaNumber(rdata.detailedInfo.deathChange, ',')}`,
+            liveDeathChange: `+${commaNumber(rdata.detailedInfo.liveDeathChange, ',')}`,
           }],
           validDate: rdata.currentDate,
           timestamp: rdata.reportTimestamp,

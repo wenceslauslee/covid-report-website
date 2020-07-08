@@ -2,6 +2,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
 import { BarChart, Charts, ChartContainer, ChartRow, YAxis, LineChart, Legend, TimeAxis, styler }
   from 'react-timeseries-charts';
+import commaNumber from 'comma-number';
 import { Component } from 'react';
 import data from '../data/data.json';
 import Form from 'react-bootstrap/Form';
@@ -301,19 +302,19 @@ class DetailedInfo extends Component {
     const data = [
       {
         key: 'Total population',
-        value: rdata.detailedInfo.population
+        value: commaNumber(rdata.detailedInfo.population, ',')
       },
       {
         key: 'Active case count',
-        value: rdata.detailedInfo.activeCount
+        value: commaNumber(rdata.detailedInfo.activeCount, ',')
       },
       {
         key: 'Daily increase over past day',
-        value: (rdata.detailedInfo.activeChange >= 0) ? `+${rdata.detailedInfo.activeChange}` : rdata.detailedInfo.activeChange
+        value: commaNumber((rdata.detailedInfo.activeChange >= 0) ? `+${rdata.detailedInfo.activeChange}` : rdata.detailedInfo.activeChange, ',')
       },
       {
         key: 'Live increase since then',
-        value: (rdata.detailedInfo.liveActiveChange >= 0) ? `+${rdata.detailedInfo.liveActiveChange}` : rdata.detailedInfo.liveActiveChange,
+        value: commaNumber((rdata.detailedInfo.liveActiveChange >= 0) ? `+${rdata.detailedInfo.liveActiveChange}` : rdata.detailedInfo.liveActiveChange, ','),
         style: {
           color: '#ff0000',
           fontWeight: 'bold'
@@ -332,15 +333,15 @@ class DetailedInfo extends Component {
       },
       {
         key: 'Death count',
-        value: rdata.detailedInfo.deathCount
+        value: commaNumber(rdata.detailedInfo.deathCount, ',')
       },
       {
         key: 'Daily increase over past day',
-        value: (rdata.detailedInfo.deathChange >= 0) ? `+${rdata.detailedInfo.deathChange}` : rdata.detailedInfo.deathChange
+        value: commaNumber((rdata.detailedInfo.deathChange >= 0) ? `+${rdata.detailedInfo.deathChange}` : rdata.detailedInfo.deathChange, ',')
       },
       {
         key: 'Live increase since then',
-        value: (rdata.detailedInfo.liveDeathChange >= 0) ? `+${rdata.detailedInfo.liveDeathChange}` : rdata.detailedInfo.liveDeathChange,
+        value: commaNumber((rdata.detailedInfo.liveDeathChange >= 0) ? `+${rdata.detailedInfo.liveDeathChange}` : rdata.detailedInfo.liveDeathChange, ','),
         style: {
           color: '#ff0000',
           fontWeight: 'bold'

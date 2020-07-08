@@ -1,5 +1,6 @@
 import BootstrapTable from 'react-bootstrap-table-next';
 import Button from 'react-bootstrap/Button';
+import commaNumber from 'comma-number';
 import { Component } from 'react';
 import Formatter from '../utils/Formatter';
 import React from 'react';
@@ -40,18 +41,21 @@ class StateRankTable extends Component {
         });
 
         _.each(filtered, f => {
+          f.detailedInfo.activeCount = commaNumber(f.detailedInfo.activeCount, ',');
+          f.detailedInfo.deathCount = commaNumber(f.detailedInfo.deathCount, ',');
+
           if (f.detailedInfo.activeChange >= 0) {
             f.dangerColor = Formatter.getDangerColorRanking(f.detailedInfo.averageActiveChange, f.detailedInfo.population);
-            f.detailedInfo.activeChange = `+${f.detailedInfo.activeChange}`;
+            f.detailedInfo.activeChange = `+${commaNumber(f.detailedInfo.activeChange, ',')}`;
           }
           if (f.detailedInfo.liveActiveChange >= 0) {
-            f.detailedInfo.liveActiveChange = `+${f.detailedInfo.liveActiveChange}`;
+            f.detailedInfo.liveActiveChange = `+${commaNumber(f.detailedInfo.liveActiveChange, ',')}`;
           }
           if (f.detailedInfo.deathChange >= 0) {
-            f.detailedInfo.deathChange = `+${f.detailedInfo.deathChange}`;
+            f.detailedInfo.deathChange = `+${commaNumber(f.detailedInfo.deathChange, ',')}`;
           }
           if (f.detailedInfo.liveDeathChange >= 0) {
-            f.detailedInfo.liveDeathChange = `+${f.detailedInfo.liveDeathChange}`;
+            f.detailedInfo.liveDeathChange = `+${commaNumber(f.detailedInfo.liveDeathChange, ',')}`;
           }
 
           f.detailedInfo.activePercentage = `${f.detailedInfo.activePercentage}%`;
@@ -103,6 +107,7 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.activeCount',
         text: 'Case Count',
         sort: true,
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle
       },
       {
@@ -134,6 +139,7 @@ class StateRankTable extends Component {
         dataField: 'detailedInfo.deathCount',
         text: 'Death Count',
         sort: true,
+        sortFunc: Formatter.sortFunc,
         headerSortingStyle
       },
       {
