@@ -230,6 +230,76 @@ const Grapher = {
     results.reportTimestamp = reportTimestamp;
 
     return results;
+  },
+
+  // [0] Case count
+  // [1] Death count
+  // [2] Case increase
+  // [3] Death increase
+  // [4] Case average increase
+  // [5] Death average increase
+  combineAllData(allStates, keys) {
+    const results = {};
+    const points = [[], [], [], [], [], []];
+    const max = [0, 0, 0, 0, 0, 0];
+
+    const maxPointCount = (_.maxBy(allStates, s => s.dataPoints.length)).dataPoints.length;
+    var currentDate = '';
+    var reportTimestamp = '';
+    for (var k = 0; k < allStates.length; k++) {
+      if (allStates[k].dataPoints.length === maxPointCount) {
+        if (reportTimestamp === '' || moment(reportTimestamp) < moment(allStates[k].reportTimestamp)) {
+          currentDate = allStates[k].currentDate;
+          reportTimestamp = allStates[k].reportTimestamp;
+        }
+      } else {
+        while (allStates[k].dataPoints.length < maxPointCount) {
+          allStates[k].dataPoints.push(allStates[k].dataPoints[allStates[k].dataPoints.length - 1]);
+        }
+      }
+    }
+
+    for (var index in allStates[0].dataPoints) {
+      points[0].push([(allStates[0].dataPoints)[index][0]]);
+      points[1].push([(allStates[0].dataPoints)[index][0]]);
+      points[2].push([(allStates[0].dataPoints)[index][0]]);
+      points[3].push([(allStates[0].dataPoints)[index][0]]);
+      points[4].push([(allStates[0].dataPoints)[index][0]]);
+      points[5].push([(allStates[0].dataPoints)[index][0]]);
+    }
+
+    for (var i = 0; i < allStates.length; i++) {
+      for (var j = 0; j < allStates[i].dataPoints.length; j++) {
+        max[0] = Math.max(max[0], (allStates[i].dataPoints)[j][1]);
+        points[0][j].push((allStates[i].dataPoints)[j][1]);
+        max[1] = Math.max(max[1], (allStates[i].dataPoints)[j][2]);
+        points[1][j].push((allStates[i].dataPoints)[j][2]);
+        max[2] = Math.max(max[2], (allStates[i].dataPoints)[j][3]);
+        points[2][j].push((allStates[i].dataPoints)[j][3]);
+        max[3] = Math.max(max[3], (allStates[i].dataPoints)[j][4]);
+        points[3][j].push((allStates[i].dataPoints)[j][4]);
+        max[4] = Math.max(max[4], (allStates[i].dataPoints)[j][5]);
+        points[4][j].push((allStates[i].dataPoints)[j][5]);
+        max[5] = Math.max(max[5], (allStates[i].dataPoints)[j][6]);
+        points[5][j].push((allStates[i].dataPoints)[j][6]);
+      }
+    }
+    const maxFormatted = _.map(max, m => Formatter.getMaxValue(m));
+    const series = [];
+
+    series.push(Grapher.getTimeSeries('CaseCount', keys, points[0]));
+    series.push(Grapher.getTimeSeries('DeathCount', keys, points[1]));
+    series.push(Grapher.getTimeSeries('CaseCountDailyIncrease', keys, points[2]));
+    series.push(Grapher.getTimeSeries('DeathCountDailyIncrease', keys, points[3]));
+    series.push(Grapher.getTimeSeries('CaseCountAverageDailyIncrease', keys, points[4]));
+    series.push(Grapher.getTimeSeries('DeathCountAverageDailyIncrease', keys, points[5]));
+
+    results.series = series;
+    results.max = maxFormatted;
+    results.currentDate = currentDate;
+    results.reportTimestamp = reportTimestamp;
+
+    return results;
   }
 }
 

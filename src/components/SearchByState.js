@@ -19,7 +19,7 @@ class SearchByState extends Component {
 
     this.state = {
       loading: false,
-      trackers: [null, null, null, null]
+      trackers: [null, null, null, null, null, null]
     };
 
     this.styles = {};
@@ -57,7 +57,6 @@ class SearchByState extends Component {
     });
     const allStates = await Promise.all(promises);
 
-    const results = Grapher.combineData(allStates);
     const stateColumns = ['time'];
     this.data.selectedStates.forEach(stateObj => {
       stateColumns.push(stateObj.label);
@@ -70,21 +69,14 @@ class SearchByState extends Component {
       colorColumns.push(Grapher.getColor(i - 1));
     }
     const keys = stateColumns.map(state => state.toLowerCase());
+    const results = Grapher.combineAllData(allStates, keys);
 
     this.data.keys = keys;
     this.data.columns = stateColumns;
     this.data.validDate = results.currentDate;
     this.data.timestamp = results.reportTimestamp;
-
-    this.data.detailedInfo = {};
-    this.data.detailedInfo.caseCountSeries = Grapher.getTimeSeries('CaseCount', keys, results.caseCount);
-    this.data.detailedInfo.deathCountSeries = Grapher.getTimeSeries('CaseCountDailyIncrease', keys, results.deathCount);
-    this.data.detailedInfo.caseCountIncreaseSeries = Grapher.getTimeSeries('DeathCount', keys, results.caseCountIncrease);
-    this.data.detailedInfo.deathCountIncreaseSeries = Grapher.getTimeSeries('DeathCountDailyIncrease', keys, results.deathCountIncrease);
-    this.data.detailedInfo.caseCountMax = results.caseCountMax;
-    this.data.detailedInfo.deathCountMax = results.deathCountMax;
-    this.data.detailedInfo.caseCountIncreaseMax = results.caseCountIncreaseMax;
-    this.data.detailedInfo.deathCountIncreaseMax = results.deathCountIncreaseMax;
+    this.data.series = results.series;
+    this.data.max = results.max;
 
     this.styles = {
       legendStyle: Grapher.getLegendStyle(legendColumns, colorColumns),
@@ -125,30 +117,38 @@ class SearchByState extends Component {
 
   getCaseCountGraph() {
     return Grapher.getGraph(
-      this.data.keys, this.data.columns, 'Case Count', this.data.detailedInfo.caseCountSeries,
-      this.data.detailedInfo.caseCountMax, this.state.trackers[0], tracker => this.handleTrackerChanged(tracker, 0),
-      this.styles);
-  }
-
-  getCaseCountIncreaseGraph() {
-    return Grapher.getGraph(
-      this.data.keys, this.data.columns, 'Case Count Daily Increase 7-Day Average',
-      this.data.detailedInfo.caseCountIncreaseSeries, this.data.detailedInfo.caseCountIncreaseMax,
-      this.state.trackers[1], tracker => this.handleTrackerChanged(tracker, 1), this.styles);
+      this.data.keys, this.data.columns, 'Case Count', this.data.series[0], this.data.max[0], this.state.trackers[0],
+      tracker => this.handleTrackerChanged(tracker, 0), this.styles);
   }
 
   getDeathCountGraph() {
     return Grapher.getGraph(
-      this.data.keys, this.data.columns, 'Death Count', this.data.detailedInfo.deathCountSeries,
-      this.data.detailedInfo.deathCountMax, this.state.trackers[2], tracker => this.handleTrackerChanged(tracker, 2),
-      this.styles);
+      this.data.keys, this.data.columns, 'Death Count', this.data.series[1], this.data.max[1], this.state.trackers[1],
+      tracker => this.handleTrackerChanged(tracker, 1), this.styles);
+  }
+
+  getCaseCountIncreaseGraph() {
+    return Grapher.getGraph(
+      this.data.keys, this.data.columns, 'Case Count Daily Increase', this.data.series[2], this.data.max[2],
+      this.state.trackers[2], tracker => this.handleTrackerChanged(tracker, 2), this.styles);
   }
 
   getDeathCountIncreaseGraph() {
     return Grapher.getGraph(
-      this.data.keys, this.data.columns, 'Death Count Daily Increase 7-Day Average',
-      this.data.detailedInfo.deathCountIncreaseSeries, this.data.detailedInfo.deathCountIncreaseMax,
+      this.data.keys, this.data.columns, 'Death Count Daily Increase', this.data.series[3], this.data.max[3],
       this.state.trackers[3], tracker => this.handleTrackerChanged(tracker, 3), this.styles);
+  }
+
+  getCaseCountAverageIncreaseGraph() {
+    return Grapher.getGraph(
+      this.data.keys, this.data.columns, 'Case Count Daily Increase 7-Day Average', this.data.series[4],
+      this.data.max[4], this.state.trackers[4], tracker => this.handleTrackerChanged(tracker, 4), this.styles);
+  }
+
+  getDeathCountAverageIncreaseGraph() {
+    return Grapher.getGraph(
+      this.data.keys, this.data.columns, 'Death Count Daily Increase 7-Day Average', this.data.series[5],
+      this.data.max[5], this.state.trackers[5], tracker => this.handleTrackerChanged(tracker, 5), this.styles);
   }
 
   handleTrackerChanged(tracker, index) {
@@ -191,7 +191,7 @@ class SearchByState extends Component {
             </div> :
             ''
         }
-        { (this.data.detailedInfo !== undefined && this.data.detailedInfo.caseCountSeries !== undefined && !this.state.loading) ?
+        { (this.data.series && !this.state.loading) ?
           <div>
             <div style={{ marginTop: '30px' }}>
               <p align='left'>
@@ -205,15 +205,23 @@ class SearchByState extends Component {
                 { this.getCaseCountGraph() }
               </div>
               <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-                { this.getCaseCountIncreaseGraph() }
+                { this.getDeathCountGraph() }
               </div>
             </div>
             <div style={{ display: 'flex', minWidth: '1200px' }}>
               <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-                { this.getDeathCountGraph() }
+                { this.getCaseCountIncreaseGraph() }
               </div>
               <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
                 { this.getDeathCountIncreaseGraph() }
+              </div>
+            </div>
+            <div style={{ display: 'flex', minWidth: '1200px' }}>
+              <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
+                { this.getCaseCountAverageIncreaseGraph() }
+              </div>
+              <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
+                { this.getDeathCountAverageIncreaseGraph() }
               </div>
             </div>
           </div> :

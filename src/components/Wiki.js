@@ -49,8 +49,6 @@ class Wiki extends Component {
             <br/>
             <b>Work In Progress...</b>
             <br/>
-            * Use moving average as risk level
-            <br/>
             * Add option to display different graphs such as per 100K
             <br/>
             * Add option for graphing in logarithmic axis.
