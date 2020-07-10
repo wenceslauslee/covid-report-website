@@ -14,6 +14,8 @@ class ChangeLog extends Component {
         For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
         <div style={ dateStyle }>-- WIP --</div>
         * Add option for logarithmic graphing.<br/><br/>
+        <div style={ dateStyle }>-- July 9, 2020 --</div>
+        * Add option for per 100K population graphing.<br/><br/>
         <div style={ dateStyle }>-- July 7, 2020 --</div>
         * Format large numbers with commas for better readability.<br/>
         * Add more graphs into state/county plots in preparation for user selection feature.<br/><br/>

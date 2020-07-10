@@ -15,10 +15,12 @@ class SearchByCounty extends Component {
 
     this.submitPlot = this.submitPlot.bind(this);
     this.handleTrackerChanged = this.handleTrackerChanged.bind(this);
+    this.handleCheckerChanged = this.handleCheckerChanged.bind(this);
 
     this.state = {
       loading: true,
-      trackers: [null, null, null, null, null, null]
+      trackers: [null, null, null, null, null, null],
+      checkers: [false]
     };
 
     this.styles = {};
@@ -96,7 +98,7 @@ class SearchByCounty extends Component {
       colorColumns.push(Grapher.getColor(i - 1));
     }
 
-    const results = Grapher.combineAllData(allCounties, keys);
+    const results = Grapher.combineAllData(allCounties, keys, this.state.checkers[0]);
 
     this.data.keys = keys;
     this.data.columns = countyColumns;
@@ -129,7 +131,8 @@ class SearchByCounty extends Component {
           const results = {
             dataPoints: rdata.dataPoints,
             currentDate: rdata.currentDate,
-            reportTimestamp: rdata.reportTimestamp
+            reportTimestamp: rdata.reportTimestamp,
+            detailedInfo: rdata.detailedInfo
           };
           this.countyCache[countySanitized] = results;
 
@@ -189,6 +192,16 @@ class SearchByCounty extends Component {
     }));
   }
 
+  handleCheckerChanged(index) {
+    const current = this.state.checkers;
+    current[index] = !current[index];
+
+    this.setState(prevState => ({
+      ...prevState,
+      checkers: current
+    }));
+  }
+
   render() {
     const onChange = (objects, action) => {
       if (objects !== null && objects !== undefined && objects.length > 4) {
@@ -199,7 +212,11 @@ class SearchByCounty extends Component {
 
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
-        <p align='left'>Select up to 4 counties.</p>
+        <div style={{ display: 'flex' }}>
+          <p align='left'>Select up to 4 counties.&nbsp;&nbsp;&nbsp;&nbsp;Graphing options:</p>
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Per 100K population'
+              checked={ this.state.checkers[0] } onChange={ () => this.handleCheckerChanged(0) } />
+        </div>
         <div style={{ display: 'flex' }}>
           <Form style={{ display: 'flex' }}>
             <Select
