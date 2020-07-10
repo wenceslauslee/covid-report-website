@@ -177,7 +177,7 @@ const Grapher = {
   // [3] Death increase
   // [4] Case average increase
   // [5] Death average increase
-  combineAllData(allStates, keys) {
+  combineAllData(allStates, keys, per100K) {
     const results = {};
     const points = [[], [], [], [], [], []];
     const max = [0, 0, 0, 0, 0, 0];
@@ -198,6 +198,15 @@ const Grapher = {
       }
     }
 
+    const factors = [];
+    for (var l = 0; l < allStates.length; l++) {
+      if (per100K) {
+        factors.push((allStates[l].detailedInfo.population / 100000).toFixed(3));
+      } else {
+        factors.push(1);
+      }
+    }
+
     for (var index in allStates[0].dataPoints) {
       points[0].push([(allStates[0].dataPoints)[index][0]]);
       points[1].push([(allStates[0].dataPoints)[index][0]]);
@@ -209,18 +218,29 @@ const Grapher = {
 
     for (var i = 0; i < allStates.length; i++) {
       for (var j = 0; j < allStates[i].dataPoints.length; j++) {
-        max[0] = Math.max(max[0], (allStates[i].dataPoints)[j][1]);
-        points[0][j].push((allStates[i].dataPoints)[j][1]);
-        max[1] = Math.max(max[1], (allStates[i].dataPoints)[j][2]);
-        points[1][j].push((allStates[i].dataPoints)[j][2]);
-        max[2] = Math.max(max[2], (allStates[i].dataPoints)[j][3]);
-        points[2][j].push((allStates[i].dataPoints)[j][3]);
-        max[3] = Math.max(max[3], (allStates[i].dataPoints)[j][4]);
-        points[3][j].push((allStates[i].dataPoints)[j][4]);
-        max[4] = Math.max(max[4], (allStates[i].dataPoints)[j][5]);
-        points[4][j].push((allStates[i].dataPoints)[j][5]);
-        max[5] = Math.max(max[5], (allStates[i].dataPoints)[j][6]);
-        points[5][j].push((allStates[i].dataPoints)[j][6]);
+        var value = Math.ceil(((allStates[i].dataPoints)[j][1]) / factors[i]);
+        max[0] = Math.max(max[0], value);
+        points[0][j].push(value);
+
+        value = Math.ceil(((allStates[i].dataPoints)[j][2]) / factors[i]);
+        max[1] = Math.max(max[1], value);
+        points[1][j].push(value);
+
+        value = Math.ceil(((allStates[i].dataPoints)[j][3]) / factors[i]);
+        max[2] = Math.max(max[2], value);
+        points[2][j].push(value);
+
+        value = Math.ceil(((allStates[i].dataPoints)[j][4]) / factors[i]);
+        max[3] = Math.max(max[3], value);
+        points[3][j].push(value);
+
+        value = Math.ceil(((allStates[i].dataPoints)[j][5]) / factors[i]);
+        max[4] = Math.max(max[4], value);
+        points[4][j].push(value);
+
+        value = Math.ceil(((allStates[i].dataPoints)[j][6]) / factors[i]);
+        max[5] = Math.max(max[5], value);
+        points[5][j].push(value);
       }
     }
     const maxFormatted = _.map(max, m => Formatter.getMaxValue(m));
