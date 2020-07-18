@@ -51,10 +51,6 @@ class Wiki extends Component {
             <br/>
             * Use location postal code to highlight current county/state and autofill some boxes.
             <br/>
-            * Add option to display number of days to show.
-            <br/>
-            * Add double trend.
-            <br/>
             * Convert to https under my own domain.
           </p>
         </div>

@@ -133,6 +133,10 @@ class DetailedInfo extends Component {
   async submitPostalCode(event) {
     event.preventDefault();
 
+    if (this.state.postalCodeValueInput === null || this.state.postalCodeValueInput === '') {
+      return;
+    }
+
     this.setState(prevState => ({
       ...prevState,
       loading: true
@@ -175,6 +179,10 @@ class DetailedInfo extends Component {
 
   submitState(event) {
     event.preventDefault();
+
+    if (this.data.stateValueInput1 === undefined) {
+      return;
+    }
 
     this.setState(prevState => ({
       ...prevState,
@@ -253,6 +261,10 @@ class DetailedInfo extends Component {
 
   submitStateCounty(event) {
     event.preventDefault();
+
+    if (this.state.countyValueInput === null) {
+      return;
+    }
 
     this.setState(prevState => ({
       ...prevState,

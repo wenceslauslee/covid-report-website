@@ -14,6 +14,8 @@ class ChangeLog extends Component {
         For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
         <div style={ dateStyle }>-- WIP --</div>
         * Store postal code in beginning to highlight your area.<br/><br/>
+        <div style={ dateStyle }>-- July 18, 2020 --</div>
+        * Add US overall risk factor.<br/><br/>
         <div style={ dateStyle }>-- July 17, 2020 --</div>
         * Add option for graph selection.<br/><br/>
         <div style={ dateStyle }>-- July 9, 2020 --</div>

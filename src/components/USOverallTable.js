@@ -58,6 +58,7 @@ class USOverallTable extends Component {
             deathCount: commaNumber(rdata.detailedInfo.deathCount, ','),
             deathChange: `+${commaNumber(rdata.detailedInfo.deathChange, ',')}`,
             liveDeathChange: `+${commaNumber(rdata.detailedInfo.liveDeathChange, ',')}`,
+            dangerColor: Formatter.getDangerColorRanking(rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population)
           }],
           validDate: rdata.currentDate,
           timestamp: rdata.reportTimestamp,
@@ -145,6 +146,12 @@ class USOverallTable extends Component {
   initializeColumns() {
     return [
       {
+        dataField: 'any',
+        text: '#',
+        formatter: this.indexN,
+        style: this.getIndexStyle
+      },
+      {
         dataField: 'country',
         text: 'Country'
       },
@@ -181,6 +188,14 @@ class USOverallTable extends Component {
         }
       }
     ];
+  }
+
+  indexN(cell, row, rowIndex) {
+    return (<div>{ rowIndex + 1 }</div>);
+  }
+
+  getIndexStyle(cell, row, rowIndex, colIndex) {
+    return { backgroundColor: row.dangerColor };
   }
 
   getCaseCountGraph() {
@@ -288,6 +303,11 @@ class USOverallTable extends Component {
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1000px' }}>
         <div>
+          <div style={{ display: 'flex' }}>
+            <p align='left'>
+              * First column index coloring indicates COVID-19 risks as defined <a href='https://www.npr.org/sections/health-shots/2020/07/01/885263658/green-yellow-orange-or-red-this-new-tool-shows-covid-19-risk-in-your-county'>here</a>.
+            </p>
+          </div>
           <p align='left'>
             * All data (except live) reflects situation accurately up till
             <span style={{ 'fontWeight': 'bold'}}> { this.data.validDate } 23:59:59 EST</span>
