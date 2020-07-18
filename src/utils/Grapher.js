@@ -259,6 +259,51 @@ const Grapher = {
     results.reportTimestamp = reportTimestamp;
 
     return results;
+  },
+
+  alignGraph(graph1, graph2) {
+    return (
+      <div style={{ display: 'flex', minWidth: '1200px' }}>
+        <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>{ graph1 }</div>
+        { (graph2 === null) ? '' : <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>{ graph2 }</div> }
+      </div>
+    );
+  },
+
+  alignGraphs(checkers, g1, g2, g3, g4, g5, g6) {
+    const graphArray = [];
+    for (var i = 1; i < 7; i++) {
+      if (checkers[i]) {
+        if (i === 1) {
+          graphArray.push(g1);
+        } else if (i === 2) {
+          graphArray.push(g2);
+        } else if (i === 3) {
+          graphArray.push(g3);
+        } else if (i === 4) {
+          graphArray.push(g4);
+        } else if (i === 5) {
+          graphArray.push(g5);
+        } else if (i === 6) {
+          graphArray.push(g6);
+        }
+      }
+    }
+
+    const graphConsolidateArray = [];
+    for (var j = 0; j < graphArray.length; j = j + 2) {
+      if (graphArray.length - j >= 2) {
+        graphConsolidateArray.push(Grapher.alignGraph(graphArray[j], graphArray[j + 1]));
+      } else {
+        graphConsolidateArray.push(Grapher.alignGraph(graphArray[j], null));
+      }
+    }
+
+    return (
+      <div>
+        { graphConsolidateArray }
+      </div>
+    );
   }
 }
 

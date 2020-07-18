@@ -20,7 +20,7 @@ class SearchByCounty extends Component {
     this.state = {
       loading: true,
       trackers: [null, null, null, null, null, null],
-      checkers: [false]
+      checkers: [false, true, true, false, false, false, false]
     };
 
     this.styles = {};
@@ -80,8 +80,17 @@ class SearchByCounty extends Component {
     const promises = this.data.selectedCounties.map(async countyObj => {
       return await this.submitCounty(countyObj);
     });
-    const allCounties = await Promise.all(promises);
+    this.data.allCounties = await Promise.all(promises);
 
+    this.prepareData();
+
+    this.setState(prevState => ({
+      ...prevState,
+      loading: false
+    }));
+  }
+
+  prepareData() {
     const keys = ['time'];
     const keysWithoutTime = [];
     const countyColumns = ['time'];
@@ -98,7 +107,7 @@ class SearchByCounty extends Component {
       colorColumns.push(Grapher.getColor(i - 1));
     }
 
-    const results = Grapher.combineAllData(allCounties, keys, this.state.checkers[0]);
+    const results = Grapher.combineAllData(this.data.allCounties, keys, this.state.checkers[0]);
 
     this.data.keys = keys;
     this.data.columns = countyColumns;
@@ -113,11 +122,6 @@ class SearchByCounty extends Component {
       lineStyle: Grapher.getLineStyle(colorColumns, keys),
       axisStyle: Grapher.getAxisStyle()
     };
-
-    this.setState(prevState => ({
-      ...prevState,
-      loading: false
-    }));
   }
 
   submitCounty(countyObj) {
@@ -196,6 +200,10 @@ class SearchByCounty extends Component {
     const current = this.state.checkers;
     current[index] = !current[index];
 
+    if (index === 0 && this.data.allCounties !== undefined) {
+      this.prepareData();
+    }
+
     this.setState(prevState => ({
       ...prevState,
       checkers: current
@@ -213,9 +221,23 @@ class SearchByCounty extends Component {
     return (
       <div style={{ display: 'inline-block', textAlign: 'center', minWidth: '1200px' }}>
         <div style={{ display: 'flex' }}>
-          <p align='left'>Select up to 4 counties.&nbsp;&nbsp;&nbsp;&nbsp;Graphing options:</p>
-          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Per 100K population'
+          <p align='left'>Select up to 4 counties.</p>
+        </div>
+        <div style={{ display: 'flex', marginBottom: '10px' }}>
+          <Form.Check type='checkbox' label='Per 100K population'
               checked={ this.state.checkers[0] } onChange={ () => this.handleCheckerChanged(0) } />
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Case Count'
+              checked={ this.state.checkers[1] } onChange={ () => this.handleCheckerChanged(1) } />
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Death Count'
+              checked={ this.state.checkers[2] } onChange={ () => this.handleCheckerChanged(2) } />
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Case Increase'
+              checked={ this.state.checkers[3] } onChange={ () => this.handleCheckerChanged(3) } />
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Death Increase'
+              checked={ this.state.checkers[4] } onChange={ () => this.handleCheckerChanged(4) } />
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Case 7-Day Average Increase'
+              checked={ this.state.checkers[5] } onChange={ () => this.handleCheckerChanged(5) } />
+          <Form.Check type='checkbox' style={{ marginLeft: '10px' }} label='Death 7-Day Average Increase'
+              checked={ this.state.checkers[6] } onChange={ () => this.handleCheckerChanged(6) } />
         </div>
         <div style={{ display: 'flex' }}>
           <Form style={{ display: 'flex' }}>
@@ -246,30 +268,9 @@ class SearchByCounty extends Component {
                 <span style={{ 'fontStyle': 'italic' }}> (Last updated: { Formatter.getTimestamp(this.state.timestamp) })</span>
               </p>
             </div>
-            <div style={{ display: 'flex', minWidth: '1200px' }}>
-              <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-                { this.getCaseCountGraph() }
-              </div>
-              <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-                { this.getDeathCountGraph() }
-              </div>
-            </div>
-            <div style={{ display: 'flex', minWidth: '1200px' }}>
-              <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-                { this.getCaseCountIncreaseGraph() }
-              </div>
-              <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-                { this.getDeathCountIncreaseGraph() }
-              </div>
-            </div>
-            <div style={{ display: 'flex', minWidth: '1200px' }}>
-              <div style={{ 'marginTop': '30px', 'marginBottom': '10px' }}>
-                { this.getCaseCountAverageIncreaseGraph() }
-              </div>
-              <div style={{ marginLeft: '30px', marginTop: '30px', marginBottom: '10px' }}>
-                { this.getDeathCountAverageIncreaseGraph() }
-              </div>
-            </div>
+            { Grapher.alignGraphs(this.state.checkers, this.getCaseCountGraph(), this.getDeathCountGraph(),
+                this.getCaseCountIncreaseGraph(), this.getDeathCountIncreaseGraph(),
+                this.getCaseCountAverageIncreaseGraph(), this.getDeathCountAverageIncreaseGraph()) }
           </div> :
           ''
         }

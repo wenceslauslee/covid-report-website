@@ -49,7 +49,7 @@ class Wiki extends Component {
             <br/>
             <b>Work In Progress...</b>
             <br/>
-            * Add option for graphing in logarithmic axis.
+            * Use location postal code to highlight current county/state and autofill some boxes.
             <br/>
             * Add option to display number of days to show.
             <br/>
