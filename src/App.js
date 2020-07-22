@@ -26,7 +26,7 @@ function App() {
         </header>
       </div>
       <div className='App-body' style={{ display: 'inline-block',  justifyContent: 'center', alignItems: 'center', height: '85vh', width: '100vw' }}>
-        <Tabs defaultActiveKey='general' id='tab-table' style={{ alignItems: 'center', 'justifyContent': 'center' }} mountOnEnter unmountOnExit>
+        <Tabs defaultActiveKey='general' id='tab-table' style={{ alignItems: 'center', 'justifyContent': 'center' }} mountOnEnter>
           <Tab eventKey='general' title='General'>
             <TabContent>
               <Wiki/>

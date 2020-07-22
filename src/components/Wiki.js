@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import moment from 'moment';
 import React from 'react';
 
 const enlargeStyle = {
@@ -7,10 +8,43 @@ const enlargeStyle = {
 };
 
 class Wiki extends Component {
-  componentDidMount() {
+  constructor(props) {
+    super(props);
+
+    this.data = {
+      singleDayVisitorCount: '---',
+      allVisitorCount: '---'
+    };
+
+    this.state = {
+      loading: true
+    };
+  }
+
+  async componentWillMount() {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }
+    const asyncFunctions = [
+      fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/visit/${moment().format('YYYY-MM-DD')}`, requestOptions)
+        .then(res => res.json()),
+      fetch('https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/visit/all', requestOptions)
+        .then(res => res.json())
+    ]
+    const results = await Promise.all(asyncFunctions);
+
+    this.data.singleDayVisitorCount = results[0].visitorCount;
+    this.data.allVisitorCount = results[1].visitorCount;
+
     // Warm things up backend
     fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=postal&key=02453`)
-      .then(res => res.json())
+      .then(res => res.json());
+
+    this.setState(prevState => ({
+      ...prevState,
+      loading: false
+    }));
   }
 
   render() {
@@ -53,6 +87,10 @@ class Wiki extends Component {
             <br/>
             * Convert to https under my own domain.
           </p>
+        </div>
+        <div>
+        Today visitor count: { this.data.singleDayVisitorCount }<br/>
+        All time visitor count: { this.data.allVisitorCount }
         </div>
       </div>
     );
