@@ -306,6 +306,7 @@ class USOverallTable extends Component {
           <div style={{ display: 'flex' }}>
             <p align='left'>
               * First column index coloring indicates COVID-19 risks as defined <a href='https://www.npr.org/sections/health-shots/2020/07/01/885263658/green-yellow-orange-or-red-this-new-tool-shows-covid-19-risk-in-your-county'>here</a>.
+              Visual map of US can be found <a href='https://globalepidemics.org/key-metrics-for-covid-suppression/'>here</a>.
             </p>
           </div>
           <p align='left'>

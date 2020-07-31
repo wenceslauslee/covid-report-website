@@ -105,18 +105,22 @@ const Formatter = {
   },
 
   getDangerColorRanking: (increase, population) => {
-    const rate = ((increase * 100000) / population).toFixed(2);
+    const rValue = ((increase * 100000) / population).toFixed(2);
 
     var color = '#ff4d0d';
-    if (rate < 1) {
+    if (rValue < 1) {
       color = '#81f772';
-    } else if (rate < 10) {
+    } else if (rValue < 10) {
       color = '#fffd70';
-    } else if (rate < 25) {
+    } else if (rValue < 25) {
       color = '#faba4b';
     }
 
     return color;
+  },
+
+  getRValue: (increase, population) => {
+    return ((increase * 100000) / population).toFixed(2);
   },
 }
 

@@ -150,14 +150,14 @@ class DetailedInfo extends Component {
         if (rdata.fips === null || rdata.fips === undefined) {
           this.data.postalCodeErrorMessage = `'${postalCode}' is not a valid postal code.`;
         } else {
+          this.data.dangerColor = Formatter.getDangerColorRanking(
+            rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population);
           this.data.tableData = this.getTableData(rdata);
           this.data.postalCodeErrorMessage = '';
           this.data.asOfDate = `As of: ${rdata.currentDate} 23:59:59 EST`;
           this.data.countyStateName = `${rdata.countyName}, ${rdata.stateNameFull}`;
           this.data.timestamp = rdata.reportTimestamp;
           this.data.dataPoints = rdata.dataPoints;
-          this.data.dangerColor = Formatter.getDangerColorRanking(
-            rdata.detailedInfo.activeChange, rdata.detailedInfo.population);
 
           this.series = this.initializeSeries(rdata.dataPoints);
         }
@@ -194,14 +194,14 @@ class DetailedInfo extends Component {
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=state&key=${state}`)
       .then(res => res.json())
       .then(rdata => {
+        this.data.dangerColor = Formatter.getDangerColorRanking(
+            rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population);
         this.data.tableData = this.getTableData(rdata);
         this.data.postalCodeErrorMessage = '';
         this.data.asOfDate = `As of: ${rdata.currentDate} 23:59:59 EST`;
         this.data.countyStateName = `${rdata.stateNameFullProper}`;
         this.data.timestamp = rdata.reportTimestamp;
         this.data.dataPoints = rdata.dataPoints;
-        this.data.dangerColor = Formatter.getDangerColorRanking(
-            rdata.detailedInfo.activeChange, rdata.detailedInfo.population);
 
         this.series = this.initializeSeries(rdata.dataPoints);
       })
@@ -276,14 +276,14 @@ class DetailedInfo extends Component {
     return fetch(`https://s7poydd598.execute-api.us-east-1.amazonaws.com/prod/search?searchBy=county&key=${fips}`)
       .then(res => res.json())
       .then(rdata => {
+        this.data.dangerColor = Formatter.getDangerColorRanking(
+            rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population);
         this.data.tableData = this.getTableData(rdata);
         this.data.postalCodeErrorMessage = '';
         this.data.asOfDate = `As of: ${rdata.currentDate} 23:59:59 EST`;
         this.data.countyStateName = `${rdata.countyName}, ${rdata.stateNameFull}`;
         this.data.timestamp = rdata.reportTimestamp;
-        this.data.dataPoints = rdata.dataPoints;
-        this.data.dangerColor = Formatter.getDangerColorRanking(
-            rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population);
+        this.data.dataPoints = rdata.dataPoints;        
 
         this.series = this.initializeSeries(rdata.dataPoints);
       })
@@ -369,6 +369,13 @@ class DetailedInfo extends Component {
         style: {
           color: this.getRankingColor(countryActiveRankDiff)
         }
+      },
+      {
+        key: 'Risk value',
+        value: Formatter.getRValue(rdata.detailedInfo.averageActiveChange, rdata.detailedInfo.population),
+        style: {
+          backgroundColor: this.data.dangerColor
+        }
       }
     ];
 
@@ -427,6 +434,7 @@ class DetailedInfo extends Component {
       return <div>
         <p align='left'>
           * Header color indicates COVID-19 risks as defined <a href='https://www.npr.org/sections/health-shots/2020/07/01/885263658/green-yellow-orange-or-red-this-new-tool-shows-covid-19-risk-in-your-county'>here</a>.<br/>
+          * Visual map of US can be found <a href='https://globalepidemics.org/key-metrics-for-covid-suppression/'>here</a>.<br/>
           <span style={{ 'fontStyle': 'italic', 'fontWeight': 'bold' }}>
             (Last updated: { Formatter.getTimestamp(this.data.timestamp) })
           </span>
