@@ -14,6 +14,8 @@ class ChangeLog extends Component {
         For reference, full change logs can be viewed <a href='https://github.com/wenceslauslee/covid-report-website/commits/master'>here</a>.<br/><br/>
         <div style={ dateStyle }>-- WIP --</div>
         * Store postal code in beginning to highlight your area.<br/><br/>
+        <div style={ dateStyle }>-- December 12 --</div>
+        * Preparation work for showing past N days. Currently data will only show since July 1st (TEMP)<br/><br/>
         <div style={ dateStyle }>-- July 31, 2020 --</div>
         * Add R value to detailed chart. Update R value links with more info.<br/><br/>
         <div style={ dateStyle }>-- July 21, 2020 --</div>
